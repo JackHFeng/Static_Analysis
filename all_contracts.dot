@@ -1,0 +1,17 @@
+strict digraph {
+subgraph cluster_303_Ballot {
+label = "Ballot"
+"303_delegate" [label="delegate"]
+"303_vote" [label="vote"]
+"303_constructor" [label="constructor"]
+"303_giveRightToVote" [label="giveRightToVote"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool)" 
+"require(bool,string)" 
+"303_giveRightToVote" -> "require(bool)"
+"303_giveRightToVote" -> "require(bool,string)"
+"303_delegate" -> "require(bool,string)"
+"303_vote" -> "require(bool,string)"
+}
+}
