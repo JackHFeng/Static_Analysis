@@ -78,11 +78,11 @@ for contract in slither.contracts:
                                          f.is_reading_in_require_or_assert(var)]
         print(f'The function using "{k}" in condition are {[f.name for f in function_using_var_as_condition]}')
 
-    slither = Slither('/Users/jackfeng/Dropbox/Dropbox/CTFuzz/CTFuzz/ContractStudyCases/DocumentationExamples/Ballot.sol')
-
-    slither.register_printer(PrinterCallGraphStateChange)
-
-    slither.run_printers()
+    # slither = Slither('/Users/jackfeng/Dropbox/Dropbox/CTFuzz/CTFuzz/ContractStudyCases/DocumentationExamples/Ballot.sol')
+    #
+    # slither.register_printer(PrinterCallGraphStateChange)
+    #
+    # slither.run_printers()
 
 
 
