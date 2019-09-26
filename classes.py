@@ -1,9 +1,9 @@
 class Contract:
     def __init__(self):
         self.name = ''
-        self.functions = []
-        self.state_variables = []
-        self.modifiers = []
+        self.functions = {}
+        self.state_variables = {}
+        self.modifiers = {}
 
 
 class Function:
@@ -20,7 +20,9 @@ class Function:
 class State_Variable:
     def __init__(self):
         self.name = ''
+        self.signature = ''
         self.type = ''
+        self.visibility = ''
         self.f_written = []
         self.f_write_conditions = []
         self.f_read = []
