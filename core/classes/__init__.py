@@ -3,7 +3,7 @@ from .function import Function
 from .modifier import Modifier
 from .require import Require
 from .variable import Variable
-from .state_variable import State_Variable
+from .state_variable import StateVariable
 from .operation import Operation
 from .binary_operation import BinaryOperation
 from .unary_operation import UnaryOperation

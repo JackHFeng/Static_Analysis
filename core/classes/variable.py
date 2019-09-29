@@ -3,5 +3,5 @@ class Variable:
         self.name = ''
         self.type = ''
 
-    def is_stateVariable(self):
+    def is_state_variable(self):
         return False

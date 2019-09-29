@@ -1,3 +1,9 @@
+from slither.core.declarations.function import Function as Slither_Function
+from slither.core.declarations.modifier import Modifier as Slither_Modifier
+from .function import Function
+from .modifier import Modifier
+
+
 class Contract:
     def __init__(self):
         self.name = ''
@@ -14,3 +20,24 @@ class Contract:
 
     def get_modifiers(self):
         return self.modifiers.values()
+
+    def create_function(self, function: Slither_Function):
+        new_function = Function()
+
+        new_function.name = function.name
+        new_function.signature = function.signature_str
+        new_function.visibility = function.visibility
+
+        new_function.load_variables(function, self)
+
+        self.functions[new_function.signature] = new_function
+
+    def create_modifier(self, modifier: Slither_Modifier):
+        new_modifier = Modifier()
+
+        new_modifier.name = modifier.name
+        new_modifier.visibility = modifier.visibility
+
+        new_modifier.load_variables(modifier, self)
+
+        self.modifiers[new_modifier.name] = new_modifier
