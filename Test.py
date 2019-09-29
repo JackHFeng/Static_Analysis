@@ -53,9 +53,9 @@ for contract in slither.contracts:
     print('Contract: ' + contract.name)
 
     for function in contract.functions:
-        #print('Function: {}'.format(function.name))
+        print('Function: {}'.format(function.name))
 
-        #print('\tRead: {}'.format([v.name for v in function.state_variables_read]))
+        print('\tRead: {}'.format([v.name for v in function.state_variables_read]))
 
         for v in function.state_variables_read:
             dic[v][1].append(function.name)
