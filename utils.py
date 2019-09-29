@@ -84,6 +84,7 @@ def createVariable(variable: Slither_Variable) -> Variable:
     n_variable = Variable
     n_variable.name = variable.name
     n_variable.type = variable.type
-
     return n_variable
+
+
 
