@@ -6,6 +6,8 @@ from .state_variable import StateVariable
 from slither.slithir.operations import SolidityCall
 from slither.core.declarations import SolidityFunction
 from .require import Require
+from slither.core.expressions.binary_operation import BinaryOperation
+from slither.core.expressions.unary_operation import UnaryOperation
 
 require_functions = [SolidityFunction("require(bool)"),
                      SolidityFunction("require(bool,string)")]
@@ -75,7 +77,9 @@ class Function:
             self.state_variables_written.append(new_variable)
             new_variable.functions_written.append(self)
 
+        #print(f'{function.variables_read}')
         for variable in function.variables_read:
+            if not variable: continue
             print(f'\tLoading Variable Read: {variable.name}')
             new_variable = self.create_variable(variable)
             self.local_variables_read.append(new_variable)
@@ -100,7 +104,7 @@ class Function:
     def create_variable(self, variable: Slither_Variable) -> Variable:
         new_variable = Variable()
         new_variable.name = variable.name
-        new_variable.type = variable.type
+        #new_variable.type = variable.type
         return new_variable
 
     def create_require(self, function: Slither_Function):
@@ -112,7 +116,15 @@ class Function:
             self.requires.append(new_require)
 
             new_require.code = str(require.expression)
-            print(f'\tAdding Require: {require.expression}')
+            print(f'\t@@@@Adding Require: {require.expression}')
+            if type(require.expression.arguments[0]) == BinaryOperation:
+                print(f'\tleft: {require.expression.arguments[0].expression_left}, right: {require.expression.arguments[0].expression_right}, operation: {require.expression.arguments[0].type_str}')
+                print(type(require.expression.arguments[0].expression_right))
+                print(require.expression.arguments[0].expression_right.type)
+            elif type(require.expression.arguments[0]) == UnaryOperation:
+                print(
+                    f'\texpression: {require.expression.arguments[0].expression}, operation: {require.expression.arguments[0].type_str}')
             new_require.IRs = require.irs  # this still needs modification, IR class has not been created
+            new_require.operation = require.expression.arguments[0]
             new_require.update_local_variables()
 

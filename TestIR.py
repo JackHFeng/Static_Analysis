@@ -1,6 +1,6 @@
 from slither import Slither
-
-contract_dir = '/Users/jackfeng/Dropbox/Dropbox/CTFuzz/CTFuzz/ContractStudyCases/DocumentationExamples/Ballot.sol'
+from slither.slithir.operations.binary import Binary
+contract_dir = './Ballot.sol'
 slither = Slither(contract_dir)
 
 for contract in slither.contracts:
@@ -11,3 +11,5 @@ for contract in slither.contracts:
         for ir in IRs:
             print(f'\t{ir}')
             print(f'\t\t{type(ir)}')
+            if isinstance(ir, Binary):
+                print(f'\t\t{ir.type_str}')

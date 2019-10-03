@@ -18,7 +18,7 @@ def createContract():
 
 
 def main():
-    contract_dir = './Ballot.sol'
+    contract_dir = './Purchase.sol'
     globals.slither = Slither(contract_dir)
     createContract()
 

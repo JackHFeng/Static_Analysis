@@ -10,7 +10,7 @@ class Require:
         self.state_variables_read = []
         self.state_variables_written = []
 
-        self.operations = []
+        self.operation = None
 
     def get_IRs(self):
         return self.IRs
