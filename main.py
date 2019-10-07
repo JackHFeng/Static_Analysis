@@ -18,9 +18,16 @@ def createContract():
 
 
 def main():
-    contract_dir = './Purchase.sol'
+    contract_dir = './HoloToken.sol'
     globals.slither = Slither(contract_dir)
     createContract()
+    globals.contracts[0].functions[0]
+
+    for contract in globals.contracts:
+        for function in contract.functions:
+            print(f'{function.name}')
+            for sv in function.state_variables_read:
+                print(f'\t{sv.name}')
 
 
 if __name__ == '__main__':
