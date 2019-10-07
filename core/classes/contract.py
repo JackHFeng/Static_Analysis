@@ -41,3 +41,9 @@ class Contract:
         new_modifier.load_variables(modifier, self)
 
         self.modifiers[new_modifier.name] = new_modifier
+
+    def get_function_by_name(self, name):
+        for function in self.functions:
+            if function.name == name:
+                return function
+        return None
