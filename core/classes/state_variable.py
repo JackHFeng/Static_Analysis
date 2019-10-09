@@ -1,11 +1,13 @@
 from .variable import Variable
+from slither.core.variables.state_variable import StateVariable as Slither_State_Variable
 
 
 class StateVariable(Variable):
-    def __init__(self):
-        super().__init__()
-        self.visibility = ''
-        self.initialized = False
+    def __init__(self, variable: Slither_State_Variable):
+        self.name = variable.name
+        self.type = variable.type
+        self.visibility = variable.visibility
+        self.initialized = variable.initialized
 
         self.functions_read = []
         self.functions_written = []
@@ -13,22 +15,11 @@ class StateVariable(Variable):
         self.modifiers_read = []
         self.modifiers_written = []
 
-        self.requires = []
+        self.requires_read = []
+        self.requires_written = []
 
     def is_state_variable(self):
         return True
 
-    def requires_appeared_in(self):
-        return self.requires
-
-    def functions_read(self):
-        return self.functions_read
-
-    def functions_written(self):
-        return self.functions_written
-
-    def modifiers_read(self):
-        return self.modifiers_read
-
-    def modifiers_written(self):
-        return self.modifiers_written
+    def is_local_variable(self):
+        return False

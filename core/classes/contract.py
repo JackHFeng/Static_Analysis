@@ -1,49 +1,52 @@
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
+from slither.core.declarations.contract import Contract as Slither_Contract
 from .function import Function
 from .modifier import Modifier
 
 
 class Contract:
-    def __init__(self):
+    def __init__(self, contract: Slither_Contract):
         self.name = ''
 
         self.functions = {}
         self.state_variables = {}
         self.modifiers = {}
 
-    def get_functions(self):
-        return self.functions.values()
+        print(f'Creating Contract: {contract.name}')
 
-    def get_state_variables(self):
-        return self.state_variables.values()
+        self.name = contract.name
 
-    def get_modifiers(self):
-        return self.modifiers.values()
+        for function in contract.functions:
+            self.create_function(function)
 
-    def create_function(self, function: Slither_Function):
-        new_function = Function()
-        print(f'Creating Function: {function.name}')
-        new_function.name = function.name
-        new_function.signature = function.signature_str
-        new_function.visibility = function.visibility
-
-        new_function.load_variables(function, self)
-
-        self.functions[new_function.signature] = new_function
-
-    def create_modifier(self, modifier: Slither_Modifier):
-        new_modifier = Modifier()
-        print(f'Creating Modifier: {modifier.name}')
-        new_modifier.name = modifier.name
-        new_modifier.visibility = modifier.visibility
-
-        new_modifier.load_variables(modifier, self)
-
-        self.modifiers[new_modifier.name] = new_modifier
+        for modifier in contract.modifiers:
+            self.create_modifier(modifier)
 
     def get_function_by_name(self, name):
         for function in self.functions:
             if function.name == name:
                 return function
         return None
+
+    def get_modifier_by_name(self, name):
+        for modifier in self.modifiers:
+            if modifier.name == name:
+                return modifier
+        return None
+
+    def get_state_variable_by_name(self, name):
+        for state_variable in self.state_variables:
+            if state_variable.name == name:
+                return state_variable
+        return None
+
+    def create_function(self, function: Slither_Function):
+        new_function = Function(function, self)
+
+        self.functions[new_function.signature] = new_function
+
+    def create_modifier(self, modifier: Slither_Modifier):
+        new_modifier = Modifier(modifier, self)
+
+        self.modifiers[new_modifier.name] = new_modifier

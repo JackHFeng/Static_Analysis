@@ -1,42 +1,19 @@
+from slither.solc_parsing.cfg.node import NodeSolc as Solc_Node
+
+
 class Require:
-    def __init__(self):
-        self.code = ''
+    def __init__(self, require: Solc_Node, new_function):
+        self.code = str(require.expression)
+        self.from_function = new_function
 
-        self.IRs = []
+        self.IRs = require.irs
 
-        self.local_variables_read = []
-        self.local_variables_written = []
+        self.local_variables_read = [] # require doesn't write
 
         self.state_variables_read = []
-        self.state_variables_written = []
 
-        self.operation = None
+        self.operation = require.expression.arguments[0]
 
-    def get_IRs(self):
-        return self.IRs
-
-    def get_local_variables_read(self):
-        return self.local_variables_read
-
-    def get_local_variables_written(self):
-        return self.local_variables_written
-
-    def get_state_variables_read(self):
-        return self.state_variables_read
-
-    def get_state_variables_written(self):
-        return self.state_variables_written
-
-    def get_operations(self):
-        return self.operations
-
-    def update_local_variables(self):
-        for i, sv in enumerate(self.state_variables_read):
-            for j, lv in enumerate(self.local_variables_read):
-                if sv.name == lv.name:
-                    del self.local_variables_read[j]
-
-        for i, sv in enumerate(self.state_variables_written):
-            for j, lv in enumerate(self.local_variables_written):
-                if sv.name == lv.name:
-                    del self.local_variables_written[j]
+        # def load_variables(self, function: Slither_Function, new_contract):
+        #     self.load_state_variables(function.state_variables_written, new_contract, 'written')
+        #     self.load_local_variables(function.variables_written, 'written')
