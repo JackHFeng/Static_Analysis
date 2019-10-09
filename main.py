@@ -3,31 +3,22 @@ import globals
 from core.classes.contract import Contract
 
 
-def createContract():
+def create_contract():
     for contract in globals.slither.contracts:
-        n_contract = Contract()
+        n_contract = Contract(contract)
         globals.contracts.append(n_contract)
-
-        n_contract.name = contract.name
-
-        for function in contract.functions:
-            n_contract.create_function(function)
-
-        for modifier in contract.modifiers:
-            n_contract.create_modifier(modifier)
 
 
 def main():
-    contract_dir = './HoloToken.sol'
+    contract_dir = './Purchase.sol'
     globals.slither = Slither(contract_dir)
-    createContract()
-    globals.contracts[0].functions[0]
+    create_contract()
 
-    for contract in globals.contracts:
-        for function in contract.functions:
-            print(f'{function.name}')
-            for sv in function.state_variables_read:
-                print(f'\t{sv.name}')
+    # for contract in globals.contracts:
+    #     for function in contract.functions.values():
+    #         print(f'{function.name}')
+    #         for sv in function.state_variables_read:
+    #             print(f'\t{sv.name}')
 
 
 if __name__ == '__main__':
