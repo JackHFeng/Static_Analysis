@@ -10,15 +10,12 @@ def create_contract():
 
 
 def main():
-    contract_dir = './Purchase.sol'
+    contract_dir = './Ballot.sol'
     globals.slither = Slither(contract_dir)
     create_contract()
 
-    # for contract in globals.contracts:
-    #     for function in contract.functions.values():
-    #         print(f'{function.name}')
-    #         for sv in function.state_variables_read:
-    #             print(f'\t{sv.name}')
+    for contract in globals.contracts:
+        print(contract)
 
 
 if __name__ == '__main__':

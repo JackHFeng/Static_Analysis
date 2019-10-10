@@ -16,7 +16,6 @@ class StateVariable(Variable):
         self.modifiers_written = []
 
         self.requires_read = []
-        self.requires_written = []
 
     def is_state_variable(self):
         return True

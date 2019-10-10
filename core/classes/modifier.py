@@ -5,6 +5,7 @@ from slither.core.declarations.modifier import Modifier as Slither_Modifier
 class Modifier(Function):
     def __init__(self, modifier: Slither_Modifier, new_contract):
         self.name = modifier.name
+        self.signature = modifier.signature_str
         self.visibility = modifier.visibility
         self.from_contract = new_contract
 
@@ -21,3 +22,8 @@ class Modifier(Function):
         print(f'Creating Modifier: {modifier.name}')
 
         self.load_variables(modifier)
+        self.load_requires()
+
+    def __str__(self):
+        return self.signature
+

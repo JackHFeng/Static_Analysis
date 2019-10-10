@@ -34,12 +34,12 @@ class Function:
         print(f'Creating Function: {function.name}')
 
         self.load_variables(function)
+        self.load_requires(function)
+        self.load_modifiers(function)
 
     def load_variables(self, function: Slither_Function):
         self.load_state_variables(function.state_variables_written, 'written')
         self.load_local_variables(function.variables_written, 'written')
-
-        self.load_requires(function)
 
     def load_state_variables(self, variables: Slither_StateVariable, RorW):
         for variable in variables:
@@ -51,7 +51,6 @@ class Function:
                 self.from_contract.state_variables[variable.name] = new_variable
             getattr(new_variable, self.__class__.__name__.lower() + 's_' + RorW).append(self)
             getattr(self, 'state_variables_' + RorW).append(new_variable)
-            getattr(new_variable, 'functions_' + RorW).append(self)
 
     def load_local_variables(self, variables: Slither_Local_Variable, RorW):
         for variable in variables:
@@ -61,6 +60,7 @@ class Function:
                 getattr(self, 'local_variables_' + RorW).append(new_variable)
 
     def load_requires(self, function: Slither_Function):
+        ## after creating a require, need to add all the variables created there to here
         requires = function.all_slithir_operations()
         requires = [ir for ir in requires if isinstance(ir, SolidityCall) and ir.function in require_functions]
         requires = [ir.node for ir in requires]
@@ -76,6 +76,10 @@ class Function:
 
         self.requires.append(new_require)
 
+        for state_variable in new_require.state_variables_read:
+            if state_variable not in self.state_variables_read:
+                self.state_variables_read.append(state_variable)
+
         # print(f'\t@@@@Adding Require: {require.expression}')
         # if type(require.expression.arguments[0]) == BinaryOperation:
         #     print(f'\tleft: {require.expression.arguments[0].expression_left}, right: {require.expression.arguments[0].expression_right}, operation: {require.expression.arguments[0].type_str}')
@@ -84,3 +88,14 @@ class Function:
         # elif type(require.expression.arguments[0]) == UnaryOperation:
         #     print(
         #         f'\texpression: {require.expression.arguments[0].expression}, operation: {require.expression.arguments[0].type_str}')
+
+    def load_modifiers(self, function: Slither_Function):
+        for modifier in function.modifiers:
+            self.modifiers.append(self.from_contract.modifiers[modifier.name])
+            for state_variable in self.from_contract.modifiers[modifier.name].state_variables_written:
+                    self.state_variables_written.append(state_variable)
+            for state_variable in self.from_contract.modifiers[modifier.name].state_variables_read:
+                    self.state_variables_read.append(state_variable)
+
+    def __str__(self):
+        return self.signature

@@ -11,3 +11,6 @@ class Variable:
 
     def is_local_variable(self):
         return True
+
+    def __str__(self):
+        return str(self.name) + ' ' + str(self.type)

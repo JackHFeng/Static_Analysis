@@ -17,11 +17,11 @@ class Contract:
 
         self.name = contract.name
 
-        for function in contract.functions:
-            self.create_function(function)
-
         for modifier in contract.modifiers:
             self.create_modifier(modifier)
+
+        for function in contract.functions:
+            self.create_function(function)
 
     def get_function_by_name(self, name):
         for function in self.functions:
@@ -50,3 +50,22 @@ class Contract:
         new_modifier = Modifier(modifier, self)
 
         self.modifiers[new_modifier.name] = new_modifier
+
+    def __str__(self):
+        res = ''
+        res += f'Contract Name: {self.name}\n'
+        res += f'\tState Variables:\n'
+
+        for sv in self.state_variables.values():
+            res += f'\t\t{str(sv)}\n'
+
+        res += '\n\tModifiers: \n'
+
+        for m in self.modifiers.values():
+            res += f'\t\t{str(m)}\n'
+
+        res += '\n\tFunctions: \n'
+
+        for f in self.functions.values():
+            res += f'\t\t{str(f)}\n'
+        return res
