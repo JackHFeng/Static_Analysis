@@ -1,6 +1,6 @@
 from slither import Slither
 import globals
-from core.classes.contract import Contract
+from core.DataDependencyGraph.contract import Contract
 
 
 def create_contract():
