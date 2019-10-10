@@ -73,14 +73,20 @@ The `slither.core.expressions.binary_operation.BinaryOperation` type is a binary
 * Functions:  
 None at the moment, let me know if you need any.  
 
-A `Require` object has:  
-* Attributes:  
-* Functions:  
 
-A `Require` object has:  
-* Attributes:  
-* Functions:  
+Example:
+```
+from core.data_dependency_graph import DDGs
 
-A `Require` object has:  
-* Attributes:  
-* Functions:  
+
+def main():
+    contract_dir = './Ballot.sol'
+    data_dependency_graphs = DDGs(contract_dir)
+    contract = data_dependency_graphs.get_contract_by_name('Purchase')
+    print(contract)
+
+
+if __name__ == '__main__':
+    main()
+
+```
