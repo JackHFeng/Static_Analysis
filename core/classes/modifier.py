@@ -20,4 +20,4 @@ class Modifier(Function):
 
         print(f'Creating Modifier: {modifier.name}')
 
-        self.load_variables(modifier, new_contract)
+        self.load_variables(modifier)

@@ -33,22 +33,22 @@ class Function:
 
         print(f'Creating Function: {function.name}')
 
-        self.load_variables(function, new_contract)
+        self.load_variables(function)
 
-    def load_variables(self, function: Slither_Function, new_contract):
-        self.load_state_variables(function.state_variables_written, new_contract, 'written')
+    def load_variables(self, function: Slither_Function):
+        self.load_state_variables(function.state_variables_written, 'written')
         self.load_local_variables(function.variables_written, 'written')
 
-        self.load_requires(function, new_contract)
+        self.load_requires(function)
 
-    def load_state_variables(self, variables: Slither_StateVariable, new_contract, RorW):
+    def load_state_variables(self, variables: Slither_StateVariable, RorW):
         for variable in variables:
             print(f'Loading {RorW} state variable: {variable.name}')
-            if variable.name in new_contract.state_variables:
-                new_variable = new_contract.state_variables[variable.name]
+            if variable.name in self.from_contract.state_variables:
+                new_variable = self.from_contract.state_variables[variable.name]
             else:
                 new_variable = StateVariable(variable)
-                new_contract.state_variables[variable.name] = new_variable
+                self.from_contract.state_variables[variable.name] = new_variable
             getattr(new_variable, self.__class__.__name__.lower() + 's_' + RorW).append(self)
             getattr(self, 'state_variables_' + RorW).append(new_variable)
             getattr(new_variable, 'functions_' + RorW).append(self)
@@ -60,16 +60,16 @@ class Function:
                 new_variable = Variable(variable)
                 getattr(self, 'local_variables_' + RorW).append(new_variable)
 
-    def load_requires(self, function: Slither_Function, new_contract):
+    def load_requires(self, function: Slither_Function):
         requires = function.all_slithir_operations()
         requires = [ir for ir in requires if isinstance(ir, SolidityCall) and ir.function in require_functions]
         requires = [ir.node for ir in requires]
 
         for require in requires:
-            self.create_require(require, new_contract)
+            self.create_require(require)
 
-    def create_require(self, require: Solc_Node, new_contract):
-        self.load_state_variables(require.state_variables_read, new_contract, 'read')
+    def create_require(self, require: Solc_Node):
+        self.load_state_variables(require.state_variables_read, 'read')
         self.load_local_variables(require.variables_read, 'read')
         print(f'Creating Require object: {str(require.expression)}')
         new_require = Require(require, self)
