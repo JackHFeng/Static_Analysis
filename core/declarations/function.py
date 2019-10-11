@@ -96,6 +96,8 @@ class Function:
                     self.state_variables_written.append(state_variable)
             for state_variable in self.from_contract.modifiers[modifier.name].state_variables_read:
                     self.state_variables_read.append(state_variable)
+            for require in self.from_contract.modifiers[modifier.name].requires:
+                self.requires.append(require)
 
     def __str__(self):
         return self.signature

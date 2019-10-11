@@ -7,8 +7,8 @@ class StateVariable(Variable):
         self.name = variable.name
         self.type = variable.type
         self.visibility = variable.visibility
-        self.initialized = variable.initialized
-
+        # self.initialized = variable.initialized
+        # print(type(variable.initialized))   # May need to investigate what these are
         self.functions_read = []
         self.functions_written = []
         # self.f_write_conditions = []

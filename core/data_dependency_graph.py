@@ -1,6 +1,8 @@
 from slither import Slither
-from .contract import Contract
-class DDG:
+from core.declarations.contract import Contract
+
+
+class DDGs:
     def __init__(self, dir: str):
         self.contracts = {}
         slither = Slither(dir)

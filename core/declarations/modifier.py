@@ -22,7 +22,7 @@ class Modifier(Function):
         print(f'Creating Modifier: {modifier.name}')
 
         self.load_variables(modifier)
-        self.load_requires()
+        self.load_requires(modifier)
 
     def __str__(self):
         return self.signature

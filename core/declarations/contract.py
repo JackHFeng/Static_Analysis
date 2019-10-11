@@ -7,15 +7,13 @@ from .modifier import Modifier
 
 class Contract:
     def __init__(self, contract: Slither_Contract):
-        self.name = ''
+        self.name = contract.name
 
         self.functions = {}
         self.state_variables = {}
         self.modifiers = {}
 
         print(f'Creating Contract: {contract.name}')
-
-        self.name = contract.name
 
         for modifier in contract.modifiers:
             self.create_modifier(modifier)
