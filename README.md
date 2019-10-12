@@ -87,7 +87,14 @@ A `slither.core.expressions.unary_operation.UnaryOperation` object has:
 * Attributes:  
 -`expression (slither.core.expressions.expression.Expression)`: Contains the expression of the current unary operation.  
 -`type (slither.core.expressions.unary_operation.UnaryOperationType)`: A type object representing the current unary operation.  
--`type_str ()`: The string representation of the current unary operation. (e.g. '!', '-', '~', etc.)  
+-`type_str (str)`: The string representation of the current unary operation. (e.g. '!', '-', '~', etc.)  
+* Function:  
+None at the moment, let me know if you need any.  
+
+A `slither.core.expressions.identifier.Identifier` object has:  
+* Attributes:  
+-`value (slither.solc_parsing.variables.state_variable.StateVariableSolc / slither.solc_parsing.variables.local_variable.LocalVariableSolc / slither.core.declarations.solidity_variables.SolidityVariableComposed)`: Returns the object of the variable, the object can be either a state variable, local variable or a Solidity Variable(e.g. msg.sender, msg.value, etc). All object return by this attribute also have the attribute `name`, you can use the `name ` attribute to get the name of the variable. 
+
 
 Example:
 ```
