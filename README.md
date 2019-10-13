@@ -41,7 +41,7 @@ In addition to attributes exists in Function, Modifier also have `functions_used
 None at the moment, let me know if you need any.  
 
 A `Variable` (local variable) object has:  
-* Attributes: 
+* Attributes:  
 -`name (str)`: Name of the variable.  
 -`type (slither.core.solidity_types.*)`: Data type of the variable, using str(type) can get the string value of the data type. 
 * Functions:  
