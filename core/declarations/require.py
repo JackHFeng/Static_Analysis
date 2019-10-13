@@ -18,6 +18,8 @@ class Require:
 
         self.operation = require.expression.arguments[0]
 
+        self.load_variables(require)
+
     def load_variables(self, require: Solc_Node):
         self.load_state_variables(require.state_variables_read)
         self.load_local_variables(require.variables_read)
