@@ -45,8 +45,8 @@ A `Variable` (local variable) object has:
 -`name (str)`: Name of the variable.  
 -`type (slither.core.solidity_types.*)`: Data type of the variable, using str(type) can get the string value of the data type. 
 * Functions:  
--`is_state_variable()`:  Returns a boolean value of whether the current object instance is a state variable. 
--`is_state_variable()`:  Returns a boolean value of whether the current object instance is a local variable. 
+-`is_state_variable()`:  Returns a boolean value of whether the current object instance is a state variable.  
+-`is_local_variable()`:  Returns a boolean value of whether the current object instance is a local variable. 
 None at the moment, let me know if you need any.  
 
 A `StateVariable` object has:  
