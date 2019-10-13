@@ -73,6 +73,28 @@ The `slither.core.expressions.binary_operation.BinaryOperation` type is a binary
 * Functions:  
 None at the moment, let me know if you need any.  
 
+A `slither.core.expressions.binary_operation.BinaryOperation` object has:  
+* Attributes:  
+-`expressions (list(slither.core.expressions.*))`: A list of length equals to 2. Index 0 contains the left expression, index 1 contains the right expression.  
+-`expression_left (slither.core.expressions.*)`: The left expression of the current operation.  
+-`expression_right (slither.core.expressions.*)`: The left expression of the current operation.  
+-`type (slither.core.expressions.binary_operation.BinaryOperationType)`: A type object representing the current binary operation.  
+-`type_str (str)`: The string representation of the current binary operation. (e.g. '+', '-', '>', etc.)  
+* Function:  
+None at the moment, let me know if you need any.  
+
+A `slither.core.expressions.unary_operation.UnaryOperation` object has:  
+* Attributes:  
+-`expression (slither.core.expressions.expression.Expression)`: Contains the expression of the current unary operation.  
+-`type (slither.core.expressions.unary_operation.UnaryOperationType)`: A type object representing the current unary operation.  
+-`type_str (str)`: The string representation of the current unary operation. (e.g. '!', '-', '~', etc.)  
+* Function:  
+None at the moment, let me know if you need any.  
+
+A `slither.core.expressions.identifier.Identifier` object has:  
+* Attributes:  
+-`value (slither.solc_parsing.variables.state_variable.StateVariableSolc / slither.solc_parsing.variables.local_variable.LocalVariableSolc / slither.core.declarations.solidity_variables.SolidityVariableComposed)`: Returns the object of the variable, the object can be either a state variable, local variable or a Solidity Variable(e.g. msg.sender, msg.value, etc). All object return by this attribute also have the attribute `name`, you can use the `name ` attribute to get the name of the variable. 
+
 
 Example:
 ```
@@ -82,7 +104,7 @@ from core.data_dependency_graph import DDGs
 def main():
     contract_dir = './Ballot.sol'
     data_dependency_graphs = DDGs(contract_dir)
-    contract = data_dependency_graphs.get_contract_by_name('Purchase')
+    contract = data_dependency_graphs.get_contract_by_name('Ballot')
     print(contract)
 
 
