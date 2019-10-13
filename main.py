@@ -2,9 +2,9 @@ from core.data_dependency_graph import DDGs
 
 
 def main():
-    contract_dir = './Ballot.sol'
+    contract_dir = './Purchase.sol'
     data_dependency_graphs = DDGs(contract_dir)
-    contract = data_dependency_graphs.get_contract_by_name('Ballot')
+    contract = data_dependency_graphs.get_contract_by_name('Purchase')
     print(contract)
 
 

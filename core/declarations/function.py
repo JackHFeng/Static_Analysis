@@ -37,6 +37,11 @@ class Function:
         self.load_requires(function)
         self.load_modifiers(function)
 
+        # print(f'********{self.name}')
+        # for require in self.requires:
+        #
+        #     print(f'********{require.code}')
+
     def load_variables(self, function: Slither_Function):
         self.load_state_variables(function.state_variables_written, 'written')
         self.load_local_variables(function.variables_written, 'written')
@@ -96,8 +101,8 @@ class Function:
                     self.state_variables_written.append(state_variable)
             for state_variable in self.from_contract.modifiers[modifier.name].state_variables_read:
                     self.state_variables_read.append(state_variable)
-            for require in self.from_contract.modifiers[modifier.name].requires:
-                self.requires.append(require)
+            # for require in self.from_contract.modifiers[modifier.name].requires:
+            #     self.requires.append(require)
 
     def __str__(self):
         return self.signature
