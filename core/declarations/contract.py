@@ -33,7 +33,7 @@ class Contract:
     def create_function(self, function: Slither_Function):
         new_function = Function(function, self)
 
-        self.functions[new_function.signature] = new_function
+        self.functions[new_function.name] = new_function
 
     def create_modifier(self, modifier: Slither_Modifier):
         new_modifier = Modifier(modifier, self)
