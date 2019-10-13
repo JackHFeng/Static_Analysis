@@ -21,8 +21,8 @@ class Require:
         self.load_variables(require)
 
     def load_variables(self, require: Solc_Node):
-        self.load_state_variables(require.state_variables_read)
-        self.load_local_variables(require.variables_read)
+        self.load_state_variables_read(require.state_variables_read)
+        self.load_local_variables_read(require.variables_read)
 
     def load_state_variables_read(self, variables: Slither_StateVariable):
         for variable in variables:
