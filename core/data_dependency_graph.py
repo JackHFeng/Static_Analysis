@@ -1,5 +1,5 @@
 from slither import Slither
-from core.declarations.contract import Contract
+from .declarations.contract import Contract
 
 
 class DDGs:
