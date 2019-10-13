@@ -22,22 +22,13 @@ class Contract:
             self.create_function(function)
 
     def get_function_by_name(self, name):
-        for function in self.functions:
-            if function.name == name:
-                return function
-        return None
+        return self.functions.get(name)
 
     def get_modifier_by_name(self, name):
-        for modifier in self.modifiers:
-            if modifier.name == name:
-                return modifier
-        return None
+        return self.modifiers.get(name)
 
     def get_state_variable_by_name(self, name):
-        for state_variable in self.state_variables:
-            if state_variable.name == name:
-                return state_variable
-        return None
+        return self.state_variables.get(name)
 
     def create_function(self, function: Slither_Function):
         new_function = Function(function, self)
