@@ -13,6 +13,8 @@ class Modifier(Function):
 
         self.requires = []
 
+        self.parameters = []
+
         self.state_variables_written = []
         self.state_variables_read = []
 
@@ -21,6 +23,7 @@ class Modifier(Function):
 
         #print(f'Creating Modifier: {modifier.name}')
 
+        self.load_parameters(modifier)
         self.load_variables(modifier)
         self.load_requires(modifier)
 

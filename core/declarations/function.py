@@ -25,6 +25,8 @@ class Function:
 
         self.requires = []
 
+        self.parameters = []
+
         self.state_variables_written = []
         self.state_variables_read = []
 
@@ -33,9 +35,15 @@ class Function:
 
         #print(f'Creating Function: {function.name}')
 
+        self.load_parameters(function)
         self.load_variables(function)
         self.load_requires(function)
         self.load_modifiers(function)
+
+    def load_parameters(self, function: Slither_Function):
+        for variable in function.parameters:
+            new_variable = Variable(variable)
+            self.parameters.append(new_variable)
 
     def load_variables(self, function: Slither_Function):
         self.load_state_variables(function.state_variables_written, 'written')
