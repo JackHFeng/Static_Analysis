@@ -24,6 +24,7 @@ A `Function` object has:
 -`from_contract (Contract)`: The contract object where the current function is from.  
 -`modifiers (list(Modifier))`: A list of modifiers used in the current function.  
 -`requires (list(Require))`: A list of requires appeared in the current function, including requires appeared in the modifiers.  
+-`parameters (list(Variable))`: A list of parameters for the current function.  
 -`state_variables_read (list(StateVariable))`: A list of state variables read by the current function, including the ones read by the modifiers.  
 -`state_variables_written (list(StateVariable))`: A list of state variables written by the current function, including the ones written by the modifiers.   
 -`local_variables_read (list(Variable))`: A list of local variables read by the current function.  
