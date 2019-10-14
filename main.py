@@ -7,6 +7,5 @@ def main():
     contract = data_dependency_graphs.get_contract_by_name('HoloToken')
 
 
-
 if __name__ == '__main__':
     main()
