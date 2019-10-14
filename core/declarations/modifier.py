@@ -19,7 +19,7 @@ class Modifier(Function):
         self.local_variables_read = []
         self.local_variables_written = []
 
-        print(f'Creating Modifier: {modifier.name}')
+        #print(f'Creating Modifier: {modifier.name}')
 
         self.load_variables(modifier)
         self.load_requires(modifier)

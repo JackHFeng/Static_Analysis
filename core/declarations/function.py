@@ -31,16 +31,11 @@ class Function:
         self.local_variables_read = []
         self.local_variables_written = []
 
-        print(f'Creating Function: {function.name}')
+        #print(f'Creating Function: {function.name}')
 
         self.load_variables(function)
         self.load_requires(function)
         self.load_modifiers(function)
-
-        # print(f'********{self.name}')
-        # for require in self.requires:
-        #
-        #     print(f'********{require.code}')
 
     def load_variables(self, function: Slither_Function):
         self.load_state_variables(function.state_variables_written, 'written')
@@ -48,7 +43,7 @@ class Function:
 
     def load_state_variables(self, variables: Slither_StateVariable, RorW):
         for variable in variables:
-            print(f'Loading {RorW} state variable: {variable.name}')
+            #print(f'Loading {RorW} state variable: {variable.name}')
             if variable.name in self.from_contract.state_variables:
                 new_variable = self.from_contract.state_variables[variable.name]
             else:
@@ -60,7 +55,7 @@ class Function:
     def load_local_variables(self, variables: Slither_Local_Variable, RorW):
         for variable in variables:
             if variable.name not in [v.name for v in getattr(self, 'state_variables_' + RorW)]:
-                print(f'Loading {RorW} local variable: {variable.name}')
+                #print(f'Loading {RorW} local variable: {variable.name}')
                 new_variable = Variable(variable)
                 getattr(self, 'local_variables_' + RorW).append(new_variable)
 
@@ -76,7 +71,7 @@ class Function:
     def create_require(self, require: Solc_Node):
         self.load_state_variables(require.state_variables_read, 'read')
         self.load_local_variables(require.variables_read, 'read')
-        print(f'Creating Require object: {str(require.expression)}')
+        #print(f'Creating Require object: {str(require.expression)}')
         new_require = Require(require, self)
 
         self.requires.append(new_require)

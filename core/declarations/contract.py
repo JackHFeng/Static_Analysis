@@ -13,7 +13,7 @@ class Contract:
         self.state_variables = {}
         self.modifiers = {}
 
-        print(f'Creating Contract: {contract.name}')
+        #print(f'Creating Contract: {contract.name}')
 
         for modifier in contract.modifiers:
             self.create_modifier(modifier)

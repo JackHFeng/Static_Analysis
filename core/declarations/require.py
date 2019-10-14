@@ -26,7 +26,7 @@ class Require:
 
     def load_state_variables_read(self, variables: Slither_StateVariable):
         for variable in variables:
-            print(f'Loading read state variable: {variable.name}')
+            #print(f'Loading read state variable: {variable.name}')
             if variable.name in self.from_function.from_contract.state_variables:
                 new_variable = self.from_function.from_contract.state_variables[variable.name]
             else:
@@ -38,6 +38,7 @@ class Require:
 
     def load_local_variables_read(self, variables: Slither_Local_Variable):
         for variable in variables:
-            print(f'Loading read local variable: {variable.name}')
-            new_variable = Variable(variable)
-            self.local_variables_read.append(new_variable)
+            if variable.name not in [v.name for v in self.state_variables_read]:
+                #print(f'Loading read local variable: {variable.name}')
+                new_variable = Variable(variable)
+                self.local_variables_read.append(new_variable)
