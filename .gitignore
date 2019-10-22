@@ -1,3 +1,4 @@
 .idea\workspace.xml
 core\__pycache__\
 core\declarations\__pycache__\
+*.pyc
