@@ -27,7 +27,7 @@ m = s.model()
 print(m[x])
 print(m[y])
 
-
+ 
 #
 
 
