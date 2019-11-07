@@ -14,16 +14,18 @@ def main():
         named_v = {}
         for r in f.requires:
             get_expr(r.operation, named_v)
-            print(r.code.split('(')[-1][:-1])
+            print(str(r.operation))
             s = Solver()
             constraints = r.code.split('(')[-1][:-1].split(' ')
             for i, v in enumerate(constraints):
                 if v.isalpha():
                     constraints[i] = "named_v['" + v + "']"
             constraints = ' '.join(constraints)
-            # print(constraints)
+            print(constraints)
             f = eval(constraints)
+            f1 = eval("And(named_v['a'] != 0, named_v['b'] != 1)")
             s.add(f)
+            s.add(f1)
             s.check()
             m = s.model()
             for k, v in named_v.items():

@@ -9,13 +9,13 @@ class StateVariable(Variable):
         self.visibility = variable.visibility
         # self.initialized = variable.initialized
         # print(type(variable.initialized))   # May need to investigate what these are
-        self.functions_read = []
-        self.functions_written = []
+        self.functions_read = set()
+        self.functions_written = set()
         # self.f_write_conditions = []
-        self.modifiers_read = []
-        self.modifiers_written = []
+        self.modifiers_read = set()
+        self.modifiers_written = set()
 
-        self.requires_read = []
+        self.requires_read = set()
 
     def is_state_variable(self):
         return True

@@ -21,17 +21,17 @@ class Function:
         self.visibility = function.visibility
         self.from_contract = new_contract
 
-        self.modifiers = []
+        self.modifiers = set()
 
-        self.requires = []
+        self.requires = set()
 
-        self.parameters = []
+        self.parameters = set()
 
-        self.state_variables_written = []
-        self.state_variables_read = []
+        self.state_variables_written = set()
+        self.state_variables_read = set()
 
-        self.local_variables_read = []
-        self.local_variables_written = []
+        self.local_variables_read = set()
+        self.local_variables_written = set()
 
         #print(f'Creating Function: {function.name}')
 
@@ -40,16 +40,34 @@ class Function:
         self.load_requires(function)
         self.load_modifiers(function)
 
+    def get_depended_functions(self):
+        res = []
+        for sv in self.state_variables_read:
+            for fn in sv.functions_written:
+                if fn is not self and fn not in res and fn.visibility == 'public':
+                    res.append(fn)
+        return res
+
+    def get_depended_functions_by_state_variable(self, name):
+        res = []
+        for sv in self.state_variables_read:
+            if sv.name == name:
+                for fn in sv.functions_written:
+                    if fn is not self and fn not in res and fn.visibility == 'public':
+                        res.append(fn)
+                return res
+
     def load_parameters(self, function: Slither_Function):
         for variable in function.parameters:
             new_variable = Variable(variable)
-            self.parameters.append(new_variable)
+            self.parameters.add(new_variable)
 
     def load_variables(self, function: Slither_Function):
         self.load_state_variables(function.state_variables_written, 'written')
         self.load_local_variables(function.variables_written, 'written')
 
     def load_state_variables(self, variables: Slither_StateVariable, RorW):
+        # if a state variable is written in the modifier, this is currently not supported.
         for variable in variables:
             #print(f'Loading {RorW} state variable: {variable.name}')
             if variable.name in self.from_contract.state_variables:
@@ -57,15 +75,15 @@ class Function:
             else:
                 new_variable = StateVariable(variable)
                 self.from_contract.state_variables[variable.name] = new_variable
-            getattr(new_variable, self.__class__.__name__.lower() + 's_' + RorW).append(self)
-            getattr(self, 'state_variables_' + RorW).append(new_variable)
+            getattr(new_variable, self.__class__.__name__.lower() + 's_' + RorW).add(self)
+            getattr(self, 'state_variables_' + RorW).add(new_variable)
 
     def load_local_variables(self, variables: Slither_Local_Variable, RorW):
         for variable in variables:
-            if variable.name not in [v.name for v in getattr(self, 'state_variables_' + RorW)]:
+            if variable and variable.name not in [v.name for v in getattr(self, 'state_variables_' + RorW)]:
                 #print(f'Loading {RorW} local variable: {variable.name}')
                 new_variable = Variable(variable)
-                getattr(self, 'local_variables_' + RorW).append(new_variable)
+                getattr(self, 'local_variables_' + RorW).add(new_variable)
 
     def load_requires(self, function: Slither_Function):
         ## after creating a require, need to add all the variables created there to here
@@ -82,11 +100,11 @@ class Function:
         #print(f'Creating Require object: {str(require.expression)}')
         new_require = Require(require, self)
 
-        self.requires.append(new_require)
+        self.requires.add(new_require)
 
         for state_variable in new_require.state_variables_read:
             if state_variable not in self.state_variables_read:
-                self.state_variables_read.append(state_variable)
+                self.state_variables_read.add(state_variable)
 
         # print(f'\t@@@@Adding Require: {require.expression}')
         # if type(require.expression.arguments[0]) == BinaryOperation:
@@ -99,11 +117,11 @@ class Function:
 
     def load_modifiers(self, function: Slither_Function):
         for modifier in function.modifiers:
-            self.modifiers.append(self.from_contract.modifiers[modifier.name])
+            self.modifiers.add(self.from_contract.modifiers[modifier.name])
             for state_variable in self.from_contract.modifiers[modifier.name].state_variables_written:
-                    self.state_variables_written.append(state_variable)
+                    self.state_variables_written.add(state_variable)
             for state_variable in self.from_contract.modifiers[modifier.name].state_variables_read:
-                    self.state_variables_read.append(state_variable)
+                    self.state_variables_read.add(state_variable)
             # for require in self.from_contract.modifiers[modifier.name].requires:
             #     self.requires.append(require)
 

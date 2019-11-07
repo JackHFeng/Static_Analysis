@@ -9,17 +9,17 @@ class Modifier(Function):
         self.visibility = modifier.visibility
         self.from_contract = new_contract
 
-        self.functions_used = []
+        self.functions_used = set()
 
-        self.requires = []
+        self.requires = set()
 
-        self.parameters = []
+        self.parameters = set()
 
-        self.state_variables_written = []
-        self.state_variables_read = []
+        self.state_variables_written = set()
+        self.state_variables_read = set()
 
-        self.local_variables_read = []
-        self.local_variables_written = []
+        self.local_variables_read = set()
+        self.local_variables_written = set()
 
         #print(f'Creating Modifier: {modifier.name}')
 
