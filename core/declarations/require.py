@@ -30,6 +30,7 @@ class Require:
 
 
 
+
     def check_simple_require(self, exp):
         if isinstance(exp, BinaryOperation):
             pass
@@ -53,9 +54,9 @@ class Require:
         if variables:
             self.contain_state_variable = True
         for variable in variables:
-            print(variable.name)
-            print(variable.expression)
-            #print(f'Loading read state variable: {variable.name}')
+            # print(variable.name)
+            # print(variable.expression)
+            # print(f'Loading read state variable: {variable.name}')
             if variable.name in self.from_function.from_contract.state_variables:
                 new_variable = self.from_function.from_contract.state_variables[variable.name]
             else:

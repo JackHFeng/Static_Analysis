@@ -40,6 +40,10 @@ class Function:
         self.load_requires(function)
         self.load_modifiers(function)
 
+        if self.name == "constructor":
+            for sv in self.state_variables_written:
+                sv.set_by_constructor = True
+
     def get_depended_functions(self):
         res = []
         for sv in self.state_variables_read:
