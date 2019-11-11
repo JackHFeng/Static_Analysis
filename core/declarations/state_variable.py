@@ -33,7 +33,7 @@ class StateVariable(Variable):
     def is_local_variable(self):
         return False
 
-    def get_default_value(self):
+    def get_default_value_in_string(self):
         if self.default_value:
             return self.default_value
         if self.type.startswith('int') or self.type.startswith('uint'):
@@ -46,4 +46,14 @@ class StateVariable(Variable):
             return ''
         elif self.type == 'address':
             return '0'
+
+    def get_value_by_type(self, t, v):
+        if t.startswith('int') or t.startswith('uint'):
+            return int(v)
+        elif t == 'bool':
+            if v == 'true':
+                return True
+            else:
+                return False
+        elif
 

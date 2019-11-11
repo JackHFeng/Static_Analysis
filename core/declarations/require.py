@@ -47,7 +47,8 @@ class Require:
         self.classify_require(require.expression.arguments[0])
 
     def compute_satisfying_condition(self):
-        pass
+        if len(self.state_variables_read) == 0:
+            self.satisfying_condition = 1
 
     def classify_require(self, exp):
         """
