@@ -13,7 +13,7 @@ class Require:
     def __init__(self, require: Solc_Node, new_function):
         self.code = str(require.expression)
         self.from_function = new_function
-
+        print('asd')
         self.IRs = require.irs
 
         self.local_variables_read = set()  # require doesn't write
