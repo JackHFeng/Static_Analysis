@@ -6,41 +6,76 @@ from .modifier import Modifier
 
 
 class Contract:
+    """
+    Contract objects
+    """
     def __init__(self, contract: Slither_Contract):
+        ### contract name
         self.name = contract.name
 
+        ### map of functions with their name as key
         self.functions = {}
+
+        ### map of state variables with their name as key
         self.state_variables = {}
+
+        ### map of modifiers with their name as key
         self.modifiers = {}
 
-        #print(f'Creating Contract: {contract.name}')
+        # print(f'Creating Contract: {contract.name}')
 
+        ### create modifier objects
         for modifier in contract.modifiers:
             self.create_modifier(modifier)
 
+        ### create function objects
         for function in contract.functions:
             self.create_function(function)
 
     def get_function_by_name(self, name):
+        """
+        Getter function for getting a function object
+        using its name, if function does not exist
+        None will be returned.
+        """
         return self.functions.get(name)
 
     def get_modifier_by_name(self, name):
+        """
+        Getter function for getting a modifier object
+        using its name, if modifier does not exist
+        None will be returned.
+        """
         return self.modifiers.get(name)
 
     def get_state_variable_by_name(self, name):
+        """
+        Getter function for getting a state variable object
+        using its name, if state variable does not exist
+        None will be returned.
+        """
         return self.state_variables.get(name)
 
     def create_function(self, function: Slither_Function):
+        """
+        creates a function object, then adds to the map
+        """
         new_function = Function(function, self)
 
         self.functions[new_function.name] = new_function
 
     def create_modifier(self, modifier: Slither_Modifier):
+        """
+        creates a modifier object, then adds to the map
+        """
         new_modifier = Modifier(modifier, self)
 
         self.modifiers[new_modifier.name] = new_modifier
 
     def __str__(self):
+        """
+        overrides the str()
+        """
         res = ''
         res += f'Contract Name: {self.name}\n'
         res += f'\tState Variables:\n'
@@ -57,4 +92,5 @@ class Contract:
 
         for f in self.functions.values():
             res += f'\t\t{str(f)}\n'
+
         return res

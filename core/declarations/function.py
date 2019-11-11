@@ -10,6 +10,7 @@ from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.unary_operation import UnaryOperation
 from slither.solc_parsing.cfg.node import NodeSolc as Solc_Node
 
+### types of require function call for getting the list of requires
 require_functions = [SolidityFunction("require(bool)"),
                      SolidityFunction("require(bool,string)")]
 
