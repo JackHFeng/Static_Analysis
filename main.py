@@ -2,12 +2,12 @@ from core.data_dependency_graph import DDGs
 
 
 def main():
-    contract_dir = './Example.sol'
+    contract_dir = './Ballot.sol'
     data_dependency_graphs = DDGs(contract_dir)
-    contract = data_dependency_graphs.get_contract_by_name('Example')
+    contract = data_dependency_graphs.get_contract_by_name('Ballot')
 
-    for sv in contract.state_variables.values():
-        print(f'{sv.name} {sv.set_by_constructor}aaa')
+    # for sv in contract.state_variables.values():
+    #     print(f'{sv.name} {sv.set_by_constructor}')
     # for fn in contract.functions.values():
     #     print(fn.name)
     #     svs = fn.state_variables_read

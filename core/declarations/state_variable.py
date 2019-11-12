@@ -5,7 +5,7 @@ from slither.core.variables.state_variable import StateVariable as Slither_State
 class StateVariable(Variable):
     def __init__(self, variable: Slither_State_Variable):
         self.name = variable.name
-        self.type = variable.type
+        self.type = str(variable.type)
         self.visibility = variable.visibility
 
         # Whether this state variable is initialized by hard code during deployment
@@ -26,6 +26,10 @@ class StateVariable(Variable):
 
         # Why have this variable?
         self.requires_read = set()
+        print(self.name)
+        print(self.type)
+        print(self.get_default_value_in_string())
+        print(self.get_value_by_type(self.get_default_value_in_string()))
 
     def is_state_variable(self):
         return True
@@ -40,20 +44,25 @@ class StateVariable(Variable):
             return '0'
         elif self.type == 'bool':
             return 'false'
-        elif self.type.starswith('byte'):
+        elif self.type.startswith('byte'):
             return '0'
         elif self.type == 'string':
             return ''
         elif self.type == 'address':
             return '0'
+        else:
+            print(f'{self.name} not parsable')
 
-    def get_value_by_type(self, t, v):
-        if t.startswith('int') or t.startswith('uint'):
+    def get_value_by_type(self, v):
+        if self.type.startswith('int') or self.type.startswith('uint'):
             return int(v)
-        elif t == 'bool':
+        elif self.type == 'bool':
             if v == 'true':
                 return True
             else:
                 return False
-        elif
+        elif self.type == 'string':
+            return str(v)
+        elif self.type == 'address':
+            return '0x' + v.zfill(40)
 
