@@ -14,7 +14,8 @@ import time
 print(f'****Solving example')
 set_param("auto-config",False)
 set_param("smt.phase-selection",5)
-set_param("smt.arith.random_initial_value",True)
+set_param("smt.arith.random_initial_"
+          "value",True)
 set_param("smt.random_seed", 2)
 set_param("sat.phase", 'random')
 set_param("sat.random_seed", 2)
