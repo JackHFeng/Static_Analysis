@@ -7,28 +7,38 @@ from .modifier import Modifier
 
 class Contract:
     """
-    Contract objects
+    Contract object.
+
+    *** To be completed.
+        default_satisfied_functions attribute is still yet to be loaded.
     """
     def __init__(self, contract: Slither_Contract):
-        ### contract name
+        """
+        *** To be completed.
+            default_satisfied_functions attribute is still yet to be loaded.
+        """
+
+        ### e.g. "Ballot".
         self.name = contract.name
 
-        ### map of functions with their name as key
+        ### map of functions with their name as key.
         self.functions = {}
 
-        ### map of state variables with their name as key
+        ### map of state variables with their name as key.
         self.state_variables = {}
 
-        ### map of modifiers with their name as key
+        ### map of modifiers with their name as key.
         self.modifiers = {}
 
-        # print(f'Creating Contract: {contract.name}')
+        ### functions that can be executed right after contract deployment,
+        ### because their requires can be satisfied at the Initial state.
+        self.default_satisfied_functions = []
 
-        ### create modifier objects
+        ### create modifier objects.
         for modifier in contract.modifiers:
             self.create_modifier(modifier)
 
-        ### create function objects
+        ### create function objects.
         for function in contract.functions:
             self.create_function(function)
 
@@ -37,6 +47,8 @@ class Contract:
         Getter function for getting a function object
         using its name, if function does not exist
         None will be returned.
+
+        Finished.
         """
         return self.functions.get(name)
 
@@ -45,6 +57,8 @@ class Contract:
         Getter function for getting a modifier object
         using its name, if modifier does not exist
         None will be returned.
+
+        Finished.
         """
         return self.modifiers.get(name)
 
@@ -53,12 +67,16 @@ class Contract:
         Getter function for getting a state variable object
         using its name, if state variable does not exist
         None will be returned.
+
+        Finished.
         """
         return self.state_variables.get(name)
 
     def create_function(self, function: Slither_Function):
         """
-        creates a function object, then adds to the map
+        Creates a function object, then adds to the map.
+
+        Finished.
         """
         new_function = Function(function, self)
 
@@ -66,7 +84,9 @@ class Contract:
 
     def create_modifier(self, modifier: Slither_Modifier):
         """
-        creates a modifier object, then adds to the map
+        Creates a modifier object, then adds to the map.
+
+        Finished.
         """
         new_modifier = Modifier(modifier, self)
 
@@ -74,7 +94,9 @@ class Contract:
 
     def __str__(self):
         """
-        overrides the str()
+        Overrides the str().
+
+        Finished.
         """
         res = ''
         res += f'Contract Name: {self.name}\n'
