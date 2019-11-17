@@ -2,9 +2,19 @@ from core.data_dependency_graph import DDGs
 
 
 def main():
-    contract_dir = './Ballot.sol'
+
+    ### name of contract.
+    contract_name = "ReceiverPays"
+
+    ### the name of contract is used as file name to find the sol file in the root directory.
+    contract_dir = f'./{contract_name}.sol'
+
+    ### constructs the data dependency graph.
+    ### if a file contains multiple contracts, DDG will be constructed for each.
     data_dependency_graphs = DDGs(contract_dir)
-    contract = data_dependency_graphs.get_contract_by_name('Ballot')
+
+    ### getting the contract object by name.
+    contract = data_dependency_graphs.get_contract_by_name(contract_name)
 
     # for sv in contract.state_variables.values():
     #     print(f'{sv.name} {sv.set_by_constructor}')
