@@ -18,27 +18,27 @@ class Contract:
             default_satisfied_functions attribute is still yet to be loaded.
         """
 
-        ### e.g. "Ballot".
+        # e.g. "Ballot".
         self.name = contract.name
 
-        ### map of functions with their name as key.
+        # map of functions with their name as key.
         self.functions = {}
 
-        ### map of state variables with their name as key.
+        # map of state variables with their name as key.
         self.state_variables = {}
 
-        ### map of modifiers with their name as key.
+        # map of modifiers with their name as key.
         self.modifiers = {}
 
-        ### functions that can be executed right after contract deployment,
-        ### because their requires can be satisfied at the Initial state.
+        # functions that can be executed right after contract deployment,
+        # because their requires can be satisfied at the Initial state.
         self.default_satisfied_functions = []
 
-        ### create modifier objects.
+        # create modifier objects.
         for modifier in contract.modifiers:
             self.create_modifier(modifier)
 
-        ### create function objects.
+        # create function objects.
         for function in contract.functions:
             self.create_function(function)
 
