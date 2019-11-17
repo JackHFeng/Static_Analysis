@@ -10,6 +10,7 @@ class Contract:
     Contract object.
 
     *** To be completed.
+        default_satisfied_functions attribute is still yet to be loaded.
     """
     def __init__(self, contract: Slither_Contract):
         """
