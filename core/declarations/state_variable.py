@@ -7,9 +7,6 @@ class StateVariable(Variable):
     State variable object.
 
     *** To be completed.
-        During the stage of setting the default value, more data type needs to be handled.
-        What to do when modifier writes to the state variable?
-        What is f_write_conditions attribute for? Saw it in slither somewhere, probably in the printers.
     """
     def __init__(self, variable: Slither_State_Variable):
         # e.g. "balance".
@@ -132,6 +129,7 @@ def set_default_value(_type, _value, _name):
     else:
         print(f'Unhandled type: {_type} for {_name}')
         # raise Exception(f'Unhandled type: <{_type}> for "{_name}"')
+
 
 def default_value_helper(_value, _type, _name):
     """
