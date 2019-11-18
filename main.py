@@ -8,6 +8,7 @@ def main():
 
     """
     ReceiverPays does not show owner. 
+    WETH9 does not show requires. 
     """
 
     # the name of contract is used as file name to find the sol file in the root directory.

@@ -219,6 +219,7 @@ class Function:
                     require(owner == sender);
         """
         for ir in _function.slithir_operations:
+            print(f'***{ir}')
             if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
                 #print(ir.node)
                 self.create_require(ir.node)
