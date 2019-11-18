@@ -16,11 +16,10 @@ import utils
 # from slither.core.variables.local_variable import LocalVariable as Slither_Local_Variable
 
 
-
-
 class Require:
     """
     Require object for require statements.
+    Only requires at the beginning of the functions and within modifiers have been created.
 
     *** To be completed.
     """
@@ -84,11 +83,6 @@ class Require:
         z3_dic = {}
         utils.get_z3_vars(self.operation, z3_dic)
 
-
-
-
-
-
     def load_variables(self, require: Solc_Node):
         """
         Loads the state/local variable objects read by the require
@@ -134,6 +128,10 @@ class Require:
                 new_variable = Variable(variable)
                 self.local_variables_read.add(new_variable)
 
+    def __str__(self):
+        return self.code
 
+    def __repr__(self):
+        return self.code
 
 

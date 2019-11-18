@@ -1,18 +1,21 @@
+from typing import List
+
+from .variable import Variable
+from .state_variable import StateVariable
+from .require import Require
+
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.variables.state_variable import StateVariable as Slither_StateVariable
 from slither.core.variables.local_variable import LocalVariable as Slither_Local_Variable
-from .variable import Variable
-from .state_variable import StateVariable
-from slither.slithir.operations import SolidityCall
-from slither.core.declarations import SolidityFunction
-from .require import Require
-from slither.core.expressions.binary_operation import BinaryOperation
-from slither.core.expressions.unary_operation import UnaryOperation
-from slither.solc_parsing.cfg.node import NodeSolc as Solc_Node
+from slither.slithir.operations import SolidityCall as Slither_SolidityCall
+from slither.core.declarations import SolidityFunction as Slither_SolidityFunction
+from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
+from slither.slithir.operations.internal_call import InternalCall as Slither_InternalCall
+from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
 
 # types of require function calls for getting the list of requires.
-require_functions = [SolidityFunction("require(bool)"),
-                     SolidityFunction("require(bool,string)")]
+require_functions = [Slither_SolidityFunction("require(bool)"),
+                     Slither_SolidityFunction("require(bool,string)")]
 
 
 class Function:
@@ -41,6 +44,11 @@ class Function:
 
             Modifiers can take input parameters as well.
 
+            Modifiers can call another function within itself....😒
+
+            Modifier can be used to check both pre-condition or post-condition
+            And a single modifier can check both pre-condition and post-condition at the same time....😒
+
     *** To be completed.
     """
     def __init__(self, _function: Slither_Function, _parent_contract):
@@ -59,6 +67,10 @@ class Function:
 
         # set of modifiers.
         self.modifiers = set()
+
+        # list of IRs
+        # we may not need this after all.
+        self.ir_list = []
 
         # set of requires.
         self.requires = set()
@@ -79,10 +91,21 @@ class Function:
 
         # print(f'Creating Function: {function.name}')
 
+        # load parameters.
         self.load_parameters(_function)
+
+        # load both local and state variables.
         self.load_variables(_function)
-        self.load_requires(_function)
+
+        # we may not need this after all.
+        # self.load_irs(_function.nodes)
+
+        # load modifier objects.
+        # requires within modifiers will be loaded into self.requires as well.
         self.load_modifiers(_function)
+
+        # load requires at the front of the function.
+        self.load_function_requires(_function)
 
         # if the current function is the constructor,
         # we update all the state variables that are written by the constructor.
@@ -91,7 +114,12 @@ class Function:
             for sv in self.state_variables_written:
                 sv.set_by_constructor = True
 
-        #print(f'{self.name}  {str(self.state_variables_written)}  {self.state_variables_read}')
+        print(f'{self.name}')
+        print(f'\tsr {self.state_variables_read}')
+        print(f'\tsw {self.state_variables_written}')
+        print(f'\tlr {self.local_variables_read}')
+        print(f'\tlw {self.local_variables_written}')
+        print(f'\t {self.requires}')
 
     def get_depended_functions(self):
         """
@@ -179,9 +207,9 @@ class Function:
                 new_variable = Variable(variable)
                 getattr(self, 'local_variables_' + _RorW).add(new_variable)
 
-    def load_requires(self, _function: Slither_Function):
+    def load_function_requires(self, _function):
         """
-        Loading require objects.
+        Loading front require objects in a function.
 
         Notes:
             Requires from both modifier and calls to another function will be added.
@@ -201,31 +229,49 @@ class Function:
 
 
         """
-        print(f"*******{self.name}")
-        from slither.slithir.operations.internal_call import InternalCall
-        for n in _function.nodes:
-            print(f'node: {n}')
+        for ir in _function.slithir_operations:
+            if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
+                print(ir.node)
+                self.create_require(ir.node)
+            else:
+                break
+
+    def load_modifier_requires(self, _modifier):
+        """
+        Loading require objects in a modifier.
+
+        *** To be completed.
+            Currently this is treating all requires in modifiers as pre-conditions.
+        """
+        for ir in _modifier.slithir_operations:
+            if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
+                print(ir.node)
+                self.create_require(ir.node)
+
+    def load_irs(self, _nodes: List[Slither_NodeSolc]):
+        """
+        Loading IRs of the function.
+        Currently not used.
+
+        Notes:
+            Slither IR is always placing code within modifiers at the end of the function.
+            We are only loading non
+
+        *** To be completed.
+            We may not need this after all.....
+        """
+        for n in _nodes:
+            if not n.irs:
+                continue
+
             for ir in n.irs:
-                print(f'\t ir: {ir} {type(ir)}')
-                if isinstance(ir, InternalCall):
-                    for nn in ir.function.nodes:
+                if isinstance(ir, Slither_InternalCall):
+                    if isinstance(ir, Slither_FunctionSolc):
+                        self.load_irs_helper(ir.function.nodes)
+                else:
+                    self.ir_list.append(ir)
 
-                        print(f'\t\t {nn}')
-        print("*****")
-        requires = _function.all_slithir_operations()
-        temp = []
-        # print(f"*******{self.name}")
-        # for ir in requires:
-        #     print(f'\t{ir}  {type(ir)} ')
-        # print("*****")
-        requires = [ir for ir in requires if isinstance(ir, SolidityCall) and ir.function in require_functions]
-        requires = [ir.node for ir in requires]
-
-        for require in requires:
-            # print(f'{self.name} {require}')
-            self.create_require(require)
-
-    def create_require(self, _require: Solc_Node):
+    def create_require(self, _require: Slither_NodeSolc):
         self.load_state_variables(_require.state_variables_read, 'read')
         self.load_local_variables(_require.variables_read, 'read')
         new_require = Require(_require, self)
@@ -243,14 +289,17 @@ class Function:
                 self.state_variables_written.add(state_variable)
             for state_variable in self.from_contract.modifiers[modifier.name].state_variables_read:
                 self.state_variables_read.add(state_variable)
+
+            self.load_modifier_requires(modifier)
             # for require in self.from_contract.modifiers[modifier.name].requires:
             #     self.requires.append(require)
 
     def __str__(self):
         return self.signature
 
+    def __repr__(self):
+        return self.signature
 
 # static utility functions
 
-def load_irs(_node, _ir_list):
-    pass
+

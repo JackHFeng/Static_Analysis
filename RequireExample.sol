@@ -14,18 +14,22 @@ contract RequireExample {
     bool public d = true;
 
     modifier checka(){
-
+        c = true;
         require(a);
         _;
     }
 
     function requireb() public{
+        if (d){
+            d = false;
+        }
 
 
         require(b);
     }
     
     function test(uint _n, bool _b) checka public {
+        require(msg.sender != address(0));
         requireb();
     }
     

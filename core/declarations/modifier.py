@@ -25,7 +25,7 @@ class Modifier(Function):
 
         self.load_parameters(modifier)
         self.load_variables(modifier)
-        self.load_requires(modifier)
+        self.load_modifier_requires(modifier)
 
     def __str__(self):
         return self.signature

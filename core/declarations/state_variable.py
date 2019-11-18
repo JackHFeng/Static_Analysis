@@ -104,12 +104,6 @@ class StateVariable(Variable):
         else:
             return self.default_value
 
-    def __str__(self):
-        return self.name + "=>" + self.type
-
-    def __repr__(self):
-        return self.name + "=>" + self.type
-
 # static utility functions
 
 def set_default_value(_type, _value, _name):

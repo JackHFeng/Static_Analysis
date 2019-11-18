@@ -13,4 +13,7 @@ class Variable:
         return True
 
     def __str__(self):
-        return str(self.name) + ' ' + str(self.type)
+        return self.name + "=>" + self.type
+
+    def __repr__(self):
+        return self.name + "=>" + self.type
