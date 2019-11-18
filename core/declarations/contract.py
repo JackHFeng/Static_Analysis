@@ -11,14 +11,14 @@ class Contract:
 
     *** To be completed.
     """
-    def __init__(self, contract: Slither_Contract):
+    def __init__(self, _contract: Slither_Contract):
         """
         *** To be completed.
             default_satisfied_functions attribute is still yet to be loaded.
         """
 
         # e.g. "Ballot".
-        self.name = contract.name
+        self.name = _contract.name
 
         # map of functions with their name as key.
         self.functions = {}
@@ -34,7 +34,7 @@ class Contract:
         self.default_satisfied_functions = []
 
         # create modifier objects.
-        for modifier in contract.modifiers:
+        for modifier in _contract.modifiers:
             self.create_modifier(modifier)
 
         # create function objects.
@@ -47,10 +47,10 @@ class Contract:
         it will not show up in the dummy function. 
         E.g. uint a;
         """
-        for function in contract.functions:
+        for function in _contract.functions:
             self.create_function(function)
 
-    def get_function_by_name(self, name):
+    def get_function_by_name(self, _name):
         """
         Getter function for getting a function object
         using its name, if function does not exist
@@ -58,9 +58,9 @@ class Contract:
 
         Finished.
         """
-        return self.functions.get(name)
+        return self.functions.get(_name)
 
-    def get_modifier_by_name(self, name):
+    def get_modifier_by_name(self, _name):
         """
         Getter function for getting a modifier object
         using its name, if modifier does not exist
@@ -68,9 +68,9 @@ class Contract:
 
         Finished.
         """
-        return self.modifiers.get(name)
+        return self.modifiers.get(_name)
 
-    def get_state_variable_by_name(self, name):
+    def get_state_variable_by_name(self, _name):
         """
         Getter function for getting a state variable object
         using its name, if state variable does not exist
@@ -78,25 +78,25 @@ class Contract:
 
         Finished.
         """
-        return self.state_variables.get(name)
+        return self.state_variables.get(_name)
 
-    def create_function(self, function: Slither_Function):
+    def create_function(self, _function: Slither_Function):
         """
         Creates a function object, then adds to the map.
 
         Finished.
         """
-        new_function = Function(function, self)
+        new_function = Function(_function, self)
 
         self.functions[new_function.name] = new_function
 
-    def create_modifier(self, modifier: Slither_Modifier):
+    def create_modifier(self, _modifier: Slither_Modifier):
         """
         Creates a modifier object, then adds to the map.
 
         Finished.
         """
-        new_modifier = Modifier(modifier, self)
+        new_modifier = Modifier(_modifier, self)
 
         self.modifiers[new_modifier.name] = new_modifier
 
