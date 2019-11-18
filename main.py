@@ -4,7 +4,7 @@ from core.data_dependency_graph import DDGs
 def main():
 
     # name of contract.
-    contract_name = "ReceiverPays"
+    contract_name = "RequireExample"
 
     # the name of contract is used as file name to find the sol file in the root directory.
     contract_dir = f'./{contract_name}.sol'

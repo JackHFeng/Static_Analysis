@@ -39,6 +39,7 @@ class Contract:
 
         # create function objects.
         for function in contract.functions:
+            print(f'{function.name} {function.state_variables_read}')
             self.create_function(function)
 
     def get_function_by_name(self, name):
