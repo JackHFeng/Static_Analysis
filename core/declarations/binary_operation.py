@@ -6,7 +6,7 @@ class BinaryOperation(Operation):
     This class is still yet to be utilized.
     Currently, we are using slither BinaryOperation directly from slither.
 
-    Finished
+    Finished.
     """
     def __init__(self):
         super().__init__()
