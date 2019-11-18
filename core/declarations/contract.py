@@ -38,8 +38,16 @@ class Contract:
             self.create_modifier(modifier)
 
         # create function objects.
+        """
+        Slither has a inbuilt function called "slitherConstructorVariables". 
+        This is a dummy function that holds the state variable declaration statements. 
+        E.g. uint a = 0;
+        
+        However, if a state variable is only declared without value assignment, 
+        it will not show up in the dummy function. 
+        E.g. uint a;
+        """
         for function in contract.functions:
-            print(f'{function.name} {function.state_variables_read}')
             self.create_function(function)
 
     def get_function_by_name(self, name):
