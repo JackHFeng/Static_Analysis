@@ -1,8 +1,10 @@
+from .function import Function
+from .modifier import Modifier
+from .state_variable import StateVariable
+
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
 from slither.core.declarations.contract import Contract as Slither_Contract
-from .function import Function
-from .modifier import Modifier
 
 
 class Contract:
@@ -50,7 +52,7 @@ class Contract:
         for function in _contract.functions:
             self.create_function(function)
 
-    def get_function_by_name(self, _name):
+    def get_function_by_name(self, _name: str) -> Function:
         """
         Getter function for getting a function object
         using its name, if function does not exist
@@ -60,7 +62,7 @@ class Contract:
         """
         return self.functions.get(_name)
 
-    def get_modifier_by_name(self, _name):
+    def get_modifier_by_name(self, _name: str) -> Modifier:
         """
         Getter function for getting a modifier object
         using its name, if modifier does not exist
@@ -70,7 +72,7 @@ class Contract:
         """
         return self.modifiers.get(_name)
 
-    def get_state_variable_by_name(self, _name):
+    def get_state_variable_by_name(self, _name: str) -> StateVariable:
         """
         Getter function for getting a state variable object
         using its name, if state variable does not exist
