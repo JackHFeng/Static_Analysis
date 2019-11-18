@@ -27,6 +27,7 @@ class Require:
     def __init__(self, require: Solc_Node, new_function):
         # original code of the require statement
         self.code = str(require.expression)
+        print(f'***{self.code}')
 
         # function where the require resides
         self.from_function = new_function
@@ -55,6 +56,8 @@ class Require:
 
         self.load_variables(require)
         self.classify_require(require.expression.arguments[0])
+
+
 
     def compute_satisfying_condition(self):
         if len(self.state_variables_read) == 0:

@@ -4,11 +4,12 @@ from core.data_dependency_graph import DDGs
 def main():
 
     # name of contract.
-    contract_name = "WETH9"
+    contract_name = "Ballot"
 
     """
     ReceiverPays does not show owner. 
     WETH9 does not show requires. 
+    Ballot does not show requires. 
     """
 
     # the name of contract is used as file name to find the sol file in the root directory.

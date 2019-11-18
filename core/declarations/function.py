@@ -218,13 +218,18 @@ class Function:
                     sender = msg.sender;
                     require(owner == sender);
         """
-        for ir in _function.slithir_operations:
-            print(f'***{ir}')
-            if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
-                #print(ir.node)
-                self.create_require(ir.node)
+        for node in _function.nodes:
+            if node._node_type == 0:
+                continue
+
+            if node.internal_calls:
+                if node.internal_calls[0] in require_functions:
+                    self.create_require(node)
+                else:
+                    break
             else:
                 break
+
 
     def load_modifier_requires(self, _modifier):
         """
