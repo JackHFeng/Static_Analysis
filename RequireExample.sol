@@ -14,15 +14,12 @@ contract RequireExample {
     bool public d = true;
 
     modifier checka(){
-        c = true;
+
         require(a);
         _;
     }
 
     function requireb() public{
-        if (d){
-            d = false;
-        }
 
 
         require(b);
