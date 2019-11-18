@@ -19,14 +19,27 @@ class Function:
     """
     Function objects
 
-    It can find all requires and variables read by the requires because the analysis came from IR.
+    Notes:
+        1.
+            slither built-in functions, state_variables_read, state_variables_written only detects the requires,
+            state variables that directly appear in the function. If they reside within another function call, or
+            in a modifier, the built-in functions will not be able to detect them.
 
+            However, IR that is used in this implementation will detect all indirect requires and state variables.
+
+            We have to be very cautious on which approach we should take.
+
+            *** Currently, we are computing the "read by require" correctly, because we are using IR to find the require
+                statements and taking out all the state variables from it.
+
+                However, if a state variable is indirectly written, our current implementation will not detect it.
+                Switching to IR will help, be at this moment, it may be of lower priority.
+
+        2.
+            Modifiers can modify state variables.
+            Modifiers can take input parameters as well.
 
     *** To be completed.
-        What if the current function calls another function?
-            Will the state variable read/written show up if they are accessed in that function?
-            What about require?
-            What about modifier?
     """
     def __init__(self, function: Slither_Function, new_contract):
 
@@ -69,8 +82,8 @@ class Function:
         self.load_requires(function)
         self.load_modifiers(function)
 
-        # if the current function is the constructor.
-        # update all the state variables that are written by the constructor.
+        # if the current function is the constructor,
+        # we update all the state variables that are written by the constructor.
         # change their .set_by_constructor to True
         if self.name == "constructor":
             for sv in self.state_variables_written:
