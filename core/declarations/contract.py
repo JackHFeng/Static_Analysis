@@ -123,6 +123,9 @@ class Contract:
         res += '\n\tFunctions: \n'
 
         for f in self.functions.values():
+
             res += f'\t\t{str(f)}\n'
+            res += f'\t\t\t Requires {f.requires}\n'
+            res += f'\t\t\t Depended Functions {f.get_depended_functions_by_state_variable("buyer")}\n'
 
         return res

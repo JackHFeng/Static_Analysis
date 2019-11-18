@@ -114,12 +114,7 @@ class Function:
             for sv in self.state_variables_written:
                 sv.set_by_constructor = True
 
-        print(f'{self.name}')
-        print(f'\tsr {self.state_variables_read}')
-        print(f'\tsw {self.state_variables_written}')
-        print(f'\tlr {self.local_variables_read}')
-        print(f'\tlw {self.local_variables_written}')
-        print(f'\t {self.requires}')
+        # print(f'{self.name} {self.requires}')
 
     def get_depended_functions(self):
         """
@@ -212,26 +207,20 @@ class Function:
         Loading front require objects in a function.
 
         Notes:
-            Requires from both modifier and calls to another function will be added.
-                How should require from another function be treated?
+            What about requires from calls to another function?
 
             We need to differentiate requires that are not pre-conditions.
                 Either requires that does not appear at the beginning of the function call, or post condition modifiers.
-                This maybe easily achieved by using IR.
+                This maybe achieved by using IR.
 
             However, some requires might not appear at the beginning, yet they are still checking the pre-condition.
                 e.g.
                     sender = msg.sender;
                     require(owner == sender);
-
-        *** To be completed.
-            Remove post condition requires.
-
-
         """
         for ir in _function.slithir_operations:
             if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
-                print(ir.node)
+                #print(ir.node)
                 self.create_require(ir.node)
             else:
                 break
@@ -242,10 +231,11 @@ class Function:
 
         *** To be completed.
             Currently this is treating all requires in modifiers as pre-conditions.
+            We need to remove post-condition
         """
         for ir in _modifier.slithir_operations:
             if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
-                print(ir.node)
+                #print(ir.node)
                 self.create_require(ir.node)
 
     def load_irs(self, _nodes: List[Slither_NodeSolc]):
@@ -272,32 +262,63 @@ class Function:
                     self.ir_list.append(ir)
 
     def create_require(self, _require: Slither_NodeSolc):
+        """
+        Creating require objects.
+
+        *** To be completed.
+            There could be duplicate state or local variables added to the function.
+            Because all state and local variables from modifier objects have already been loaded using load_modifiers().
+            Take a look into this and confirm.
+        """
         self.load_state_variables(_require.state_variables_read, 'read')
         self.load_local_variables(_require.variables_read, 'read')
         new_require = Require(_require, self)
 
         self.requires.add(new_require)
 
+        """
+        This seems to be duplicate code as the above. 
+        Investigate. 
+        """
         for state_variable in new_require.state_variables_read:
             if state_variable not in self.state_variables_read:
                 self.state_variables_read.add(state_variable)
 
     def load_modifiers(self, _function: Slither_Function):
+        """
+        Loading modifier objects.
+
+        Finished.
+        """
         for modifier in _function.modifiers:
+            # adding modifier objects to current function.
             self.modifiers.add(self.from_contract.modifiers[modifier.name])
+
+            # adding state variables written from modifier to current function.
             for state_variable in self.from_contract.modifiers[modifier.name].state_variables_written:
                 self.state_variables_written.add(state_variable)
+
+            # adding state variables read from modifier to current function.
             for state_variable in self.from_contract.modifiers[modifier.name].state_variables_read:
                 self.state_variables_read.add(state_variable)
 
+            # loading requires from modifiers into current function.
             self.load_modifier_requires(modifier)
-            # for require in self.from_contract.modifiers[modifier.name].requires:
-            #     self.requires.append(require)
 
     def __str__(self):
+        """
+        Overrides str.
+
+        Finished.
+        """
         return self.signature
 
     def __repr__(self):
+        """
+        Overrides print.
+
+        Finished.
+        """
         return self.signature
 
 # static utility functions

@@ -4,7 +4,11 @@ from core.data_dependency_graph import DDGs
 def main():
 
     # name of contract.
-    contract_name = "RequireExample"
+    contract_name = "WETH9"
+
+    """
+    ReceiverPays does not show owner. 
+    """
 
     # the name of contract is used as file name to find the sol file in the root directory.
     contract_dir = f'./{contract_name}.sol'
@@ -15,7 +19,7 @@ def main():
 
     # getting the contract object by name.
     contract = data_dependency_graphs.get_contract_by_name(contract_name)
-
+    print(contract)
     # for sv in contract.state_variables.values():
     #     print(f'{sv.name} {sv.set_by_constructor}')
     # for fn in contract.functions.values():
