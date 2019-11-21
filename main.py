@@ -4,7 +4,7 @@ from core.data_dependency_graph import DDGs
 def main():
 
     # name of contract.
-    contract_name = "Ballot"
+    contract_name = "ReceiverPays"
 
     """
     ReceiverPays does not show owner. 
