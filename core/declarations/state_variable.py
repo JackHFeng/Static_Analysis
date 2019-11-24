@@ -1,6 +1,7 @@
 from .variable import Variable
 from slither.core.variables.state_variable import StateVariable as Slither_State_Variable
-
+from slither.core.expressions.literal import Literal
+from slither.core.expressions.identifier import Identifier
 
 class StateVariable(Variable):
     """
@@ -59,7 +60,7 @@ class StateVariable(Variable):
 
         # the default value of the state variable.
         # only available when state variable is not set by constructor.
-        self.default_value = set_default_value(self.type, variable.expression.value if variable.expression else None, self.name)
+        self.default_value = set_default_value(self.type, variable.expression if variable.expression else None, self.name)
 
         # print(self.name)
         # print(self.type)
@@ -114,6 +115,18 @@ def set_default_value(_type, _value, _name):
     *** To be completed.
         Handling more types.
     """
+
+    # this type handling is very temporary
+    if isinstance(_value, Literal):
+        if 'int' in str(_value.type):
+            _value = eval(str(_value))
+        else:
+            _value = _value.value
+    elif isinstance(_value, Identifier):
+        _value = None
+    else:
+        _value = eval(str(_value))
+
     default_value = default_value_helper(_value, _type, _name)
 
     if _type.startswith('int') or _type.startswith('uint'):

@@ -6,13 +6,13 @@ from .require import Require
 
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.variables.state_variable import StateVariable as Slither_StateVariable
-from slither.core.variables.local_variable import LocalVariable as Slither_Local_Variable
+from slither.core.variables.local_variable import LocalVariable as Slither_LocalVariable
 from slither.slithir.operations import SolidityCall as Slither_SolidityCall
 from slither.core.declarations import SolidityFunction as Slither_SolidityFunction
 from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.slithir.operations.internal_call import InternalCall as Slither_InternalCall
 from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
-
+from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
 # types of require function calls for getting the list of requires.
 require_functions = [Slither_SolidityFunction("require(bool)"),
                      Slither_SolidityFunction("require(bool,string)")]
@@ -77,6 +77,15 @@ class Function:
 
         # set of parameters.
         self.parameters = set()
+
+        # source code of function, currently not available
+        self.source_code = ''
+
+        # whether the function is view type
+        self.is_view = True if _function.view else False
+
+        # whether the function is pure type
+        self.is_pure = True if _function.pure else False
 
         # set of state variables written by the function.
         self.state_variables_written = set()
@@ -181,7 +190,7 @@ class Function:
         Finished.
         """
         for variable in _variables:
-            #print(f'Loading {RorW} state variable: {variable.name}')
+            # print(f'Loading  state variable: {variable.name}')
             if variable.name in self.from_contract.state_variables:
                 new_variable = self.from_contract.state_variables[variable.name]
             else:
@@ -190,13 +199,15 @@ class Function:
             getattr(new_variable, self.__class__.__name__.lower() + 's_' + _RorW).add(self)
             getattr(self, 'state_variables_' + _RorW).add(new_variable)
 
-    def load_local_variables(self, _variables: Slither_Local_Variable, _RorW):
+    def load_local_variables(self, _variables: Slither_LocalVariable, _RorW):
         """
         Loading local variable object.
 
         Finished.
         """
         for variable in _variables:
+            if type(variable) not in [Slither_StateVariable, Slither_LocalVariable, Slither_SolidityVariableComposed]:
+                continue
             if variable and variable.name not in [v.name for v in getattr(self, 'state_variables_' + _RorW)]:
                 #print(f'Loading {RorW} local variable: {variable.name}')
                 new_variable = Variable(variable)
@@ -219,7 +230,7 @@ class Function:
                     require(owner == sender);
         """
         for node in _function.nodes:
-            if node._node_type == 0:
+            if node._node_type in [0, 19]:
                 continue
 
             if node.internal_calls:

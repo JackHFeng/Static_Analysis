@@ -12,8 +12,9 @@ from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.literal import Literal
 import utils
 
-# from slither.core.variables.state_variable import StateVariable as Slither_StateVariable
-# from slither.core.variables.local_variable import LocalVariable as Slither_Local_Variable
+from slither.core.variables.state_variable import StateVariable as Slither_StateVariable
+from slither.core.variables.local_variable import LocalVariable as Slither_LocalVariable
+from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
 
 
 class Require:
@@ -22,12 +23,13 @@ class Require:
     Only requires at the beginning of the functions and within modifiers have been created.
 
     *** To be completed.
+
+    Cannot detect indirect read, but can detect indirect write, find out why.
     """
 
     def __init__(self, require: Solc_Node, new_function):
         # original code of the require statement
         self.code = str(require.expression)
-        print(f'***{self.code}')
 
         # function where the require resides
         self.from_function = new_function
@@ -125,6 +127,8 @@ class Require:
         # this "variables" object contains all variables read by the require statement
         # hence, contain both state, and local variables
         for variable in variables:
+            if type(variable) not in [Slither_StateVariable, Slither_LocalVariable, Slither_SolidityVariableComposed]:
+                continue
             # only loads non-state variables into the "self.local_variables_read" object
             if variable and variable.name not in [v.name for v in self.state_variables_read]:
                 # print(f'Loading read local variable: {variable.name}')

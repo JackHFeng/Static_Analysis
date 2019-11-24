@@ -50,6 +50,7 @@ class Contract:
         E.g. uint a;
         """
         for function in _contract.functions:
+            # print(function.name)
             self.create_function(function)
 
     def get_function_by_name(self, _name: str) -> Function:
