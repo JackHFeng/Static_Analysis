@@ -64,7 +64,7 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-127 299.645,-127 299.645,4 -4,4"/>
 <!-- constructor -->
 <g id="node1" class="node"><title>constructor</title>
-<g id="a_node1"><a xlink:title="Function: \n	constructor(bytes32[]) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	chairperson(address)\n	proposals(Ballot.Proposal[])\n	voters(mapping(address =&gt; Ballot.Voter))">
+<g id="a_node1"><a xlink:title="Function: \n	constructor(bytes32[]) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	proposals(Ballot.Proposal[])\n	voters(mapping(address =&gt; Ballot.Voter))\n	chairperson(address)">
 <ellipse fill="none" stroke="black" cx="52.6453" cy="-18" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="52.6453" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">constructor</text>
 </a>
@@ -72,21 +72,21 @@
 </g>
 <!-- giveRightToVote -->
 <g id="node2" class="node"><title>giveRightToVote</title>
-<g id="a_node2"><a xlink:title="Function: \n	giveRightToVote(address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == chairperson,Only chairperson can give right to vote.)\n	require(bool)(voters[voter].weight == 0)\n	require(bool,string)(! voters[voter].voted,The voter already voted.)\n&#45;&#45;&#45;\nState Variables Read: \n	chairperson(address)\n	voters(mapping(address =&gt; Ballot.Voter))\n&#45;&#45;&#45;\nState Variables Written: \n	voters(mapping(address =&gt; Ballot.Voter))">
+<g id="a_node2"><a xlink:title="Function: \n	giveRightToVote(address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == chairperson,Only chairperson can give right to vote.)\n	require(bool,string)(! voters[voter].voted,The voter already voted.)\n	require(bool)(voters[voter].weight == 0)\n&#45;&#45;&#45;\nState Variables Read: \n	voters(mapping(address =&gt; Ballot.Voter))\n	chairperson(address)\n&#45;&#45;&#45;\nState Variables Written: \n	voters(mapping(address =&gt; Ballot.Voter))">
 <ellipse fill="none" stroke="black" cx="183.645" cy="-105" rx="73.387" ry="18"/>
 <text text-anchor="middle" x="183.645" y="-101.3" font-family="Times New Roman,serif" font-size="14.00">giveRightToVote</text>
 </a>
 </g>
 </g>
 <!-- giveRightToVote&#45;&gt;constructor -->
-<g id="edge1" class="edge"><title>giveRightToVote&#45;&gt;constructor</title>
+<g id="edge2" class="edge"><title>giveRightToVote&#45;&gt;constructor</title>
 <path fill="none" stroke="black" d="M121.735,-95.2132C103.793,-90.0692 85.3653,-81.9172 71.6453,-69 65.2043,-62.9359 60.9259,-54.4609 58.0926,-46.2093"/>
 <polygon fill="black" stroke="black" points="61.4127,-45.089 55.305,-36.4318 54.681,-47.0083 61.4127,-45.089"/>
-<text text-anchor="middle" x="125.645" y="-57.8" font-family="Times New Roman,serif" font-size="14.00">chairperson, voters</text>
+<text text-anchor="middle" x="125.645" y="-57.8" font-family="Times New Roman,serif" font-size="14.00">voters, chairperson</text>
 </g>
 <!-- delegate -->
 <g id="node3" class="node"><title>delegate</title>
-<g id="a_node3"><a xlink:title="Function: \n	delegate(address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(! sender.voted,You already voted.)\n	require(bool,string)(to != msg.sender,Self&#45;delegation is disallowed.)\n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	proposals(Ballot.Proposal[])\n	voters(mapping(address =&gt; Ballot.Voter))">
+<g id="a_node3"><a xlink:title="Function: \n	delegate(address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(to != msg.sender,Self&#45;delegation is disallowed.)\n	require(bool,string)(! sender.voted,You already voted.)\n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	proposals(Ballot.Proposal[])\n	voters(mapping(address =&gt; Ballot.Voter))">
 <ellipse fill="none" stroke="black" cx="183.645" cy="-18" rx="40.0939" ry="18"/>
 <text text-anchor="middle" x="183.645" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">delegate</text>
 </a>
@@ -107,7 +107,7 @@
 </g>
 </g>
 <!-- giveRightToVote&#45;&gt;vote -->
-<g id="edge2" class="edge"><title>giveRightToVote&#45;&gt;vote</title>
+<g id="edge1" class="edge"><title>giveRightToVote&#45;&gt;vote</title>
 <path fill="none" stroke="black" d="M203.024,-87.2665C209.394,-81.5936 216.432,-75.1374 222.645,-69 231.383,-60.3692 240.623,-50.4876 248.511,-41.8005"/>
 <polygon fill="black" stroke="black" points="251.237,-44.004 255.322,-34.2285 246.032,-39.3228 251.237,-44.004"/>
 <text text-anchor="middle" x="255.145" y="-57.8" font-family="Times New Roman,serif" font-size="14.00">voters</text>

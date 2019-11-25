@@ -13,6 +13,8 @@ from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.slithir.operations.internal_call import InternalCall as Slither_InternalCall
 from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
 from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
+from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 # types of require function calls for getting the list of requires.
 require_functions = [Slither_SolidityFunction("require(bool)"),
                      Slither_SolidityFunction("require(bool,string)")]
@@ -24,7 +26,7 @@ class Function:
 
     Notes:
         1.
-            slither built-in functions, state_variables_read, state_variables_written only detects the requires,
+            ❌slither built-in functions, state_variables_read, state_variables_written only detects the requires,
             state variables that directly appear in the function. If they reside within another function call, or
             in a modifier, the built-in functions will not be able to detect them.
 
@@ -41,8 +43,8 @@ class Function:
             ❌*** Require indirect read of state/local variable is also not supported at the moment.
 
         2.
-            Modifiers can modify state variables. While the state variables written by the modifier are loaded in the
-            function object, it is still yet to be determined on what to do with it.
+            ❌*** Modifiers can modify state variables. While the state variables written by the modifier are loaded in the
+            Function object of our design, it is still yet to be determined on what to do with it.
 
             Modifiers can take input parameters as well.
 
@@ -198,7 +200,7 @@ class Function:
         Finished.
         """
         for variable in _variables:
-            # print(f'Loading  state variable: {variable.name}')
+            # get from dict if already exist
             if variable.name in self.from_contract.state_variables:
                 new_variable = self.from_contract.state_variables[variable.name]
             else:
@@ -214,10 +216,19 @@ class Function:
         Finished.
         """
         for variable in _variables:
-            if type(variable) not in [Slither_StateVariable, Slither_LocalVariable, Slither_SolidityVariableComposed]:
+            # Slither_SolidityVariableComposed is msg.send etc.
+            # There can be other types such as
+            #       slither.solc_parsing.variables.local_variable_init_from_tuple.LocalVariableInitFromTupleSolc
+            #           (Refer to slither def)
+            #       slither.core.declarations.solidity_variables.SolidityVariable (now)
+            if type(variable) not in [StateVariableSolc, LocalVariableSolc, Slither_SolidityVariableComposed]:
                 continue
-            if variable and variable.name not in [v.name for v in getattr(self, 'state_variables_' + _RorW)]:
-                #print(f'Loading {RorW} local variable: {variable.name}')
+            # There was a check of whether "variable" is None in the if condition
+            # But has been removed.
+
+            # duplicate has been checked.
+            if variable.name not in [v.name for v in getattr(self, 'state_variables_' + _RorW)]\
+                    and variable.name not in [v.name for v in getattr(self, 'local_variables_' + _RorW)]:
                 new_variable = Variable(variable)
                 getattr(self, 'local_variables_' + _RorW).add(new_variable)
 
@@ -262,7 +273,6 @@ class Function:
                 # if not. Requires appear after this are not pre-conditional checking requires.
                 break
 
-
     def load_modifier_requires(self, _modifier):
         """
         Loading require objects in a modifier.
@@ -286,7 +296,7 @@ class Function:
             We are only loading non
 
         *** To be completed.
-            We may not need this after all.....
+            ❌We may not need this after all.....
         """
         for n in _nodes:
             if not n.irs:
@@ -304,7 +314,9 @@ class Function:
         Creating require objects.
 
         *** To be completed.
-            There could be duplicate state or local variables added to the function.
+            ❌There could be duplicate state or local variables added to the function.
+                ✔There shouldn't be any duplicate state variables since they are only created once, and they are added to a set.
+                There might be duplicate local variables.
             Because all state and local variables from modifier objects have already been loaded using load_modifiers().
             Take a look into this and confirm.
         """
@@ -358,6 +370,50 @@ class Function:
         Finished.
         """
         return self.signature
+
+    def function_summary(self):
+        """
+        For returning the summary of the function.
+
+        Finished.
+        """
+        res = []
+        res.append(f'Function: {self.signature}')
+        res.append(f'\tVisibility: {self.visibility}')
+
+        res.append(f'\tModifiers: ')
+        for m in self.modifiers:
+            res.append(f'\t\t{str(m)}')
+
+        res.append(f'\tRequires:')
+        for r in self.requires:
+            res.append(f'\t\t{str(r)}')
+
+        v = ''
+        for s in self.state_variables_read:
+            v += s.name + ', '
+        res.append(f'\tState Vars Read: {v[:-2]}')
+
+        v = ''
+        for s in self.state_variables_written:
+            v += s.name + ', '
+        res.append(f'\tState Vars Written: {v[:-2]}')
+
+        v = ''
+        for s in self.local_variables_read:
+            v += s.name + ', '
+        res.append(f'\tLocal Vars Read: {v[:-2]}')
+
+        v = ''
+        for s in self.local_variables_written:
+            v += s.name + ', '
+        res.append(f'\tLocal Vars Written: {v[:-2]}')
+
+        return '\n'.join(res)
+
+
+
+
 
 # static utility functions
 

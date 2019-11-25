@@ -23,7 +23,7 @@ def main(_contract_name):
 
     # getting the contract object by name.
     contract = data_dependency_graphs.get_contract_by_name(contract_name)
-    # print(contract)
+    #print(contract.contract_summary())
 
     # Graph generation
     DG = DependencyGraph(contract)

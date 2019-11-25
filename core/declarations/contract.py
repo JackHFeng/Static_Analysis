@@ -105,28 +105,39 @@ class Contract:
 
     def __str__(self):
         """
-        Overrides the str().
+        Returns contract name.
+
+        Finished
+        """
+        return self.name
+
+    def contract_summary(self):
+        """
+        Prints the summary of the contract.
 
         Finished.
         """
-        res = ''
-        res += f'Contract Name: {self.name}\n'
-        res += f'\tState Variables:\n'
+        from .utils import increase_indentation
 
-        for sv in self.state_variables.values():
-            res += f'\t\t{str(sv)}\n'
+        res = []
+        res.append(f'Contract Name: {self.name}')
 
-        res += '\n\tModifiers: \n'
+        s = ""
+        for v in self.state_variables.values():
+            s += v.name + ', '
+
+        res.append(f'State Variables: {s[:-2]}')
+
+        res.append(f'Modifiers: ')
 
         for m in self.modifiers.values():
-            res += f'\t\t{str(m)}\n'
+            res.append(increase_indentation(m.modifier_summary()))
+            res.append('')
 
-        res += '\n\tFunctions: \n'
+        res.append(f'Functions: ')
 
         for f in self.functions.values():
+            res.append(increase_indentation(f.function_summary()))
+            res.append('')
 
-            res += f'\t\t{str(f)}\n'
-            res += f'\t\t\t Requires {f.requires}\n'
-            res += f'\t\t\t Depended Functions {f.get_depended_functions_by_state_variable("buyer")}\n'
-
-        return res
+        return '\n'.join(res)

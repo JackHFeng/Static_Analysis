@@ -27,6 +27,41 @@ class Modifier(Function):
         self.load_variables(modifier)
         self.load_modifier_requires(modifier)
 
+    def modifier_summary(self):
+        """
+        For returning the summary of the modifier.
+
+        Finished.
+        """
+        res = []
+        res.append(f'Modifier: {self.signature}')
+
+        res.append(f'\tRequires:')
+        for r in self.requires:
+            res.append(f'\t\t{str(r)}')
+
+        v = ''
+        for s in self.state_variables_read:
+            v += s.name + ', '
+        res.append(f'\tState Vars Read: {v[:-2]}')
+
+        v = ''
+        for s in self.state_variables_written:
+            v += s.name + ', '
+        res.append(f'\tState Vars Written: {v[:-2]}')
+
+        v = ''
+        for s in self.local_variables_read:
+            v += s.name + ', '
+        res.append(f'\tLocal Vars Read: {v[:-2]}')
+
+        v = ''
+        for s in self.local_variables_written:
+            v += s.name + ', '
+        res.append(f'\tLocal Vars Written: {v[:-2]}')
+
+        return '\n'.join(res)
+
     def __str__(self):
         return self.signature
 
