@@ -1,10 +1,12 @@
 from core.data_dependency_graph import DDGs
+from core.dependency_graph.dependency_graph import DependencyGraph
 
 
-def main():
+def main(_contract_name):
 
     # name of contract.
-    contract_name = "ReceiverPays"
+    # contract_name = "ReceiverPays"
+    contract_name = _contract_name
 
     """
     ReceiverPays does not show owner. 
@@ -13,7 +15,7 @@ def main():
     """
 
     # the name of contract is used as file name to find the sol file in the root directory.
-    contract_dir = f'./{contract_name}.sol'
+    contract_dir = f'./_sample_contracts/{contract_name}.sol'
 
     # constructs the data dependency graph.
     # if a file contains multiple contracts, DDG will be constructed for each.
@@ -21,8 +23,37 @@ def main():
 
     # getting the contract object by name.
     contract = data_dependency_graphs.get_contract_by_name(contract_name)
-    print(contract)
+    # print(contract)
+
+    # Graph generation
+    DG = DependencyGraph(contract)
+
+    f = open(f'./_graphs/{contract_name}.html', 'w')
+    f.write(DG.html)
+    f.close()
 
 
 if __name__ == '__main__':
-    main()
+    main('Ballot')
+
+    # import subprocess
+    # l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]
+    # subprocess.call(['solc', 'use', '0.5.11'])
+    # for c in l:
+    #     main(c)
+    #
+    # subprocess.call(['solc', 'use', '0.5.7'])
+    # main('CryptoHands')
+    #
+    # subprocess.call(['solc', 'use', '0.4.25'])
+    # main('CryptoMinerToken')
+    #
+    # subprocess.call(['solc', 'use', '0.4.24'])
+    # main('lothlor')
+    #
+    # subprocess.call(['solc', 'use', '0.4.18'])
+    # main('HoloToken')
+    # main('WETH9')
+    #
+    # subprocess.call(['solc', 'use', '0.4.16'])
+    # main('Exchange')

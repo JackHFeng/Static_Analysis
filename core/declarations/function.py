@@ -32,11 +32,13 @@ class Function:
 
             We have to be very cautious on which approach we should take.
 
-            *** Currently, we are computing the "read by require" correctly, because we are using IR to find the require
+            ✔*** Currently, we are computing the "read by require" correctly, because we are using IR to find the require
                 statements and taking out all the state variables from it.
 
-                However, if a state variable is indirectly written, our current implementation will not detect it.
-                Switching to IR will help, be at this moment, it may be of lower priority.
+            ✔*** However, if a state variable is indirectly written, our current implementation will not detect it.
+                Switching to IR will help, but at this moment, it may be of lower priority.
+
+            ❌*** Require indirect read of state/local variable is also not supported at the moment.
 
         2.
             Modifiers can modify state variables. While the state variables written by the modifier are loaded in the
@@ -130,14 +132,17 @@ class Function:
         Returns the list of functions the current function depends on.
         The data dependency here is all the state variables that the current function reads.
 
-        *** To be completed.
+        Notes:
             Cases where the returned array might be empty.
                 What if the current function does not read any state variable?
-                What if none of the read state variables cannot be modified by another function?
+                What if none of the read state variables can be modified by another function?
+
+        Finished.
         """
         res = []
         for sv in self.state_variables_read:
             for fn in sv.functions_written:
+                # only returns public functions
                 if fn is not self and fn not in res and fn.visibility == 'public':
                     res.append(fn)
         return res
@@ -147,15 +152,18 @@ class Function:
         Returns the list of functions the current function depends on.
         The data dependency here is the specified state variables that the current function reads.
 
-        *** To be completed.
+        Notes:
             Cases where the returned array might be empty.
                 What if the current function does not read any state variable?
-                What if the specified read state variables cannot be modified by another function?
+                What if none of the read state variables can be modified by another function?
+
+        Finished.
         """
         res = []
         for sv in self.state_variables_read:
             if sv.name == _name:
                 for fn in sv.functions_written:
+                    # only returns public functions
                     if fn is not self and fn not in res and fn.visibility == 'public':
                         res.append(fn)
                 return res
@@ -218,27 +226,40 @@ class Function:
         Loading front require objects in a function.
 
         Notes:
-            What about requires from calls to another function?
+            ✔What about requires from calls to another function?
+                ✔*** This is currently not considered since they are not the pre-conditional requires of the parent
+                    function.
 
-            We need to differentiate requires that are not pre-conditions.
+            ❌We need to differentiate requires that are not pre-conditions.
                 Either requires that does not appear at the beginning of the function call, or post condition modifiers.
                 This maybe achieved by using IR.
+                    ✔*** requires doesn't appear at the beginning of the function call as been removed.
+                    ❌*** post-conditional requires from modifiers due to _; still needs to be removed.
 
-            However, some requires might not appear at the beginning, yet they are still checking the pre-condition.
+            ✔However, some requires might not appear at the beginning, yet they are still checking the pre-condition.
+            ❌This is also indirect read of variables, which has not been handled.
                 e.g.
                     sender = msg.sender;
                     require(owner == sender);
         """
         for node in _function.nodes:
+            # https://github.com/crytic/slither/blob/master/slither/core/cfg/node.py
+            # node_type => 0 represents Entry Point Node, we can safely skip this.
+            # node_type => 19 (0x13 in hex) represents Variable Declaration, we can safely skip this because
+            # requires appears after new variable declaration should still be pre-condition checking.
             if node._node_type in [0, 19]:
                 continue
 
+            # require() is a internal call, this finds potential require statement.
             if node.internal_calls:
+                # check if the call is actually require call.
                 if node.internal_calls[0] in require_functions:
                     self.create_require(node)
                 else:
+                    # if not. Requires appear after this are not pre-conditional checking requires.
                     break
             else:
+                # if not. Requires appear after this are not pre-conditional checking requires.
                 break
 
 
