@@ -3,11 +3,17 @@ from slither.core.variables.state_variable import StateVariable as Slither_State
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.identifier import Identifier
 
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.solidity_types.mapping_type import MappingType
+from slither.core.solidity_types.array_type import ArrayType
+
 class StateVariable(Variable):
     """
     State variable object.
 
     *** To be completed.
+        ❌ Still need to add state variables that are not checked by require.
     """
     def __init__(self, variable: Slither_State_Variable):
         # e.g. "balance".
@@ -60,7 +66,8 @@ class StateVariable(Variable):
 
         # the default value of the state variable.
         # only available when state variable is not set by constructor.
-        self.default_value = set_default_value(self.type, variable.expression if variable.expression else None, self.name)
+        self.default_value = \
+            set_default_value(variable.type, variable.expression if variable.expression else None, self.name)
 
         # print(self.name)
         # print(self.type)
@@ -107,27 +114,48 @@ class StateVariable(Variable):
 
 # static utility functions
 
-def set_default_value(_type, _value, _name):
+def set_default_value(_type, _exp, _name):
     """
+    _type:      data type of the state variable.
+    _exp:       expression of the static value assignment, such as  "msg.sender" for "owner = msg.sender".
+    _name:      state variable name.
+
     Sets the default value of the state variable.
     A default value only exists when the state variable is not modified by the constructor.
 
     *** To be completed.
         Handling more types.
     """
+    slither_type = _type
+    _type = str(_type)
 
-    # this type handling is very temporary
-    if isinstance(_value, Literal):
-        if 'int' in str(_value.type):
-            _value = eval(str(_value))
+    if isinstance(_exp, Literal):
+        # if _exp is int, convert the number of python code.
+        # using eval is for the cases of "1e10"
+        if 'int' in str(_exp.type):
+            _exp = eval(str(_exp))
+        # ❌ other types are still using string.
         else:
-            _value = _value.value
-    elif isinstance(_value, Identifier):
-        _value = None
+            _exp = _exp.value
+    elif isinstance(_exp, Identifier):
+        """
+            ❌ Only msg.sender or now etc. can be used for initial assignment. 
+            However, for customized struct, it may work differently. 
+            also a = 0, b = a
+            
+            *** To be completed
+        """
+        _exp = None
+    elif not _exp:
+        """
+            Makes the _exp None. 
+            ❌ There might be other cases. 
+        """
+        _exp = eval(str(_exp))
     else:
-        _value = eval(str(_value))
+        raise Exception(f"Some unhandled cases happened. \n\t Type of _exp is {type(_exp)}")
 
-    default_value = default_value_helper(_value, _type, _name)
+    default_value = default_value_helper(_exp, slither_type, _name)
 
     if _type.startswith('int') or _type.startswith('uint'):
         return int(default_value)
@@ -138,9 +166,10 @@ def set_default_value(_type, _value, _name):
             return False
     elif _type == 'string' or _type == 'byte' or _type == 'address':
         return default_value
+    elif not default_value:
+        return None
     else:
-        print(f'Unhandled type: {_type} for {_name}')
-        # raise Exception(f'Unhandled type: <{_type}> for "{_name}"')
+        raise Exception(f'Unhandled type: \n\t {_type}')
 
 
 def default_value_helper(_value, _type, _name):
@@ -153,20 +182,46 @@ def default_value_helper(_value, _type, _name):
         Handling more types.
     """
 
-    if _value:
-        return _value
+    slither_type = _type
+    _type = str(_type)
 
-    if _type.startswith('int') or _type.startswith('uint'):
-        return '0'
-    elif _type == 'bool':
-        return 'false'
-    elif _type == 'string':
-        return ''
-    elif _type == 'byte':
-        return '0x0'
-    elif _type == 'address':
-        return '0x' + "".zfill(40)
+    # There can also be <class 'slither.core.solidity_types.user_defined_type.UserDefinedType'>
+    if isinstance(slither_type, ElementaryType):
+        if _value:
+            return _value
+
+        if _type.startswith('int') or _type.startswith('uint'):
+            return '0'
+        elif _type == 'bool':
+            return 'false'
+        elif _type == 'string':
+            return ''
+        elif _type == 'byte':
+            return '0x0'
+        elif _type == 'address':
+            return '0x' + "".zfill(40)
+        else:
+            raise Exception(f'Unhandled Solidity Elementary Type. \n {_type} for {_name}')
+
+    # this is only returning the default value of the deepest type of a mapping or array.
+    elif isinstance(slither_type, MappingType) or isinstance(slither_type, ArrayType):
+        default_value_helper(_value, get_deepest_type(slither_type), _name)
+    elif isinstance(slither_type, UserDefinedType):
+        print(f'Unhandled user defined type: \n\t{_type} for {_name}')
+        return None
+
+
+def get_deepest_type(_type):
+
+    if isinstance(_type, MappingType):
+        d_type = get_deepest_type(_type.type_to)
+    elif isinstance(_type, ArrayType):
+        d_type = get_deepest_type(_type.type)
+    elif isinstance(_type, ElementaryType):
+        d_type = _type
+    elif isinstance(_type, UserDefinedType):
+        d_type = _type
     else:
-        print(f'Unhandled type: {_type} for {_name}')
-        # raise Exception(f'Unhandled type: {_type} for {_name}')
+        raise Exception(f'Unhandled type: \n\t {type(_type)}')
 
+    return d_type

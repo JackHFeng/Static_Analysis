@@ -34,7 +34,12 @@ def main(_contract_name):
 
 
 if __name__ == '__main__':
-    main('Ballot')
+    # main('Ballot')
+
+    l = ["Example", "Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]
+    for c in l:
+        print(c)
+        main(c)
 
     # import subprocess
     # l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]

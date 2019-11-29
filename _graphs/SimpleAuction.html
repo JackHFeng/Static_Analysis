@@ -72,7 +72,7 @@
 </g>
 <!-- bid -->
 <g id="node2" class="node"><title>bid</title>
-<g id="a_node2"><a xlink:title="Function: \n	bid() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(now &lt;= auctionEndTime,Auction already ended.)\n	require(bool,string)(msg.value &gt; highestBid,There already is a higher bid.)\n&#45;&#45;&#45;\nState Variables Read: \n	highestBid(uint256)\n	auctionEndTime(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	highestBid(uint256)\n	pendingReturns(mapping(address =&gt; uint256))\n	highestBidder(address)">
+<g id="a_node2"><a xlink:title="Function: \n	bid() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.value &gt; highestBid,There already is a higher bid.)\n	require(bool,string)(now &lt;= auctionEndTime,Auction already ended.)\n&#45;&#45;&#45;\nState Variables Read: \n	highestBid(uint256)\n	auctionEndTime(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	highestBid(uint256)\n	pendingReturns(mapping(address =&gt; uint256))\n	highestBidder(address)">
 <ellipse fill="none" stroke="black" cx="27" cy="-105" rx="27" ry="18"/>
 <text text-anchor="middle" x="27" y="-101.3" font-family="Times New Roman,serif" font-size="14.00">bid</text>
 </a>
@@ -94,7 +94,7 @@
 </g>
 <!-- auctionEnd -->
 <g id="node4" class="node"><title>auctionEnd</title>
-<g id="a_node4"><a xlink:title="Function: \n	auctionEnd() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(now &gt;= auctionEndTime,Auction not yet ended.)\n	require(bool,string)(! ended,auctionEnd has already been called.)\n&#45;&#45;&#45;\nState Variables Read: \n	ended(bool)\n	auctionEndTime(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	ended(bool)">
+<g id="a_node4"><a xlink:title="Function: \n	auctionEnd() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(! ended,auctionEnd has already been called.)\n	require(bool,string)(now &gt;= auctionEndTime,Auction not yet ended.)\n&#45;&#45;&#45;\nState Variables Read: \n	ended(bool)\n	auctionEndTime(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	ended(bool)">
 <ellipse fill="none" stroke="black" cx="142" cy="-105" rx="51.9908" ry="18"/>
 <text text-anchor="middle" x="142" y="-101.3" font-family="Times New Roman,serif" font-size="14.00">auctionEnd</text>
 </a>

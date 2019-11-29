@@ -72,7 +72,7 @@
 </g>
 <!-- abort -->
 <g id="node2" class="node"><title>abort</title>
-<g id="a_node2"><a xlink:title="Function: \n	abort() returns()\n&#45;&#45;&#45;\nModifiers: \n	inState(Purchase.State) returns()\n	onlySeller() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(state == _state,Invalid state.)\n	require(bool,string)(msg.sender == seller,Only seller can call this.)\n&#45;&#45;&#45;\nState Variables Read: \n	seller(address)\n	state(Purchase.State)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
+<g id="a_node2"><a xlink:title="Function: \n	abort() returns()\n&#45;&#45;&#45;\nModifiers: \n	inState(Purchase.State) returns()\n	onlySeller() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == seller,Only seller can call this.)\n	require(bool,string)(state == _state,Invalid state.)\n&#45;&#45;&#45;\nState Variables Read: \n	seller(address)\n	state(Purchase.State)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
 <ellipse fill="none" stroke="black" cx="244.645" cy="-192" rx="29.795" ry="18"/>
 <text text-anchor="middle" x="244.645" y="-188.3" font-family="Times New Roman,serif" font-size="14.00">abort</text>
 </a>
@@ -93,45 +93,45 @@
 </g>
 </g>
 <!-- abort&#45;&gt;confirmPurchase -->
-<g id="edge3" class="edge"><title>abort&#45;&gt;confirmPurchase</title>
+<g id="edge2" class="edge"><title>abort&#45;&gt;confirmPurchase</title>
 <path fill="none" stroke="black" d="M221.739,-180.264C212.191,-174.508 202.079,-166.427 196.645,-156 193.059,-149.118 191.855,-140.948 191.807,-133.226"/>
 <polygon fill="black" stroke="black" points="195.308,-133.311 192.343,-123.14 188.318,-132.94 195.308,-133.311"/>
 <text text-anchor="middle" x="209.645" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">state</text>
 </g>
 <!-- confirmReceived -->
 <g id="node4" class="node"><title>confirmReceived</title>
-<g id="a_node4"><a xlink:title="Function: \n	confirmReceived() returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyBuyer() returns()\n	inState(Purchase.State) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == buyer,Only buyer can call this.)\n	require(bool,string)(state == _state,Invalid state.)\n&#45;&#45;&#45;\nState Variables Read: \n	state(Purchase.State)\n	buyer(address)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
+<g id="a_node4"><a xlink:title="Function: \n	confirmReceived() returns()\n&#45;&#45;&#45;\nModifiers: \n	inState(Purchase.State) returns()\n	onlyBuyer() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == buyer,Only buyer can call this.)\n	require(bool,string)(state == _state,Invalid state.)\n&#45;&#45;&#45;\nState Variables Read: \n	state(Purchase.State)\n	buyer(address)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
 <ellipse fill="none" stroke="black" cx="263.645" cy="-18" rx="72.5877" ry="18"/>
 <text text-anchor="middle" x="263.645" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">confirmReceived</text>
 </a>
 </g>
 </g>
 <!-- abort&#45;&gt;confirmReceived -->
-<g id="edge2" class="edge"><title>abort&#45;&gt;confirmReceived</title>
+<g id="edge3" class="edge"><title>abort&#45;&gt;confirmReceived</title>
 <path fill="none" stroke="black" d="M253.506,-174.631C260.547,-161.098 270.241,-141.217 276.645,-123 284.832,-99.7114 286.736,-93.5137 289.645,-69 290.431,-62.3798 291.739,-60.3294 289.645,-54 288.542,-50.665 286.985,-47.389 285.174,-44.2601"/>
 <polygon fill="black" stroke="black" points="288.045,-42.2577 279.566,-35.9053 282.233,-46.159 288.045,-42.2577"/>
 <text text-anchor="middle" x="299.645" y="-101.3" font-family="Times New Roman,serif" font-size="14.00">state</text>
 </g>
 <!-- confirmPurchase&#45;&gt;abort -->
-<g id="edge4" class="edge"><title>confirmPurchase&#45;&gt;abort</title>
+<g id="edge5" class="edge"><title>confirmPurchase&#45;&gt;abort</title>
 <path fill="none" stroke="black" d="M209.973,-122.857C214.344,-128.43 218.963,-134.797 222.645,-141 227.071,-148.454 231.141,-156.959 234.545,-164.815"/>
 <polygon fill="black" stroke="black" points="231.411,-166.396 238.477,-174.29 237.877,-163.712 231.411,-166.396"/>
 <text text-anchor="middle" x="243.645" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">state</text>
 </g>
 <!-- confirmPurchase&#45;&gt;confirmReceived -->
-<g id="edge5" class="edge"><title>confirmPurchase&#45;&gt;confirmReceived</title>
+<g id="edge4" class="edge"><title>confirmPurchase&#45;&gt;confirmReceived</title>
 <path fill="none" stroke="black" d="M181.237,-87.3596C174.25,-77.1867 168.717,-64.2124 175.645,-54 181.392,-45.5303 189.547,-39.1102 198.599,-34.2437"/>
 <polygon fill="black" stroke="black" points="200.332,-37.2966 207.895,-29.8766 197.356,-30.9609 200.332,-37.2966"/>
 <text text-anchor="middle" x="188.645" y="-57.8" font-family="Times New Roman,serif" font-size="14.00">state</text>
 </g>
 <!-- confirmReceived&#45;&gt;abort -->
-<g id="edge6" class="edge"><title>confirmReceived&#45;&gt;abort</title>
+<g id="edge7" class="edge"><title>confirmReceived&#45;&gt;abort</title>
 <path fill="none" stroke="black" d="M285.842,-35.1428C292.216,-40.587 298.757,-47.0594 303.645,-54 321.615,-79.5132 328.998,-94.3427 316.645,-123 307.859,-143.383 289.625,-160.501 273.707,-172.463"/>
 <polygon fill="black" stroke="black" points="271.272,-169.901 265.176,-178.566 275.345,-175.594 271.272,-169.901"/>
 <text text-anchor="middle" x="335.645" y="-101.3" font-family="Times New Roman,serif" font-size="14.00">state</text>
 </g>
 <!-- confirmReceived&#45;&gt;confirmPurchase -->
-<g id="edge7" class="edge"><title>confirmReceived&#45;&gt;confirmPurchase</title>
+<g id="edge6" class="edge"><title>confirmReceived&#45;&gt;confirmPurchase</title>
 <path fill="none" stroke="black" d="M243.038,-35.3362C236.73,-40.8821 230.039,-47.3638 224.645,-54 218.731,-61.2761 213.271,-69.9017 208.721,-77.9224"/>
 <polygon fill="black" stroke="black" points="205.52,-76.4844 203.826,-86.943 211.672,-79.8234 205.52,-76.4844"/>
 <text text-anchor="middle" x="257.145" y="-57.8" font-family="Times New Roman,serif" font-size="14.00">state, buyer</text>

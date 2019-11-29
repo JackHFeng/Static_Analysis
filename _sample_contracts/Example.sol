@@ -1,8 +1,9 @@
 pragma solidity 0.5.11;
 contract Example{
     uint public state_a = 100;
-
+	mapping(address => mapping(address => uint)) public balances;
     function example1(uint a, uint b) public returns (uint){
+		require(balances[msg.sender][msg.sender] > 0);
         require(a == b);
         uint c = a + b;
         uint d = c + c * 2;
