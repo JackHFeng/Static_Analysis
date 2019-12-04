@@ -8,7 +8,7 @@ class UnaryOperation(Operation):
 
     Finished.
     """
+
     def __init__(self):
         super().__init__()
         self.var = None
-

@@ -1,21 +1,14 @@
-from .function_call import FunctionCall
-
 from typing import List
 
-from .local_variable import LocalVariable
-from .state_variable import StateVariable
-from .require import Require
-
 from slither.core.declarations.function import Function as Slither_Function
-from slither.core.variables.state_variable import StateVariable as Slither_StateVariable
-from slither.core.variables.local_variable import LocalVariable as Slither_LocalVariable
-from slither.slithir.operations import SolidityCall as Slither_SolidityCall
-from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.slithir.operations.internal_call import InternalCall as Slither_InternalCall
+from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
 
-# types of require function calls for getting the list of requires.
+from .function_call import FunctionCall
 
+
+# types of require function calls for getting the list of requires.
 
 
 class Function(FunctionCall):
@@ -53,6 +46,7 @@ class Function(FunctionCall):
 
     *** To be completed.
     """
+
     def __init__(self, function: Slither_Function, parent_contract):
         super().__init__()
         # e.g. "public", "external", "internal", etc.

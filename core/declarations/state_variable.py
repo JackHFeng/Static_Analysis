@@ -1,15 +1,15 @@
-from .variable import Variable
-from slither.core.variables.state_variable import StateVariable as Slither_State_Variable
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.binary_operation import BinaryOperation
-from slither.core.expressions.unary_operation import UnaryOperation
+from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.literal import Literal
 from slither.core.expressions.tuple_expression import TupleExpression
-
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.solidity_types.mapping_type import MappingType
+from slither.core.expressions.unary_operation import UnaryOperation
 from slither.core.solidity_types.array_type import ArrayType
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.mapping_type import MappingType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.variables.state_variable import StateVariable as Slither_State_Variable
+
+from .variable import Variable
 
 
 class StateVariable(Variable):
@@ -19,6 +19,7 @@ class StateVariable(Variable):
     *** To be completed.
         ❌ Still need to add state variables that are not checked by require.
     """
+
     def __init__(self, variable: Slither_State_Variable):
 
         # e.g."internal", "public" ,etc.
@@ -160,6 +161,7 @@ class StateVariable(Variable):
 
     def add_read_require(self, require):
         self._requires_read.add(require)
+
     # end of region
     ###################################################################################
     ###################################################################################
@@ -334,7 +336,6 @@ def default_value_helper(value, data_type, name):
 
 
 def get_deepest_type(data_type):
-
     if isinstance(data_type, MappingType):
         d_type = get_deepest_type(data_type.type_to)
     elif isinstance(data_type, ArrayType):

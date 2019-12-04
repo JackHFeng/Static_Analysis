@@ -1,6 +1,6 @@
+from slither.core.declarations.modifier import Modifier as Slither_Modifier
 
 from .function_call import FunctionCall
-from slither.core.declarations.modifier import Modifier as Slither_Modifier
 
 
 class Modifier(FunctionCall):

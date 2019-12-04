@@ -1,6 +1,3 @@
-from slither.core.variables.local_variable import LocalVariable as Slither_Local_Variable
-
-
 class Variable:
     def __init__(self):
         self._name = None
@@ -32,4 +29,3 @@ class Variable:
     # region => public getters
     ###################################################################################
     ###################################################################################
-

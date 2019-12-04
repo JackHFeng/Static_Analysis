@@ -1,14 +1,14 @@
-from .local_variable import LocalVariable
-from .state_variable import StateVariable
-from .require import Require
-from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
-
-from slither.solc_parsing.variables.local_variable import LocalVariableSolc
+from slither.core.declarations import SolidityFunction as Slither_SolidityFunction
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
-from slither.core.declarations import SolidityFunction as Slither_SolidityFunction
+from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
 from slither.slithir.operations import SolidityCall as Slither_SolidityCall
 from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
+from slither.solc_parsing.variables.local_variable import LocalVariableSolc
+
+from .local_variable import LocalVariable
+from .require import Require
+from .state_variable import StateVariable
 
 require_functions = [Slither_SolidityFunction("require(bool)"),
                      Slither_SolidityFunction("require(bool,string)")]
@@ -255,7 +255,6 @@ class FunctionCall:
             self._local_variables_read.add(local_variable)
 
         self._requires.add(new_require)
-
 
     # end of region
     ###################################################################################

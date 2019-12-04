@@ -1,9 +1,9 @@
+import z3
 from slither.core.expressions.binary_operation import BinaryOperation
-from slither.core.expressions.unary_operation import UnaryOperation
-from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.literal import Literal
-import z3
+from slither.core.expressions.tuple_expression import TupleExpression
+from slither.core.expressions.unary_operation import UnaryOperation
 
 
 def get_z3_vars(op, dic):

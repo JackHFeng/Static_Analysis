@@ -1,24 +1,19 @@
-from slither.solc_parsing.cfg.node import NodeSolc as Solc_Node
-from .state_variable import StateVariable
-from .local_variable import LocalVariable
-
-
-from slither.core.expressions.binary_operation import BinaryOperation
-from slither.core.expressions.unary_operation import UnaryOperation
-from slither.core.expressions.tuple_expression import TupleExpression
-from slither.core.expressions.index_access import IndexAccess
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.literal import Literal
-import utils
-
-from slither.slithir.variables.reference import ReferenceVariable
-from slither.solc_parsing.variables.state_variable import StateVariableSolc
-from slither.solc_parsing.variables.local_variable import LocalVariableSolc
-
-from slither.core.variables.state_variable import StateVariable as Slither_StateVariable
-from slither.core.variables.local_variable import LocalVariable as Slither_LocalVariable
 from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
+from slither.core.expressions.binary_operation import BinaryOperation
+from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.index_access import IndexAccess
+from slither.core.expressions.literal import Literal
+from slither.core.expressions.member_access import MemberAccess
+from slither.core.expressions.tuple_expression import TupleExpression
+from slither.core.expressions.unary_operation import UnaryOperation
+from slither.slithir.variables.reference import ReferenceVariable
+from slither.solc_parsing.cfg.node import NodeSolc as Solc_Node
+from slither.solc_parsing.variables.local_variable import LocalVariableSolc
+from slither.solc_parsing.variables.state_variable import StateVariableSolc
+
+import utils
+from .local_variable import LocalVariable
+from .state_variable import StateVariable
 
 
 class Require:
@@ -37,7 +32,6 @@ class Require:
         # for var in require._slithir_vars:
         #     if isinstance(var, ReferenceVariable) and var.name == "REF_12":
         #         print(f'\t{var.name}  {type(var.points_to_origin)} {var.points_to_origin.name}   {type(var.points_to_origin.expression.expression_left.value)}')
-
 
         # original code of the require statement
         self._code = str(require.expression)
@@ -235,5 +229,3 @@ class Require:
 
     def __repr__(self):
         return self._code
-
-

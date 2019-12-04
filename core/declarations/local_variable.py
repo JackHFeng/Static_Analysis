@@ -1,4 +1,5 @@
 from slither.core.variables.local_variable import LocalVariable as Slither_Local_Variable
+
 from .variable import Variable
 
 

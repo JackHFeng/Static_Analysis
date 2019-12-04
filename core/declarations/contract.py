@@ -1,10 +1,10 @@
+from slither.core.declarations.contract import Contract as Slither_Contract
+from slither.core.declarations.function import Function as Slither_Function
+from slither.core.declarations.modifier import Modifier as Slither_Modifier
+
 from .function import Function
 from .modifier import Modifier
 from .state_variable import StateVariable
-
-from slither.core.declarations.function import Function as Slither_Function
-from slither.core.declarations.modifier import Modifier as Slither_Modifier
-from slither.core.declarations.contract import Contract as Slither_Contract
 
 
 class Contract:
@@ -13,6 +13,7 @@ class Contract:
 
     *** To be completed.
     """
+
     def __init__(self, contract: Slither_Contract):
         """
         *** To be completed.
@@ -36,6 +37,7 @@ class Contract:
         self._default_satisfied_functions = []
 
         self._setter(contract)
+
     @property
     def name(self):
         return self._name

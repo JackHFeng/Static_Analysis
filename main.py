@@ -46,24 +46,24 @@ if __name__ == '__main__':
 
         import subprocess
         l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]
-        subprocess.call(['solc', 'use', '0.5.11'])
+        # subprocess.call(['solc', 'use', '0.5.11'])
         for c in l:
             main(c)
 
-        subprocess.call(['solc', 'use', '0.5.7'])
-        main('CryptoHands')
-
-        subprocess.call(['solc', 'use', '0.4.25'])
-        main('CryptoMinerToken')
-
-        subprocess.call(['solc', 'use', '0.4.24'])
-        main('lothlor')
-
-        subprocess.call(['solc', 'use', '0.4.18'])
-        main('HoloToken')
-        main('WETH9')
-
-        subprocess.call(['solc', 'use', '0.4.16'])
-        main('Exchange')
+        # subprocess.call(['solc', 'use', '0.5.7'])
+        # main('CryptoHands')
+        #
+        # subprocess.call(['solc', 'use', '0.4.25'])
+        # main('CryptoMinerToken')
+        #
+        # subprocess.call(['solc', 'use', '0.4.24'])
+        # main('lothlor')
+        #
+        # subprocess.call(['solc', 'use', '0.4.18'])
+        # main('HoloToken')
+        # main('WETH9')
+        #
+        # subprocess.call(['solc', 'use', '0.4.16'])
+        # main('Exchange')
     except KeyboardInterrupt:
         pass
