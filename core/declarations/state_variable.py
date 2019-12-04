@@ -2,6 +2,9 @@ from .variable import Variable
 from slither.core.variables.state_variable import StateVariable as Slither_State_Variable
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.binary_operation import BinaryOperation
+from slither.core.expressions.unary_operation import UnaryOperation
+from slither.core.expressions.tuple_expression import TupleExpression
 
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
@@ -236,11 +239,10 @@ def set_default_value(data_type, exp, name):
     A default value only exists when the state variable is not modified by the constructor.
 
     *** To be completed.
-        Handling more types.
+        Handling more types. Such as 2 ** 64
     """
     slither_type = data_type
     data_type = str(data_type)
-
     if isinstance(exp, Literal):
         # if _exp is int, convert the number of python code.
         # using eval is for the cases of "1e10"
@@ -258,6 +260,13 @@ def set_default_value(data_type, exp, name):
             *** To be completed
         """
         exp = None
+    elif isinstance(exp, BinaryOperation) or isinstance(exp, UnaryOperation) or isinstance(exp, TupleExpression):
+        """
+        ❌ So far, converting things like 
+            2 ** 64 or -3, (2 + 3) / 4 
+            To just python code, should mostly work. 
+        """
+        exp = eval(str(exp))
     elif not exp:
         """
             Makes the _exp None. 
@@ -265,7 +274,8 @@ def set_default_value(data_type, exp, name):
         """
         exp = eval(str(exp))
     else:
-        raise Exception(f"Some unhandled cases happened. \n\t Type of _exp is {type(exp)}")
+        raise Exception(f'Some unhandled cases happened. \n\t The exp "{str(exp)}"\'s '
+                        f'type is "{type(exp)}"')
 
     default_value = default_value_helper(exp, slither_type, name)
 

@@ -50,11 +50,11 @@ class DependencyGraph:
                         if self.edge_dic.get((n1, n2)):
                             e = self.edge_dic[(n1, n2)]
                             old_label = e.get_label()
-                            e.set_label(f'{old_label}, {sr.name}')
+                            e.set_label(f'{old_label.strip()}, {sr.name}        ')
                         else:
                             self.construct_edge(n1, n2)
                             e = self.edge_dic[(n1, n2)]
-                            e.set_label(f'{sr.name}')
+                            e.set_label(f'{sr.name}        ')
 
     def construct_node(self, _function: Function):
         """
@@ -80,7 +80,7 @@ class DependencyGraph:
 
         Finished.
         """
-        e = Edge(_n1, _n2)
+        e = Edge(_n1, _n2, fontsize="8", fontcolor="#2E86C1", arrowsize="0.7")
         self.edge_dic[(_n1, _n2)] = e
         self.graph.add_edge(e)
 
