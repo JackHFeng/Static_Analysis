@@ -1,6 +1,8 @@
+from .function_call import FunctionCall
+
 from typing import List
 
-from .variable import Variable
+from .local_variable import LocalVariable
 from .state_variable import StateVariable
 from .require import Require
 
@@ -8,19 +10,15 @@ from slither.core.declarations.function import Function as Slither_Function
 from slither.core.variables.state_variable import StateVariable as Slither_StateVariable
 from slither.core.variables.local_variable import LocalVariable as Slither_LocalVariable
 from slither.slithir.operations import SolidityCall as Slither_SolidityCall
-from slither.core.declarations import SolidityFunction as Slither_SolidityFunction
 from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.slithir.operations.internal_call import InternalCall as Slither_InternalCall
 from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
-from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
-from slither.solc_parsing.variables.state_variable import StateVariableSolc
-from slither.solc_parsing.variables.local_variable import LocalVariableSolc
+
 # types of require function calls for getting the list of requires.
-require_functions = [Slither_SolidityFunction("require(bool)"),
-                     Slither_SolidityFunction("require(bool,string)")]
 
 
-class Function:
+
+class Function(FunctionCall):
     """
     Function objects
 
@@ -55,79 +53,51 @@ class Function:
 
     *** To be completed.
     """
-    def __init__(self, _function: Slither_Function, _parent_contract):
-
-        # e.g. "constructor".
-        self.name = _function.name
-
-        # e.g. "constructor(bytes32[]) returns()".
-        self.signature = _function.signature_str
-
+    def __init__(self, function: Slither_Function, parent_contract):
+        super().__init__()
         # e.g. "public", "external", "internal", etc.
-        self.visibility = _function.visibility
-
-        # contract object where current function belongs.
-        self.from_contract = _parent_contract
+        self._visibility = None
 
         # set of modifiers.
-        self.modifiers = set()
+        self._modifiers = set()
 
         # list of IRs
         # we may not need this after all.
-        self.ir_list = []
-
-        # set of requires.
-        self.requires = set()
-
-        # set of parameters.
-        self.parameters = set()
-
-        # source code of function, currently not available
-        self.source_code = ''
+        self._irs = []
 
         # whether the function is view type
-        self.is_view = True if _function.view else False
+        self._is_view = None
 
         # whether the function is pure type
-        self.is_pure = True if _function.pure else False
+        self._is_pure = None
 
-        # set of state variables written by the function.
-        self.state_variables_written = set()
+        self._setter(function, parent_contract)
 
-        # set of state variables read by the function.
-        # specifically, read by the requires within the function.
-        self.state_variables_read = set()
+    ###################################################################################
+    ###################################################################################
+    # region => public getters
+    ###################################################################################
+    ###################################################################################
 
-        # local variables read by the function.
-        self.local_variables_read = set()
-        self.local_variables_written = set()
+    @property
+    def visibility(self):
+        return self._visibility
 
-        # print(f'Creating Function: {function.name}')
+    @property
+    def modifiers(self):
+        return self._modifiers
 
-        # load parameters.
-        self.load_parameters(_function)
+    @property
+    def irs(self):
+        return self._irs
 
-        # load both local and state variables.
-        self.load_variables(_function)
+    @property
+    def is_view(self):
+        return self._is_view
 
-        # we may not need this after all.
-        # self.load_irs(_function.nodes)
-
-        # load modifier objects.
-        # requires within modifiers will be loaded into self.requires as well.
-        self.load_modifiers(_function)
-
-        # load requires at the front of the function.
-        self.load_function_requires(_function)
-
-        # if the current function is the constructor,
-        # we update all the state variables that are written by the constructor.
-        # change their .set_by_constructor to True
-        if self.name == "constructor":
-            for sv in self.state_variables_written:
-                sv.set_by_constructor = True
-
-        # print(f'{self.name} {self.requires}')
+    @property
+    def is_pure(self):
+        return self._is_pure
 
     def get_depended_functions(self):
         """
@@ -142,14 +112,14 @@ class Function:
         Finished.
         """
         res = []
-        for sv in self.state_variables_read:
+        for sv in self._state_variables_read:
             for fn in sv.functions_written:
                 # only returns public functions
                 if fn is not self and fn not in res and fn.visibility == 'public':
                     res.append(fn)
         return res
 
-    def get_depended_functions_by_state_variable(self, _name):
+    def get_depended_functions_by_state_variable(self, name):
         """
         Returns the list of functions the current function depends on.
         The data dependency here is the specified state variables that the current function reads.
@@ -162,131 +132,123 @@ class Function:
         Finished.
         """
         res = []
-        for sv in self.state_variables_read:
-            if sv.name == _name:
+        # validity check, if state variable is read by function at all.
+        sv_exist = False
+
+        for sv in self._state_variables_read:
+            if sv.name == name:
+                sv_exist = True
                 for fn in sv.functions_written:
                     # only returns public functions
                     if fn is not self and fn not in res and fn.visibility == 'public':
                         res.append(fn)
                 return res
 
-        return res
+        if sv_exist:
+            return res
+        else:
+            raise Exception(f'state variable "{name}" is not read by function "{self.name}".')
         # throw exception? Or just return empty array?
-        # Exception(f'The current function "{self.name}" does not read state variable "{name}".')
 
-    def load_parameters(self, _function: Slither_Function):
+    def function_summary(self):
         """
-        Creating the parameter objects.
+        For returning the summary of the function.
 
         Finished.
         """
-        for variable in _function.parameters:
-            new_variable = Variable(variable)
-            self.parameters.add(new_variable)
+        res = []
+        res.append(f'Function: {self._signature}')
+        res.append(f'\tVisibility: {self._visibility}')
 
-    def load_variables(self, _function: Slither_Function):
+        res.append(f'\tModifiers: ')
+        for m in self._modifiers:
+            res.append(f'\t\t{str(m)}')
+
+        res.append(f'\tRequires:')
+        for r in self._requires:
+            res.append(f'\t\t{str(r)}')
+
+        v = ''
+        for s in self._state_variables_read:
+            v += s.name + ', '
+        res.append(f'\tState Vars Read: {v[:-2]}')
+
+        v = ''
+        for s in self._state_variables_written:
+            v += s.name + ', '
+        res.append(f'\tState Vars Written: {v[:-2]}')
+
+        v = ''
+        for s in self._local_variables_read:
+            v += s.name + ', '
+        res.append(f'\tLocal Vars Read: {v[:-2]}')
+
+        v = ''
+        for s in self._local_variables_written:
+            v += s.name + ', '
+        res.append(f'\tLocal Vars Written: {v[:-2]}')
+
+        return '\n'.join(res)
+
+    def __str__(self):
         """
-        Loading both local and state variable objects.
+        Overrides str.
 
         Finished.
         """
-        self.load_state_variables(_function.state_variables_written, 'written')
-        self.load_local_variables(_function.variables_written, 'written')
+        return self._signature
 
-    def load_state_variables(self, _variables: Slither_StateVariable, _RorW):
+    def __repr__(self):
         """
-        Loading state variable objects.
+        Overrides print.
 
         Finished.
         """
-        for variable in _variables:
-            # get from dict if already exist
-            if variable.name in self.from_contract.state_variables:
-                new_variable = self.from_contract.state_variables[variable.name]
-            else:
-                new_variable = StateVariable(variable)
-                self.from_contract.state_variables[variable.name] = new_variable
-            getattr(new_variable, self.__class__.__name__.lower() + 's_' + _RorW).add(self)
-            getattr(self, 'state_variables_' + _RorW).add(new_variable)
+        return self._signature
 
-    def load_local_variables(self, _variables: Slither_LocalVariable, _RorW):
+    # end of region
+    ###################################################################################
+    ###################################################################################
+    # region => public getters
+    ###################################################################################
+    ###################################################################################
+
+    ###################################################################################
+    ###################################################################################
+    # region => private functions
+    ###################################################################################
+    ###################################################################################
+
+    def _setter(self, function: Slither_Function, parent_contract):
         """
-        Loading local variable object.
+        Setting values when initializing
 
         Finished.
         """
-        for variable in _variables:
-            # Slither_SolidityVariableComposed is msg.send etc.
-            # There can be other types such as
-            #       slither.solc_parsing.variables.local_variable_init_from_tuple.LocalVariableInitFromTupleSolc
-            #           (Refer to slither def)
-            #       slither.core.declarations.solidity_variables.SolidityVariable (now)
-            if type(variable) not in [StateVariableSolc, LocalVariableSolc, Slither_SolidityVariableComposed]:
-                continue
-            # There was a check of whether "variable" is None in the if condition
-            # But has been removed.
+        self._name = function.name
+        self._signature = function.signature_str
+        self._visibility = function.visibility
+        self._parent_contract = parent_contract
+        self._is_view = True if function.view else False
+        self._is_pure = True if function.pure else False
 
-            # duplicate has been checked.
-            if variable.name not in [v.name for v in getattr(self, 'state_variables_' + _RorW)]\
-                    and variable.name not in [v.name for v in getattr(self, 'local_variables_' + _RorW)]:
-                new_variable = Variable(variable)
-                getattr(self, 'local_variables_' + _RorW).add(new_variable)
+        # load parameters.
+        self._load_parameters(function)
 
-    def load_function_requires(self, _function):
-        """
-        Loading front require objects in a function.
+        # load both local and state variables.
+        self._load_variables(function)
 
-        Notes:
-            ✔What about requires from calls to another function?
-                ✔*** This is currently not considered since they are not the pre-conditional requires of the parent
-                    function.
+        # we may not need this after all.
+        # self.load_irs(_function.nodes)
 
-            ❌We need to differentiate requires that are not pre-conditions.
-                Either requires that does not appear at the beginning of the function call, or post condition modifiers.
-                This maybe achieved by using IR.
-                    ✔*** requires doesn't appear at the beginning of the function call as been removed.
-                    ❌*** post-conditional requires from modifiers due to _; still needs to be removed.
+        # load modifier objects.
+        # requires within modifiers will be loaded into self.requires as well.
+        self._load_modifiers(function)
 
-            ✔However, some requires might not appear at the beginning, yet they are still checking the pre-condition.
-            ❌This is also indirect read of variables, which has not been handled.
-                e.g.
-                    sender = msg.sender;
-                    require(owner == sender);
-        """
-        for node in _function.nodes:
-            # https://github.com/crytic/slither/blob/master/slither/core/cfg/node.py
-            # node_type => 0 represents Entry Point Node, we can safely skip this.
-            # node_type => 19 (0x13 in hex) represents Variable Declaration, we can safely skip this because
-            # requires appears after new variable declaration should still be pre-condition checking.
-            if node._node_type in [0, 19]:
-                continue
+        # load requires at the front of the function.
+        self._load_requires(function)
 
-            # require() is a internal call, this finds potential require statement.
-            if node.internal_calls:
-                # check if the call is actually require call.
-                if node.internal_calls[0] in require_functions:
-                    self.create_require(node)
-                else:
-                    # if not. Requires appear after this are not pre-conditional checking requires.
-                    break
-            else:
-                # if not. Requires appear after this are not pre-conditional checking requires.
-                break
-
-    def load_modifier_requires(self, _modifier):
-        """
-        Loading require objects in a modifier.
-
-        *** To be completed.
-            Currently this is treating all requires in modifiers as pre-conditions.
-            We need to remove post-condition
-        """
-        for ir in _modifier.slithir_operations:
-            if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
-                #print(ir.node)
-                self.create_require(ir.node)
-
-    def load_irs(self, _nodes: List[Slither_NodeSolc]):
+    def _load_irs(self, nodes: List[Slither_NodeSolc]):
         """
         Loading IRs of the function.
         Currently not used.
@@ -298,7 +260,7 @@ class Function:
         *** To be completed.
             ❌We may not need this after all.....
         """
-        for n in _nodes:
+        for n in nodes:
             if not n.irs:
                 continue
 
@@ -307,114 +269,36 @@ class Function:
                     if isinstance(ir, Slither_FunctionSolc):
                         self.load_irs_helper(ir.function.nodes)
                 else:
-                    self.ir_list.append(ir)
+                    self._irs.append(ir)
 
-    def create_require(self, _require: Slither_NodeSolc):
-        """
-        Creating require objects.
-
-        *** To be completed.
-            ❌There could be duplicate state or local variables added to the function.
-                ✔There shouldn't be any duplicate state variables since they are only created once, and they are added to a set.
-                There might be duplicate local variables.
-            Because all state and local variables from modifier objects have already been loaded using load_modifiers().
-            Take a look into this and confirm.
-        """
-        self.load_state_variables(_require.state_variables_read, 'read')
-        self.load_local_variables(_require.variables_read, 'read')
-        new_require = Require(_require, self)
-
-        self.requires.add(new_require)
-
-        """
-        This seems to be duplicate code as the above. 
-        Investigate. 
-        """
-        for state_variable in new_require.state_variables_read:
-            if state_variable not in self.state_variables_read:
-                self.state_variables_read.add(state_variable)
-
-    def load_modifiers(self, _function: Slither_Function):
+    def _load_modifiers(self, function: Slither_Function):
         """
         Loading modifier objects.
 
         Finished.
         """
-        for modifier in _function.modifiers:
-            # adding modifier objects to current function.
-            self.modifiers.add(self.from_contract.modifiers[modifier.name])
+        for modifier in function.modifiers:
+            # getting the modifier object
+            modifier_object = self._parent_contract.modifiers[modifier.name]
+
+            # adding modifier object to current function.
+            self._modifiers.add(modifier_object)
 
             # adding state variables written from modifier to current function.
-            for state_variable in self.from_contract.modifiers[modifier.name].state_variables_written:
-                self.state_variables_written.add(state_variable)
+            for state_variable in modifier_object.state_variables_written:
+                self._state_variables_written.add(state_variable)
 
             # adding state variables read from modifier to current function.
-            for state_variable in self.from_contract.modifiers[modifier.name].state_variables_read:
-                self.state_variables_read.add(state_variable)
+            for state_variable in modifier_object.state_variables_read:
+                self._state_variables_read.add(state_variable)
 
-            # loading requires from modifiers into current function.
-            self.load_modifier_requires(modifier)
+            # adding requires from modifier into current function.
+            for require in modifier_object.requires:
+                self._requires.add(require)
 
-    def __str__(self):
-        """
-        Overrides str.
-
-        Finished.
-        """
-        return self.signature
-
-    def __repr__(self):
-        """
-        Overrides print.
-
-        Finished.
-        """
-        return self.signature
-
-    def function_summary(self):
-        """
-        For returning the summary of the function.
-
-        Finished.
-        """
-        res = []
-        res.append(f'Function: {self.signature}')
-        res.append(f'\tVisibility: {self.visibility}')
-
-        res.append(f'\tModifiers: ')
-        for m in self.modifiers:
-            res.append(f'\t\t{str(m)}')
-
-        res.append(f'\tRequires:')
-        for r in self.requires:
-            res.append(f'\t\t{str(r)}')
-
-        v = ''
-        for s in self.state_variables_read:
-            v += s.name + ', '
-        res.append(f'\tState Vars Read: {v[:-2]}')
-
-        v = ''
-        for s in self.state_variables_written:
-            v += s.name + ', '
-        res.append(f'\tState Vars Written: {v[:-2]}')
-
-        v = ''
-        for s in self.local_variables_read:
-            v += s.name + ', '
-        res.append(f'\tLocal Vars Read: {v[:-2]}')
-
-        v = ''
-        for s in self.local_variables_written:
-            v += s.name + ', '
-        res.append(f'\tLocal Vars Written: {v[:-2]}')
-
-        return '\n'.join(res)
-
-
-
-
-
-# static utility functions
-
-
+    # end of region
+    ###################################################################################
+    ###################################################################################
+    # region => private functions
+    ###################################################################################
+    ###################################################################################

@@ -2,19 +2,34 @@ from slither.core.variables.local_variable import LocalVariable as Slither_Local
 
 
 class Variable:
-    def __init__(self, variable: Slither_Local_Variable):
-        self.name = variable.name
-        # print(self.name)
-        self.type = variable.type
+    def __init__(self):
+        self._name = None
+        self._type = None
 
-    def is_state_variable(self):
-        return False
+    ###################################################################################
+    ###################################################################################
+    # region => public getters
+    ###################################################################################
+    ###################################################################################
 
-    def is_local_variable(self):
-        return True
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def type(self):
+        return self._type
 
     def __str__(self):
-        return self.name + "=>" + self.type
+        return self.__class__.__name__ + ": " + self.name + "=>" + self.type
 
     def __repr__(self):
-        return self.name + "=>" + self.type
+        return self.__class__.__name__ + ": " + self.name + "=>" + self.type
+
+    # end of region
+    ###################################################################################
+    ###################################################################################
+    # region => public getters
+    ###################################################################################
+    ###################################################################################
+

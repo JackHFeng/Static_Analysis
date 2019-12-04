@@ -64,7 +64,7 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-214 352.645,-214 352.645,4 -4,4"/>
 <!-- constructor -->
 <g id="node1" class="node"><title>constructor</title>
-<g id="a_node1"><a xlink:title="Function: \n	constructor() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	seller(address)\n	value(uint256)">
+<g id="a_node1"><a xlink:title="Function: \n	constructor() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	value(uint256)\n	seller(address)">
 <ellipse fill="none" stroke="black" cx="52.6453" cy="-105" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="52.6453" y="-101.3" font-family="Times New Roman,serif" font-size="14.00">constructor</text>
 </a>
@@ -72,14 +72,14 @@
 </g>
 <!-- abort -->
 <g id="node2" class="node"><title>abort</title>
-<g id="a_node2"><a xlink:title="Function: \n	abort() returns()\n&#45;&#45;&#45;\nModifiers: \n	inState(Purchase.State) returns()\n	onlySeller() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == seller,Only seller can call this.)\n	require(bool,string)(state == _state,Invalid state.)\n&#45;&#45;&#45;\nState Variables Read: \n	seller(address)\n	state(Purchase.State)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
+<g id="a_node2"><a xlink:title="Function: \n	abort() returns()\n&#45;&#45;&#45;\nModifiers: \n	inState(Purchase.State) returns()\n	onlySeller() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(state == _state,Invalid state.)\n	require(bool,string)(msg.sender == seller,Only seller can call this.)\n&#45;&#45;&#45;\nState Variables Read: \n	state(Purchase.State)\n	seller(address)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
 <ellipse fill="none" stroke="black" cx="244.645" cy="-192" rx="29.795" ry="18"/>
 <text text-anchor="middle" x="244.645" y="-188.3" font-family="Times New Roman,serif" font-size="14.00">abort</text>
 </a>
 </g>
 </g>
 <!-- abort&#45;&gt;constructor -->
-<g id="edge1" class="edge"><title>abort&#45;&gt;constructor</title>
+<g id="edge3" class="edge"><title>abort&#45;&gt;constructor</title>
 <path fill="none" stroke="black" d="M220.337,-181.341C203.269,-174.473 179.955,-164.921 159.645,-156 136.794,-145.963 111.483,-134.166 91.217,-124.553"/>
 <polygon fill="black" stroke="black" points="92.5317,-121.303 81.998,-120.166 89.5235,-127.623 92.5317,-121.303"/>
 <text text-anchor="middle" x="174.145" y="-144.8" font-family="Times New Roman,serif" font-size="14.00">seller</text>
@@ -107,7 +107,7 @@
 </g>
 </g>
 <!-- abort&#45;&gt;confirmReceived -->
-<g id="edge3" class="edge"><title>abort&#45;&gt;confirmReceived</title>
+<g id="edge1" class="edge"><title>abort&#45;&gt;confirmReceived</title>
 <path fill="none" stroke="black" d="M253.506,-174.631C260.547,-161.098 270.241,-141.217 276.645,-123 284.832,-99.7114 286.736,-93.5137 289.645,-69 290.431,-62.3798 291.739,-60.3294 289.645,-54 288.542,-50.665 286.985,-47.389 285.174,-44.2601"/>
 <polygon fill="black" stroke="black" points="288.045,-42.2577 279.566,-35.9053 282.233,-46.159 288.045,-42.2577"/>
 <text text-anchor="middle" x="299.645" y="-101.3" font-family="Times New Roman,serif" font-size="14.00">state</text>

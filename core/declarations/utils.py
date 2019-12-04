@@ -32,7 +32,5 @@ def get_z3_vars(op, dic):
         raise Exception("Unhandled Operation")
 
 
-    # balance[p1] > p2
-
 def increase_indentation(input: str):
     return '\t' + '\t'.join(input.splitlines(True))

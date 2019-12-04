@@ -26,7 +26,7 @@ class DependencyGraph:
         self.graph = Dot()
         self.html = ""
 
-        for f in _contract.functions.values():
+        for f in _contract._functions.values():
             if f.name in ['slitherConstructorVariables','slitherConstructorConstantVariables'] or f.is_view or f.is_pure:
                 continue
             self.construct_node(f)
@@ -63,9 +63,9 @@ class DependencyGraph:
 
         Finished.
         """
-        n = Node(_function.name)
+        n = Node(_function._name)
         n.set_tooltip(construct_tooltip(_function))
-        self.node_dic[_function.name] = n
+        self.node_dic[_function._name] = n
         self.graph.add_node(n)
 
     def get_node(self, _name):
@@ -96,26 +96,26 @@ def construct_tooltip(_function: Function):
     res = list()
 
     res.append('Function: ')
-    res.append(f'\t{_function.signature}')
+    res.append(f'\t{_function._signature}')
 
     res.append('---')
     res.append('Modifiers: ')
-    for m in _function.modifiers:
+    for m in _function._modifiers:
         res.append(f'\t{m.signature}')
 
     res.append('---')
     res.append('Requires: ')
-    for r in _function.requires:
+    for r in _function._requires:
         res.append(f'\t{r.code}')
 
     res.append('---')
     res.append('State Variables Read: ')
-    for sv in _function.state_variables_read:
+    for sv in _function._state_variables_read:
         res.append((f'\t{sv.name}({sv.type})'))
 
     res.append('---')
     res.append('State Variables Written: ')
-    for sv in _function.state_variables_written:
+    for sv in _function._state_variables_written:
         res.append(f'\t{sv.name}({sv.type})')
 
     return '\n'.join(res)

@@ -23,7 +23,7 @@ def main(_contract_name):
 
     # getting the contract object by name.
     contract = data_dependency_graphs.get_contract_by_name(contract_name)
-    #print(contract.contract_summary())
+    print(contract.contract_summary())
 
     # Graph generation
     DG = DependencyGraph(contract)
@@ -37,6 +37,8 @@ if __name__ == '__main__':
     # main('Ballot')
 
     l = ["Example", "Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]
+    #l = ["Ballot"]
+
     for c in l:
         print(c)
         main(c)

@@ -2,7 +2,7 @@ from .contract import Contract
 from .function import Function
 from .modifier import Modifier
 from .require import Require
-from .variable import Variable
+from .local_variable import LocalVariable
 from .state_variable import StateVariable
 from .operation import Operation
 from .binary_operation import BinaryOperation

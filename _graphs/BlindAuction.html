@@ -64,7 +64,7 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-40 593.641,-40 593.641,4 -4,4"/>
 <!-- constructor -->
 <g id="node1" class="node"><title>constructor</title>
-<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,uint256,address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	beneficiary(address)\n	revealEnd(uint256)\n	biddingEnd(uint256)">
+<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,uint256,address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	biddingEnd(uint256)\n	revealEnd(uint256)\n	beneficiary(address)">
 <ellipse fill="none" stroke="black" cx="52.6453" cy="-18" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="52.6453" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">constructor</text>
 </a>
@@ -80,7 +80,7 @@
 </g>
 <!-- reveal -->
 <g id="node3" class="node"><title>reveal</title>
-<g id="a_node3"><a xlink:title="Function: \n	reveal(uint256[],bool[],bytes32[]) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyAfter(uint256) returns()\n	onlyBefore(uint256) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_values.length == length)\n	require(bool)(now &lt; _time)\n	require(bool)(_secret.length == length)\n	require(bool)(now &gt; _time)\n	require(bool)(_fake.length == length)\n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	bids(mapping(address =&gt; BlindAuction.Bid[]))">
+<g id="a_node3"><a xlink:title="Function: \n	reveal(uint256[],bool[],bytes32[]) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyAfter(uint256) returns()\n	onlyBefore(uint256) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_values.length == length)\n	require(bool)(_fake.length == length)\n	require(bool)(now &lt; _time)\n	require(bool)(_secret.length == length)\n	require(bool)(now &gt; _time)\n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	bids(mapping(address =&gt; BlindAuction.Bid[]))">
 <ellipse fill="none" stroke="black" cx="227.645" cy="-18" rx="31.6951" ry="18"/>
 <text text-anchor="middle" x="227.645" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">reveal</text>
 </a>
@@ -88,7 +88,7 @@
 </g>
 <!-- placeBid -->
 <g id="node4" class="node"><title>placeBid</title>
-<g id="a_node4"><a xlink:title="Function: \n	placeBid(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	highestBid(uint256)\n	pendingReturns(mapping(address =&gt; uint256))\n	highestBidder(address)">
+<g id="a_node4"><a xlink:title="Function: \n	placeBid(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	highestBid(uint256)\n	highestBidder(address)\n	pendingReturns(mapping(address =&gt; uint256))">
 <ellipse fill="none" stroke="black" cx="319.645" cy="-18" rx="42.4939" ry="18"/>
 <text text-anchor="middle" x="319.645" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">placeBid</text>
 </a>

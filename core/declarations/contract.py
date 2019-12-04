@@ -13,47 +13,71 @@ class Contract:
 
     *** To be completed.
     """
-    def __init__(self, _contract: Slither_Contract):
+    def __init__(self, contract: Slither_Contract):
         """
         *** To be completed.
             default_satisfied_functions attribute is still yet to be loaded.
         """
 
         # e.g. "Ballot".
-        self.name = _contract.name
+        self._name = None
 
         # map of functions with their name as key.
-        self.functions = {}
+        self._functions = {}
 
         # map of state variables with their name as key.
-        self.state_variables = {}
+        self._state_variables = {}
 
         # map of modifiers with their name as key.
-        self.modifiers = {}
+        self._modifiers = {}
 
         # functions that can be executed right after contract deployment,
         # because their requires can be satisfied at the Initial state.
-        self.default_satisfied_functions = []
+        self._default_satisfied_functions = []
+
+        self._setter(contract)
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def functions(self):
+        return self._functions
+
+    @property
+    def state_variables(self):
+        return self._state_variables
+
+    @property
+    def modifiers(self):
+        return self._modifiers
+
+    @property
+    def default_satisfied_functions(self):
+        return self._default_satisfied_functions
+
+    def _setter(self, contract: Slither_Contract):
+        self._name = contract.name
 
         # create modifier objects.
-        for modifier in _contract.modifiers:
-            self.create_modifier(modifier)
+        for modifier in contract.modifiers:
+            self._create_modifier(modifier)
 
         # create function objects.
         """
         Slither has a inbuilt function called "slitherConstructorVariables". 
         This is a dummy function that holds the state variable declaration statements. 
         E.g. uint a = 0;
-        
+
         However, if a state variable is only declared without value assignment, 
         it will not show up in the dummy function. 
         E.g. uint a;
         """
-        for function in _contract.functions:
+        for function in contract.functions:
             # print(function.name)
-            self.create_function(function)
+            self._create_function(function)
 
-    def get_function_by_name(self, _name: str) -> Function:
+    def get_function_by_name(self, name: str) -> Function:
         """
         Getter function for getting a function object
         using its name, if function does not exist
@@ -61,9 +85,9 @@ class Contract:
 
         Finished.
         """
-        return self.functions.get(_name)
+        return self._functions.get(name)
 
-    def get_modifier_by_name(self, _name: str) -> Modifier:
+    def get_modifier_by_name(self, name: str) -> Modifier:
         """
         Getter function for getting a modifier object
         using its name, if modifier does not exist
@@ -71,9 +95,9 @@ class Contract:
 
         Finished.
         """
-        return self.modifiers.get(_name)
+        return self._modifiers.get(name)
 
-    def get_state_variable_by_name(self, _name: str) -> StateVariable:
+    def get_state_variable_by_name(self, name: str) -> StateVariable:
         """
         Getter function for getting a state variable object
         using its name, if state variable does not exist
@@ -81,27 +105,27 @@ class Contract:
 
         Finished.
         """
-        return self.state_variables.get(_name)
+        return self._state_variables.get(name)
 
-    def create_function(self, _function: Slither_Function):
+    def _create_function(self, function: Slither_Function):
         """
         Creates a function object, then adds to the map.
 
         Finished.
         """
-        new_function = Function(_function, self)
+        new_function = Function(function, self)
 
-        self.functions[new_function.name] = new_function
+        self._functions[new_function._name] = new_function
 
-    def create_modifier(self, _modifier: Slither_Modifier):
+    def _create_modifier(self, modifier: Slither_Modifier):
         """
         Creates a modifier object, then adds to the map.
 
         Finished.
         """
-        new_modifier = Modifier(_modifier, self)
+        new_modifier = Modifier(modifier, self)
 
-        self.modifiers[new_modifier.name] = new_modifier
+        self._modifiers[new_modifier._name] = new_modifier
 
     def __str__(self):
         """
@@ -109,7 +133,7 @@ class Contract:
 
         Finished
         """
-        return self.name
+        return self._name
 
     def contract_summary(self):
         """
@@ -120,23 +144,23 @@ class Contract:
         from .utils import increase_indentation
 
         res = []
-        res.append(f'Contract Name: {self.name}')
+        res.append(f'Contract Name: {self._name}')
 
         s = ""
-        for v in self.state_variables.values():
+        for v in self._state_variables.values():
             s += v.name + ', '
 
         res.append(f'State Variables: {s[:-2]}')
 
         res.append(f'Modifiers: ')
 
-        for m in self.modifiers.values():
+        for m in self._modifiers.values():
             res.append(increase_indentation(m.modifier_summary()))
             res.append('')
 
         res.append(f'Functions: ')
 
-        for f in self.functions.values():
+        for f in self._functions.values():
             res.append(increase_indentation(f.function_summary()))
             res.append('')
 

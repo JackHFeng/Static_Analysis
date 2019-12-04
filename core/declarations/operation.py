@@ -1,4 +1,4 @@
 class Operation:
     def __init__(self):
-        self.name = ''
-        self.operator = ''
+        self._name = ''
+        self._operator = ''
