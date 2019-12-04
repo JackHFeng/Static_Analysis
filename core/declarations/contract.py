@@ -117,7 +117,7 @@ class Contract:
         """
         new_function = Function(function, self)
 
-        self._functions[new_function._name] = new_function
+        self._functions[new_function.name] = new_function
 
     def _create_modifier(self, modifier: Slither_Modifier):
         """
@@ -127,7 +127,7 @@ class Contract:
         """
         new_modifier = Modifier(modifier, self)
 
-        self._modifiers[new_modifier._name] = new_modifier
+        self._modifiers[new_modifier.name] = new_modifier
 
     def __str__(self):
         """
@@ -145,14 +145,14 @@ class Contract:
         """
         from .utils import increase_indentation
 
-        res = []
+        res = list()
         res.append(f'Contract Name: {self._name}')
 
-        s = ""
+        res.append(f'State Variables: ')
         for v in self._state_variables.values():
-            s += v.name + ', '
-
-        res.append(f'State Variables: {s[:-2]}')
+            res.append(f'\t{v.name}({v.type}): {v.default_value}')
+            res.append(f'\t\tset by constructor: {v.set_by_constructor}')
+        res.append('')
 
         res.append(f'Modifiers: ')
 
