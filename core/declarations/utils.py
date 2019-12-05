@@ -33,4 +33,10 @@ def get_z3_vars(op, dic):
 
 
 def increase_indentation(input: str):
+    """
+    For the purpose of generating summaries.
+    """
     return '\t' + '\t'.join(input.splitlines(True))
+
+
+
