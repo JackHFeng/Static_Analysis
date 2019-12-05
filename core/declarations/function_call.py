@@ -2,6 +2,8 @@ from slither.core.declarations import SolidityFunction as Slither_SolidityFuncti
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
 from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
+from slither.core.declarations.solidity_variables import SolidityVariable as Slither_SolidityVariable
+
 from slither.slithir.operations import SolidityCall as Slither_SolidityCall
 from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
@@ -168,11 +170,10 @@ class FunctionCall:
             #       slither.core.declarations.solidity_variables.SolidityVariable (such as evm time, "now")
             #           https://github.com/crytic/slither/blob/master/slither/core/declarations/solidity_variables.py
 
-            # from slither.solc_parsing.variables.state_variable import StateVariableSolc
             # StateVariableSolc was in the following list, but has been removed
             # Because we are only loading local variable
             # At this moment, msg.sender, etc. are considered as local variables.
-            if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed]:
+            if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed, Slither_SolidityVariable]:
                 continue
 
             # There was a check of whether "variable" is None in the if condition

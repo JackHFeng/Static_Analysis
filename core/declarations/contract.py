@@ -151,7 +151,11 @@ class Contract:
         res.append(f'State Variables: ')
         for v in self._state_variables.values():
             res.append(f'\t{v.name}({v.type}): {v.default_value}')
+            res.append(f'\t\tinitialized: {v.initialized}')
             res.append(f'\t\tset by constructor: {v.set_by_constructor}')
+            res.append(f'\t\tset by deployment: {v.set_by_deployment}')
+            if v.set_by_deployment:
+                res.append(f'\t\t\tusing: {v.var_used_in_deployment}')
         res.append('')
 
         res.append(f'Modifiers: ')

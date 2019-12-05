@@ -1,4 +1,5 @@
 from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
+from slither.core.declarations.solidity_variables import SolidityVariable as Slither_SolidityVariable
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
@@ -213,7 +214,7 @@ class Require:
         # this "variables" object contains all variables read by the require statement
         # hence, contain both state, and local variables
         for variable in variables:
-            if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed]:
+            if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed, Slither_SolidityVariable]:
                 continue
 
             if variable.name in self._parent_function_call.local_variables:

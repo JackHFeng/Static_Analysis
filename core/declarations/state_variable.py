@@ -8,6 +8,8 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.state_variable import StateVariable as Slither_State_Variable
+from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
+from slither.core.declarations.solidity_variables import SolidityVariable as Slither_SolidityVariable
 
 from .variable import Variable
 
@@ -26,10 +28,21 @@ class StateVariable(Variable):
         self._visibility = None
 
         # whether this state variable is initialized by hard code during deployment.
+        # both a = 0 and a = msg.sender are considered initialized
+        # however, the later one also has _set_by_deployment being True
         self._initialized = None
 
         # if this state variable can be set using constructor.
         self._set_by_constructor = None
+
+        # which variable was used to initialized the state variable
+        # for example, now, msg.sender, etc.
+        # type is string, should be enough for the moment.
+        self._var_used_in_deployment = None
+
+        # if this state variable is set using SolcVariable
+        # a = now, a = msg.sender, etc.
+        self._set_by_deployment = None
 
         # functions that read the current state variable.
         # specifically, read by requires.
@@ -89,6 +102,14 @@ class StateVariable(Variable):
         return self._set_by_constructor
 
     @property
+    def set_by_deployment(self):
+        return self._set_by_deployment
+
+    @property
+    def var_used_in_deployment(self):
+        return self._var_used_in_deployment
+
+    @property
     def functions_read(self):
         return list(self._functions_read)
 
@@ -133,6 +154,7 @@ class StateVariable(Variable):
                             f'Please call "has_default_value()" prior to calling "get_default_value()"')
         else:
             return self._default_value
+
 
     # end of region
     ###################################################################################
@@ -186,8 +208,9 @@ class StateVariable(Variable):
         self._visibility = variable.visibility
         self._initialized = True if variable.initialized else False
         self._set_by_constructor = False
+        self._set_by_deployment = False
         self._default_value = \
-            set_default_value(variable.type, variable.expression if variable.expression else None, self.name)
+            self._set_default_value(variable.type, variable.expression if variable.expression else None, self.name)
 
     def _add_read_function(self, function):
         """
@@ -217,6 +240,115 @@ class StateVariable(Variable):
         """
         self._modifiers_written.add(modifier)
 
+    def _set_default_value(self, data_type, exp, name):
+        """
+        type:      data type of the state variable.
+        exp:       expression of the static value assignment, such as  "msg.sender" for "owner = msg.sender".
+        name:      state variable name.
+
+        Sets the default value of the state variable.
+        A default value only exists when the state variable is not modified by the constructor.
+
+        *** To be completed.
+            Handling more types. Such as 2 ** 64
+        """
+        deep_type = get_deepest_type(data_type)
+        data_type_str = str(deep_type)
+        if isinstance(exp, Literal):
+            # if _exp is int, convert the number of python code.
+            # using eval is for the cases of "1e10"
+            if 'int' in str(exp.type):
+                exp = eval(str(exp))
+            # ❌ other types are still using string.
+            else:
+                exp = exp.value
+        elif isinstance(exp, Identifier):
+            """
+                ❌ Only msg.sender or now etc. can be used for initial assignment. 
+                However, for customized struct, it may work differently. 
+                also a = 0, b = a
+                if msg.sender, now is used, state variable can be set by constructor
+                    more specifically, can be set at deployment. 
+
+                *** To be completed
+            """
+
+            if isinstance(exp.value, Slither_SolidityVariableComposed) or \
+                    isinstance(exp.value, Slither_SolidityVariable):
+                self._set_by_deployment = True
+                self._var_used_in_deployment = str(exp.value)
+
+            exp = None
+        elif isinstance(exp, BinaryOperation) or isinstance(exp, UnaryOperation) or isinstance(exp, TupleExpression):
+            """
+            ❌ So far, converting things like 
+                2 ** 64 or -3, (2 + 3) / 4 
+                To just python code, should mostly work. 
+            """
+            exp = eval(str(exp))
+        elif not exp:
+            """
+                Makes the exp None. 
+                ❌ There might be other cases. 
+            """
+            exp = eval(str(exp))
+        else:
+            raise Exception(f'Some unhandled cases happened. \n\t The exp "{str(exp)}"\'s '
+                            f'type is "{type(exp)}"')
+
+        default_value = self._default_value_helper(exp, deep_type, name)
+
+        if data_type_str.startswith('int') or data_type_str.startswith('uint'):
+            return int(default_value)
+        elif data_type_str == 'bool':
+            if default_value == 'true':
+                return True
+            else:
+                return False
+        elif data_type_str == 'string' or data_type_str == 'byte' or data_type_str == 'address':
+            return default_value
+        elif not default_value:
+            return None
+        else:
+            raise Exception(f'Unhandled type: \n\t {data_type_str}')
+
+    def _default_value_helper(self, value, data_type, name):
+        """
+        Helper for getting the default value of the state variable.
+        If there is a default value statically assigned to the state variable, return default value.
+        Otherwise, return the corresponding default solidity value for the data type.
+
+        *** To be completed.
+            Handling more types.
+        """
+
+        data_type_str = str(data_type)
+
+        # There can also be <class 'slither.core.solidity_types.user_defined_type.UserDefinedType'>
+        if isinstance(data_type, ElementaryType):
+            if value:
+                return value
+
+            if data_type_str.startswith('int') or data_type_str.startswith('uint'):
+                return '0'
+            elif data_type_str == 'bool':
+                return 'false'
+            elif data_type_str == 'string':
+                return ''
+            elif data_type_str == 'byte':
+                return '0x0'
+            elif data_type_str == 'address':
+                return '0x' + "".zfill(40)
+            else:
+                raise Exception(f'Unhandled Solidity Elementary Type. \n {data_type_str} for {name}')
+
+        elif isinstance(data_type, UserDefinedType):
+            print(f'Unhandled user defined type: \n\t{data_type_str} for {name}')
+            return None
+        else:
+            raise Exception(f'Unhandled data type: \n\t{data_type_str} for {name}')
+            return None
+
     # end of region
     ###################################################################################
     ###################################################################################
@@ -231,110 +363,6 @@ class StateVariable(Variable):
 ###################################################################################
 ###################################################################################
 
-def set_default_value(data_type, exp, name):
-    """
-    _type:      data type of the state variable.
-    _exp:       expression of the static value assignment, such as  "msg.sender" for "owner = msg.sender".
-    _name:      state variable name.
-
-    Sets the default value of the state variable.
-    A default value only exists when the state variable is not modified by the constructor.
-
-    *** To be completed.
-        Handling more types. Such as 2 ** 64
-    """
-    slither_type = data_type
-    data_type = str(data_type)
-    if isinstance(exp, Literal):
-        # if _exp is int, convert the number of python code.
-        # using eval is for the cases of "1e10"
-        if 'int' in str(exp.type):
-            exp = eval(str(exp))
-        # ❌ other types are still using string.
-        else:
-            exp = exp.value
-    elif isinstance(exp, Identifier):
-        """
-            ❌ Only msg.sender or now etc. can be used for initial assignment. 
-            However, for customized struct, it may work differently. 
-            also a = 0, b = a
-            
-            *** To be completed
-        """
-        exp = None
-    elif isinstance(exp, BinaryOperation) or isinstance(exp, UnaryOperation) or isinstance(exp, TupleExpression):
-        """
-        ❌ So far, converting things like 
-            2 ** 64 or -3, (2 + 3) / 4 
-            To just python code, should mostly work. 
-        """
-        exp = eval(str(exp))
-    elif not exp:
-        """
-            Makes the _exp None. 
-            ❌ There might be other cases. 
-        """
-        exp = eval(str(exp))
-    else:
-        raise Exception(f'Some unhandled cases happened. \n\t The exp "{str(exp)}"\'s '
-                        f'type is "{type(exp)}"')
-
-    default_value = default_value_helper(exp, slither_type, name)
-
-    if data_type.startswith('int') or data_type.startswith('uint'):
-        return int(default_value)
-    elif data_type == 'bool':
-        if default_value == 'true':
-            return True
-        else:
-            return False
-    elif data_type == 'string' or data_type == 'byte' or data_type == 'address':
-        return default_value
-    elif not default_value:
-        return None
-    else:
-        raise Exception(f'Unhandled type: \n\t {data_type}')
-
-
-def default_value_helper(value, data_type, name):
-    """
-    Helper for getting the default value of the state variable.
-    If there is a default value statically assigned to the state variable, return default value.
-    Otherwise, return the corresponding default solidity value for the data type.
-
-    *** To be completed.
-        Handling more types.
-    """
-
-    slither_type = data_type
-    data_type = str(data_type)
-
-    # There can also be <class 'slither.core.solidity_types.user_defined_type.UserDefinedType'>
-    if isinstance(slither_type, ElementaryType):
-        if value:
-            return value
-
-        if data_type.startswith('int') or data_type.startswith('uint'):
-            return '0'
-        elif data_type == 'bool':
-            return 'false'
-        elif data_type == 'string':
-            return ''
-        elif data_type == 'byte':
-            return '0x0'
-        elif data_type == 'address':
-            return '0x' + "".zfill(40)
-        else:
-            raise Exception(f'Unhandled Solidity Elementary Type. \n {data_type} for {name}')
-
-    # this is only returning the default value of the deepest type of a mapping or array.
-    elif isinstance(slither_type, MappingType) or isinstance(slither_type, ArrayType):
-        default_value_helper(value, get_deepest_type(slither_type), name)
-    elif isinstance(slither_type, UserDefinedType):
-        print(f'Unhandled user defined type: \n\t{data_type} for {name}')
-        return None
-
-
 def get_deepest_type(data_type):
     if isinstance(data_type, MappingType):
         d_type = get_deepest_type(data_type.type_to)
@@ -344,6 +372,7 @@ def get_deepest_type(data_type):
         d_type = data_type
     elif isinstance(data_type, UserDefinedType):
         d_type = data_type
+        print(f'Unable to set default value for user defined data type: {str(data_type)}.')
     else:
         raise Exception(f'Unhandled type: \n\t {type(data_type)}')
 
