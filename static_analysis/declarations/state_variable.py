@@ -324,7 +324,7 @@ class StateVariable(Variable):
 
         data_type_str = str(data_type)
 
-        # There can also be <class 'slither.core.solidity_types.user_defined_type.UserDefinedType'>
+        # There can also be <class 'slither.static_analysis.solidity_types.user_defined_type.UserDefinedType'>
         if isinstance(data_type, ElementaryType):
             if value:
                 return value

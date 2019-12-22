@@ -1,5 +1,5 @@
-from core.data_dependency_graph import DDGs
-from core.dependency_graph.dependency_graph import DependencyGraph
+from static_analysis.data_dependency_graph import DDGs
+from static_analysis.dependency_graph.dependency_graph import DependencyGraph
 
 
 def main(_contract_name):

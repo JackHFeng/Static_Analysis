@@ -2,8 +2,8 @@
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-core/__pycache__/
-core/declarations/__pycache__/
+static_analysis/__pycache__/
+static_analysis/declarations/__pycache__/
 *.py[cod]
 *.pyc
 *$py.class
