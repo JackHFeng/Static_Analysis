@@ -80,7 +80,7 @@
 </g>
 <!-- reveal -->
 <g id="node3" class="node"><title>reveal</title>
-<g id="a_node3"><a xlink:title="Function: \n	reveal(uint256[],bool[],bytes32[]) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyBefore(uint256) returns()\n	onlyAfter(uint256) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_values.length == length)\n	require(bool)(_fake.length == length)\n	require(bool)(now &lt; _time)\n	require(bool)(_secret.length == length)\n	require(bool)(now &gt; _time)\n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	bids(mapping(address =&gt; BlindAuction.Bid[]))">
+<g id="a_node3"><a xlink:title="Function: \n	reveal(uint256[],bool[],bytes32[]) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyAfter(uint256) returns()\n	onlyBefore(uint256) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_fake.length == length)\n	require(bool)(_secret.length == length)\n	require(bool)(now &lt; _time)\n	require(bool)(now &gt; _time)\n	require(bool)(_values.length == length)\n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	bids(mapping(address =&gt; BlindAuction.Bid[]))">
 <ellipse fill="none" stroke="black" cx="227.645" cy="-18" rx="31.6951" ry="18"/>
 <text text-anchor="middle" x="227.645" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">reveal</text>
 </a>
@@ -104,7 +104,7 @@
 </g>
 <!-- auctionEnd -->
 <g id="node6" class="node"><title>auctionEnd</title>
-<g id="a_node6"><a xlink:title="Function: \n	auctionEnd() returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyAfter(uint256) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(! ended)\n	require(bool)(now &gt; _time)\n&#45;&#45;&#45;\nState Variables Read: \n	ended(bool)\n&#45;&#45;&#45;\nState Variables Written: \n	ended(bool)">
+<g id="a_node6"><a xlink:title="Function: \n	auctionEnd() returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyAfter(uint256) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(now &gt; _time)\n	require(bool)(! ended)\n&#45;&#45;&#45;\nState Variables Read: \n	ended(bool)\n&#45;&#45;&#45;\nState Variables Written: \n	ended(bool)">
 <ellipse fill="none" stroke="black" cx="537.645" cy="-18" rx="51.9908" ry="18"/>
 <text text-anchor="middle" x="537.645" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">auctionEnd</text>
 </a>
