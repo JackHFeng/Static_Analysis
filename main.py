@@ -1,4 +1,4 @@
-from static_analysis.data_dependency_graph import DDGs
+from static_analysis.contracts import Contracts
 from static_analysis.dependency_graph.dependency_graph import DependencyGraph
 
 
@@ -19,10 +19,10 @@ def main(_contract_name):
 
     # constructs the data dependency graph.
     # if a file contains multiple contracts, DDG will be constructed for each.
-    data_dependency_graphs = DDGs(contract_dir)
+    contracts = Contracts(contract_dir)
 
     # getting the contract object by name.
-    contract = data_dependency_graphs.get_contract_by_name(contract_name)
+    contract = contracts.get_contract_by_name(contract_name)
     print(contract.contract_summary())
 
     # Graph generation

@@ -2,7 +2,7 @@ from slither import Slither
 from .declarations.contract import Contract
 
 
-class DDGs:
+class Contracts:
     def __init__(self, _dir: str):
         self.contracts = {}
         slither = Slither(_dir)
@@ -12,7 +12,4 @@ class DDGs:
 
     def get_contract_by_name(self, _name: str):
         return self.contracts.get(_name)
-
-    def get_contract_DDG(self, _name: str):
-        pass
 
