@@ -43,7 +43,7 @@ if __name__ == '__main__':
         # for c in l:
         #     print(c)
         #     main(c)
-        #
+
         import subprocess
         l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]
         # subprocess.call(['solc', 'use', '0.5.11'])
