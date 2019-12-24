@@ -65,6 +65,9 @@ class Function(FunctionCall):
         # whether the function is pure type
         self._is_pure = None
 
+        # whether the current function can be satisfied by default / right after deployment
+        self._sat_by_default = False
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -92,6 +95,10 @@ class Function(FunctionCall):
     @property
     def is_pure(self):
         return self._is_pure
+
+    @property
+    def sat_by_default(self):
+        return self._sat_by_default
 
     def get_depended_functions(self):
         """
@@ -182,6 +189,8 @@ class Function(FunctionCall):
             v += s.name + ', '
         res.append(f'\tLocal Vars Written: {v[:-2]}')
 
+        res.append(f'\tSatisfied by Default: {self._sat_by_default}')
+
         return '\n'.join(res)
 
     def __str__(self):
@@ -241,6 +250,15 @@ class Function(FunctionCall):
 
         # load requires at the front of the function.
         self._load_requires(function)
+
+        # check if current function can be satisfied by default/ right after deployment
+        self._check_sat_by_default()
+
+    def _check_sat_by_default(self):
+        for require in self._requires:
+            if require.sat_cond_class != 1:
+                return
+        self._sat_by_default = True
 
     def _load_irs(self, nodes: List[Slither_NodeSolc]):
         """

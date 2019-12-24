@@ -110,19 +110,22 @@ class Require:
         This is for checking classifications of require.
         *** Still needs modification.
         """
-        if isinstance(exp, BinaryOperation):
-            pass
-            # for e in exp.expressions:
-            #     print(f'{str(e)}: {type(e)}')
-        elif isinstance(exp, UnaryOperation):
-            e = exp.expression
-            # print(f'{str(e)}: {type(e)}')
-        elif isinstance(exp, Literal) or isinstance(exp, Identifier):
-            # print(f'{str(exp)}: {type(exp)}')
-            pass
-        else:
-            # print(f'{str(exp)}: {str(exp)}')
-            self.is_simple_require = False
+        if len(self._state_variables_read) == 0:
+            self._sat_cond_class = 1
+
+        # if isinstance(exp, BinaryOperation):
+        #     pass
+        #     # for e in exp.expressions:
+        #     #     print(f'{str(e)}: {type(e)}')
+        # elif isinstance(exp, UnaryOperation):
+        #     e = exp.expression
+        #     # print(f'{str(e)}: {type(e)}')
+        # elif isinstance(exp, Literal) or isinstance(exp, Identifier):
+        #     # print(f'{str(exp)}: {type(exp)}')
+        #     pass
+        # else:
+        #     # print(f'{str(exp)}: {str(exp)}')
+        #     self.is_simple_require = False
 
     def evaluate_require_satisfiability(self):
         z3_dic = {}
