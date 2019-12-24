@@ -259,6 +259,7 @@ class Function(FunctionCall):
             if require.sat_cond_class != 1:
                 return
         self._sat_by_default = True
+        self._parent_contract.add_default_sat_function(self)
 
     def _load_irs(self, nodes: List[Slither_NodeSolc]):
         """

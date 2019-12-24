@@ -34,7 +34,7 @@ class Contract:
 
         # functions that can be executed right after contract deployment,
         # because their requires can be satisfied at the Initial state.
-        self._default_satisfied_functions = []
+        self._default_satisfied_functions = set()
 
         self._setter(contract)
 
@@ -56,7 +56,10 @@ class Contract:
 
     @property
     def default_satisfied_functions(self):
-        return self._default_satisfied_functions
+        return list(self._default_satisfied_functions)
+
+    def add_default_sat_function(self, function):
+        self._default_satisfied_functions.add(function)
 
     def _setter(self, contract: Slither_Contract):
         self._name = contract.name
