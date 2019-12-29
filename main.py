@@ -33,37 +33,39 @@ def main(_contract_name):
     f.close()
 
 
+def select_solc(version):
+    import os
+    if os.name == 'nt':
+        from static_analysis.windows_sol_select import set_solc_version
+        set_solc_version(src_dir='E:/Desktop/solc', dst_dir='E:/Desktop/solc/current', version=version)
+
+    elif os.name == "posix":
+        import subprocess
+        subprocess.call(['solc', 'use', version])
+
+
 if __name__ == '__main__':
     try:
-        # # main('Ballot')
-        #
-        # l = ["Example", "Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]
-        # #l = ["Ballot"]
-        #
-        # for c in l:
-        #     print(c)
-        #     main(c)
 
-        import subprocess
-        l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token"]
-        # subprocess.call(['solc', 'use', '0.5.11'])
+        l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token", "Example"]
+        select_solc('0.5.11')
         for c in l:
             main(c)
 
-        # subprocess.call(['solc', 'use', '0.5.7'])
-        # main('CryptoHands')
-        #
-        # subprocess.call(['solc', 'use', '0.4.25'])
-        # main('CryptoMinerToken')
-        #
-        # subprocess.call(['solc', 'use', '0.4.24'])
-        # main('lothlor')
-        #
-        # subprocess.call(['solc', 'use', '0.4.18'])
-        # main('HoloToken')
-        # main('WETH9')
-        #
-        # subprocess.call(['solc', 'use', '0.4.16'])
-        # main('Exchange')
+        select_solc('0.5.7')
+        main('CryptoHands')
+
+        select_solc('0.4.25')
+        main('CryptoMinerToken')
+
+        select_solc('0.4.24')
+        main('lothlor')
+
+        select_solc('0.4.18')
+        main('HoloToken')
+        main('WETH9')
+
+        select_solc('0.4.16')
+        main('Exchange')
     except KeyboardInterrupt:
         pass
