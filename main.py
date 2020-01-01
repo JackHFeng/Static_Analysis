@@ -13,7 +13,6 @@ def main(_contract_name):
     WETH9 does not show requires. 
     Ballot does not show requires. 
     """
-    # ****
     # the name of contract is used as file name to find the sol file in the root directory.
     contract_dir = f'./_sample_contracts/{contract_name}.sol'
 
