@@ -104,7 +104,7 @@
 </g>
 <!-- sell -->
 <g id="node6" class="node"><title>sell</title>
-<g id="a_node6"><a xlink:title="Function: \n	sell(uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyBagholders() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_amountOfTokens &lt;= tokenBalanceLedger_[_customerAddress])\n&#45;&#45;&#45;\nState Variables Read: \n	tokenBalanceLedger_(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	profitPerShare_(uint256)\n	tokenSupply_(uint256)\n	payoutsTo_(mapping(address =&gt; int256))\n	tokenBalanceLedger_(mapping(address =&gt; uint256))">
+<g id="a_node6"><a xlink:title="Function: \n	sell(uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyBagholders() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_amountOfTokens &lt;= tokenBalanceLedger_[_customerAddress])\n&#45;&#45;&#45;\nState Variables Read: \n	tokenBalanceLedger_(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	payoutsTo_(mapping(address =&gt; int256))\n	tokenSupply_(uint256)\n	profitPerShare_(uint256)\n	tokenBalanceLedger_(mapping(address =&gt; uint256))">
 <ellipse fill="none" stroke="black" cx="467" cy="-180" rx="27" ry="18"/>
 <text text-anchor="middle" x="467" y="-176.3" font-family="Times New Roman,serif" font-size="14.00">sell</text>
 </a>
@@ -112,7 +112,7 @@
 </g>
 <!-- transfer -->
 <g id="node7" class="node"><title>transfer</title>
-<g id="a_node7"><a xlink:title="Function: \n	transfer(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n	onlyBagholders() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_amountOfTokens &lt;= tokenBalanceLedger_[_customerAddress])\n&#45;&#45;&#45;\nState Variables Read: \n	tokenBalanceLedger_(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	profitPerShare_(uint256)\n	tokenSupply_(uint256)\n	payoutsTo_(mapping(address =&gt; int256))\n	tokenBalanceLedger_(mapping(address =&gt; uint256))">
+<g id="a_node7"><a xlink:title="Function: \n	transfer(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n	onlyBagholders() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool)(_amountOfTokens &lt;= tokenBalanceLedger_[_customerAddress])\n&#45;&#45;&#45;\nState Variables Read: \n	tokenBalanceLedger_(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	payoutsTo_(mapping(address =&gt; int256))\n	tokenSupply_(uint256)\n	profitPerShare_(uint256)\n	tokenBalanceLedger_(mapping(address =&gt; uint256))">
 <ellipse fill="none" stroke="black" cx="367" cy="-99" rx="38.1938" ry="18"/>
 <text text-anchor="middle" x="367" y="-95.3" font-family="Times New Roman,serif" font-size="14.00">transfer</text>
 </a>
@@ -126,7 +126,7 @@
 </g>
 <!-- purchaseTokens -->
 <g id="node8" class="node"><title>purchaseTokens</title>
-<g id="a_node8"><a xlink:title="Function: \n	purchaseTokens(uint256,address) returns(uint256)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(_amountOfTokens &gt; 0 &amp;&amp; SafeMath.add(_amountOfTokens,tokenSupply_) &gt; tokenSupply_)\n&#45;&#45;&#45;\nState Variables Read: \n	tokenSupply_(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	payoutsTo_(mapping(address =&gt; int256))\n	profitPerShare_(uint256)\n	referralBalance_(mapping(address =&gt; uint256))\n	tokenBalanceLedger_(mapping(address =&gt; uint256))\n	tokenSupply_(uint256)">
+<g id="a_node8"><a xlink:title="Function: \n	purchaseTokens(uint256,address) returns(uint256)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(_amountOfTokens &gt; 0 &amp;&amp; SafeMath.add(_amountOfTokens,tokenSupply_) &gt; tokenSupply_)\n&#45;&#45;&#45;\nState Variables Read: \n	tokenSupply_(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	payoutsTo_(mapping(address =&gt; int256))\n	profitPerShare_(uint256)\n	tokenBalanceLedger_(mapping(address =&gt; uint256))\n	tokenSupply_(uint256)\n	referralBalance_(mapping(address =&gt; uint256))">
 <ellipse fill="none" stroke="black" cx="480" cy="-18" rx="70.6878" ry="18"/>
 <text text-anchor="middle" x="480" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">purchaseTokens</text>
 </a>

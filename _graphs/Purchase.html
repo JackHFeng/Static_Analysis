@@ -100,7 +100,7 @@
 </g>
 <!-- confirmReceived -->
 <g id="node4" class="node"><title>confirmReceived</title>
-<g id="a_node4"><a xlink:title="Function: \n	confirmReceived() returns()\n&#45;&#45;&#45;\nModifiers: \n	inState(Purchase.State) returns()\n	onlyBuyer() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == buyer,Only buyer can call this.)\n	require(bool,string)(state == _state,Invalid state.)\n&#45;&#45;&#45;\nState Variables Read: \n	buyer(address)\n	state(Purchase.State)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
+<g id="a_node4"><a xlink:title="Function: \n	confirmReceived() returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyBuyer() returns()\n	inState(Purchase.State) returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(msg.sender == buyer,Only buyer can call this.)\n	require(bool,string)(state == _state,Invalid state.)\n&#45;&#45;&#45;\nState Variables Read: \n	buyer(address)\n	state(Purchase.State)\n&#45;&#45;&#45;\nState Variables Written: \n	state(Purchase.State)">
 <ellipse fill="none" stroke="black" cx="266.645" cy="-18" rx="72.5877" ry="18"/>
 <text text-anchor="middle" x="266.645" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">confirmReceived</text>
 </a>

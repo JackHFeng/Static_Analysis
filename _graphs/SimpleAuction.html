@@ -64,7 +64,7 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-121 288.196,-121 288.196,4 -4,4"/>
 <!-- constructor -->
 <g id="node1" class="node"><title>constructor</title>
-<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	auctionEndTime(uint256)\n	beneficiary(address)">
+<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,address) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	beneficiary(address)\n	auctionEndTime(uint256)">
 <ellipse fill="none" stroke="black" cx="76" cy="-18" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="76" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">constructor</text>
 </a>
@@ -72,7 +72,7 @@
 </g>
 <!-- bid -->
 <g id="node2" class="node"><title>bid</title>
-<g id="a_node2"><a xlink:title="Function: \n	bid() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(now &lt;= auctionEndTime,Auction already ended.)\n	require(bool,string)(msg.value &gt; highestBid,There already is a higher bid.)\n&#45;&#45;&#45;\nState Variables Read: \n	auctionEndTime(uint256)\n	highestBid(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	highestBidder(address)\n	pendingReturns(mapping(address =&gt; uint256))\n	highestBid(uint256)">
+<g id="a_node2"><a xlink:title="Function: \n	bid() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(now &lt;= auctionEndTime,Auction already ended.)\n	require(bool,string)(msg.value &gt; highestBid,There already is a higher bid.)\n&#45;&#45;&#45;\nState Variables Read: \n	highestBid(uint256)\n	auctionEndTime(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	highestBidder(address)\n	pendingReturns(mapping(address =&gt; uint256))\n	highestBid(uint256)">
 <ellipse fill="none" stroke="black" cx="27" cy="-99" rx="27" ry="18"/>
 <text text-anchor="middle" x="27" y="-95.3" font-family="Times New Roman,serif" font-size="14.00">bid</text>
 </a>
@@ -94,7 +94,7 @@
 </g>
 <!-- auctionEnd -->
 <g id="node4" class="node"><title>auctionEnd</title>
-<g id="a_node4"><a xlink:title="Function: \n	auctionEnd() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(now &gt;= auctionEndTime,Auction not yet ended.)\n	require(bool,string)(! ended,auctionEnd has already been called.)\n&#45;&#45;&#45;\nState Variables Read: \n	auctionEndTime(uint256)\n	ended(bool)\n&#45;&#45;&#45;\nState Variables Written: \n	ended(bool)">
+<g id="a_node4"><a xlink:title="Function: \n	auctionEnd() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(now &gt;= auctionEndTime,Auction not yet ended.)\n	require(bool,string)(! ended,auctionEnd has already been called.)\n&#45;&#45;&#45;\nState Variables Read: \n	ended(bool)\n	auctionEndTime(uint256)\n&#45;&#45;&#45;\nState Variables Written: \n	ended(bool)">
 <ellipse fill="none" stroke="black" cx="126" cy="-99" rx="51.9908" ry="18"/>
 <text text-anchor="middle" x="126" y="-95.3" font-family="Times New Roman,serif" font-size="14.00">auctionEnd</text>
 </a>

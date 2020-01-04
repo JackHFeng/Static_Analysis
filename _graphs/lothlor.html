@@ -64,7 +64,7 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-364 461.839,-364 461.839,4 -4,4"/>
 <!-- constructor -->
 <g id="node1" class="node"><title>constructor</title>
-<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,string,string) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	symbol(string)\n	totalSupply(uint256)\n	balanceOf(mapping(address =&gt; uint256))\n	name(string)">
+<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,string,string) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	name(string)\n	totalSupply(uint256)\n	balanceOf(mapping(address =&gt; uint256))\n	symbol(string)">
 <ellipse fill="none" stroke="black" cx="52.6453" cy="-99" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="52.6453" y="-95.3" font-family="Times New Roman,serif" font-size="14.00">constructor</text>
 </a>
@@ -72,7 +72,7 @@
 </g>
 <!-- _transfer -->
 <g id="node2" class="node"><title>_transfer</title>
-<g id="a_node2"><a xlink:title="Function: \n	_transfer(address,address,uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(_to != 0x0)\n	require(bool)(balanceOf[_from] &gt;= _value)\n	require(bool)(balanceOf[_to] + _value &gt; balanceOf[_to])\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	balanceOf(mapping(address =&gt; uint256))">
+<g id="a_node2"><a xlink:title="Function: \n	_transfer(address,address,uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(balanceOf[_from] &gt;= _value)\n	require(bool)(_to != 0x0)\n	require(bool)(balanceOf[_to] + _value &gt; balanceOf[_to])\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	balanceOf(mapping(address =&gt; uint256))">
 <ellipse fill="none" stroke="black" cx="161.645" cy="-342" rx="42.7926" ry="18"/>
 <text text-anchor="middle" x="161.645" y="-338.3" font-family="Times New Roman,serif" font-size="14.00">_transfer</text>
 </a>
@@ -93,21 +93,21 @@
 </g>
 </g>
 <!-- _transfer&#45;&gt;burn -->
-<g id="edge3" class="edge"><title>_transfer&#45;&gt;burn</title>
+<g id="edge1" class="edge"><title>_transfer&#45;&gt;burn</title>
 <path fill="none" stroke="black" d="M124.719,-332.747C110.349,-327.558 95.2867,-319.234 86.6453,-306 82.9026,-300.268 81.6571,-293.159 81.6194,-286.339"/>
 <polygon fill="black" stroke="black" points="84.0772,-286.247 81.9914,-279.13 79.1838,-285.994 84.0772,-286.247"/>
 <text text-anchor="middle" x="113.145" y="-299.6" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- burnFrom -->
 <g id="node8" class="node"><title>burnFrom</title>
-<g id="a_node8"><a xlink:title="Function: \n	burnFrom(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(balanceOf[_from] &gt;= _value)\n	require(bool)(_value &lt;= allowance[_from][msg.sender])\n&#45;&#45;&#45;\nState Variables Read: \n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))\n	balanceOf(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	totalSupply(uint256)\n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))\n	balanceOf(mapping(address =&gt; uint256))">
+<g id="a_node8"><a xlink:title="Function: \n	burnFrom(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(_value &lt;= allowance[_from][msg.sender])\n	require(bool)(balanceOf[_from] &gt;= _value)\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))\n&#45;&#45;&#45;\nState Variables Written: \n	totalSupply(uint256)\n	balanceOf(mapping(address =&gt; uint256))\n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))">
 <ellipse fill="none" stroke="black" cx="199.645" cy="-180" rx="47.3916" ry="18"/>
 <text text-anchor="middle" x="199.645" y="-176.3" font-family="Times New Roman,serif" font-size="14.00">burnFrom</text>
 </a>
 </g>
 </g>
 <!-- _transfer&#45;&gt;burnFrom -->
-<g id="edge1" class="edge"><title>_transfer&#45;&gt;burnFrom</title>
+<g id="edge3" class="edge"><title>_transfer&#45;&gt;burnFrom</title>
 <path fill="none" stroke="black" d="M185.531,-326.6C192.592,-321.083 199.528,-314.129 203.645,-306 219.788,-274.131 213.528,-231.594 206.995,-205.265"/>
 <polygon fill="black" stroke="black" points="209.311,-204.439 205.163,-198.291 204.572,-205.684 209.311,-204.439"/>
 <text text-anchor="middle" x="241.145" y="-259.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
@@ -157,7 +157,7 @@
 </g>
 </g>
 <!-- burn&#45;&gt;constructor -->
-<g id="edge8" class="edge"><title>burn&#45;&gt;constructor</title>
+<g id="edge7" class="edge"><title>burn&#45;&gt;constructor</title>
 <path fill="none" stroke="black" d="M82.1138,-242.877C76.2088,-214.247 64.3175,-156.592 57.5856,-123.953"/>
 <polygon fill="black" stroke="black" points="59.9651,-123.36 56.1515,-117 55.1661,-124.35 59.9651,-123.36"/>
 <text text-anchor="middle" x="99.1453" y="-178.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
@@ -169,37 +169,37 @@
 <text text-anchor="middle" x="173.145" y="-299.6" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- burn&#45;&gt;burnFrom -->
-<g id="edge7" class="edge"><title>burn&#45;&gt;burnFrom</title>
+<g id="edge8" class="edge"><title>burn&#45;&gt;burnFrom</title>
 <path fill="none" stroke="black" d="M81.6159,-243.001C80.5242,-234.122 80.9372,-223.562 86.6453,-216 94.7379,-205.279 124.064,-196.376 150.812,-190.232"/>
 <polygon fill="black" stroke="black" points="151.604,-192.566 157.904,-188.652 150.538,-187.783 151.604,-192.566"/>
 <text text-anchor="middle" x="113.145" y="-218.6" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- burnFrom&#45;&gt;constructor -->
-<g id="edge12" class="edge"><title>burnFrom&#45;&gt;constructor</title>
+<g id="edge11" class="edge"><title>burnFrom&#45;&gt;constructor</title>
 <path fill="none" stroke="black" d="M160.911,-169.254C141.942,-163.518 119.242,-155.17 100.645,-144 90.5667,-137.946 80.755,-129.55 72.6569,-121.713"/>
 <polygon fill="black" stroke="black" points="74.0285,-119.62 67.3419,-116.412 70.5683,-123.09 74.0285,-119.62"/>
 <text text-anchor="middle" x="127.145" y="-137.6" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- burnFrom&#45;&gt;_transfer -->
-<g id="edge11" class="edge"><title>burnFrom&#45;&gt;_transfer</title>
+<g id="edge9" class="edge"><title>burnFrom&#45;&gt;_transfer</title>
 <path fill="none" stroke="black" d="M225.387,-195.185C241.976,-205.908 262.157,-222.308 271.645,-243 278.314,-257.544 279.717,-265.185 271.645,-279 263.24,-293.386 226.035,-312.546 197.194,-325.74"/>
 <polygon fill="black" stroke="black" points="196.179,-323.51 190.81,-328.626 198.198,-327.975 196.179,-323.51"/>
 <text text-anchor="middle" x="303.145" y="-259.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- burnFrom&#45;&gt;transferFrom -->
-<g id="edge10" class="edge"><title>burnFrom&#45;&gt;transferFrom</title>
+<g id="edge13" class="edge"><title>burnFrom&#45;&gt;transferFrom</title>
 <path fill="none" stroke="black" d="M173.1,-164.913C161.893,-156.965 152.662,-146.364 158.645,-135 162.023,-128.586 167.165,-123.121 172.906,-118.551"/>
 <polygon fill="black" stroke="black" points="174.573,-120.368 178.804,-114.277 171.698,-116.401 174.573,-120.368"/>
 <text text-anchor="middle" x="184.645" y="-137.6" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">allowance &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- burnFrom&#45;&gt;approve -->
-<g id="edge9" class="edge"><title>burnFrom&#45;&gt;approve</title>
+<g id="edge12" class="edge"><title>burnFrom&#45;&gt;approve</title>
 <path fill="none" stroke="black" d="M236.55,-168.477C249.384,-163.094 262.772,-155.234 271.645,-144 296.929,-111.988 302.456,-92.7283 289.645,-54 288.112,-49.3647 285.701,-44.8433 282.952,-40.6727"/>
 <polygon fill="black" stroke="black" points="284.827,-39.0844 278.744,-34.8409 280.853,-41.9513 284.827,-39.0844"/>
 <text text-anchor="middle" x="321.645" y="-97.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">allowance &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- burnFrom&#45;&gt;burn -->
-<g id="edge13" class="edge"><title>burnFrom&#45;&gt;burn</title>
+<g id="edge10" class="edge"><title>burnFrom&#45;&gt;burn</title>
 <path fill="none" stroke="black" d="M179.307,-196.365C167.787,-204.954 153.042,-215.757 139.645,-225 130.38,-231.392 120.044,-238.173 110.915,-244.048"/>
 <polygon fill="black" stroke="black" points="109.389,-242.116 104.815,-247.955 112.032,-246.242 109.389,-242.116"/>
 <text text-anchor="middle" x="178.145" y="-218.6" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">balanceOf &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>

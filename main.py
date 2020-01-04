@@ -1,5 +1,5 @@
-from static_analysis.contracts import Contracts
-from static_analysis.dependency_graph.dependency_graph import DependencyGraph
+from core.contracts import Contracts
+from core.dependency_graph.dependency_graph import DependencyGraph
 
 
 def main(_contract_name):
@@ -35,7 +35,7 @@ def main(_contract_name):
 def select_solc(version):
     import os
     if os.name == 'nt':
-        from static_analysis.windows_sol_select import set_solc_version
+        from core.windows_sol_select import set_solc_version
         set_solc_version(src_dir='E:/Desktop/solc', dst_dir='E:/Desktop/solc/current', version=version)
 
     elif os.name == "posix":

@@ -167,7 +167,7 @@ class FunctionCall:
             #       slither.solc_parsing.variables.local_variable_init_from_tuple.LocalVariableInitFromTupleSolc
             #           https://github.com/crytic/slither/blob/3e1f0d0a2fe8a8beb01121a6d3fc35b7bf033283/slither/core/variables/local_variable_init_from_tuple.py#L3
             #           It rarely happens
-            #       slither.static_analysis.declarations.solidity_variables.SolidityVariable (such as evm time, "now")
+            #       slither.core.declarations.solidity_variables.SolidityVariable (such as evm time, "now")
             #           https://github.com/crytic/slither/blob/master/slither/core/declarations/solidity_variables.py
 
             # StateVariableSolc was in the following list, but has been removed

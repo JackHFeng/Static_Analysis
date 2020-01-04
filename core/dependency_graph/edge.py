@@ -1,4 +1,4 @@
-from static_analysis.declarations.function import Function
+from core.declarations.function import Function
 
 
 class Edge:
