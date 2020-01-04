@@ -40,9 +40,9 @@ class StateVariable(Variable):
         # type is string, should be enough for the moment.
         self._var_used_in_deployment = None
 
-        # if this state variable is set using SolcVariable
+        # if this state variable is initialized at deployment using SolcVariable
         # a = now, a = msg.sender, etc.
-        self._set_by_deployment = None
+        self._initialized_using_SolcVar = None
 
         # functions that read the current state variable.
         # specifically, read by requires.
@@ -103,7 +103,7 @@ class StateVariable(Variable):
 
     @property
     def set_by_deployment(self):
-        return self._set_by_deployment
+        return self._initialized_using_SolcVar
 
     @property
     def var_used_in_deployment(self):
@@ -208,7 +208,7 @@ class StateVariable(Variable):
         self._visibility = variable.visibility
         self._initialized = True if variable.initialized else False
         self._set_by_constructor = False
-        self._set_by_deployment = False
+        self._initialized_using_SolcVar = False
         self._default_value = \
             self._set_default_value(variable.type, variable.expression if variable.expression else None, self.name)
 
@@ -252,8 +252,10 @@ class StateVariable(Variable):
         *** To be completed.
             Handling more types. Such as 2 ** 64
         """
+
         deep_type = get_deepest_type(data_type)
         data_type_str = str(deep_type)
+
         if isinstance(exp, Literal):
             # if _exp is int, convert the number of python code.
             # using eval is for the cases of "1e10"
@@ -275,7 +277,7 @@ class StateVariable(Variable):
 
             if isinstance(exp.value, Slither_SolidityVariableComposed) or \
                     isinstance(exp.value, Slither_SolidityVariable):
-                self._set_by_deployment = True
+                self._initialized_using_SolcVar = True
                 self._var_used_in_deployment = str(exp.value)
 
             exp = None

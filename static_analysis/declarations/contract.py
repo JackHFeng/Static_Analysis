@@ -36,6 +36,15 @@ class Contract:
         # because their requires can be satisfied at the Initial state.
         self._default_satisfied_functions = set()
 
+        # abi of current contract
+        self._abi = None
+
+        # currently not used, this is for storing contract address after deployment
+        # self._address = None
+
+        """
+        Missing the new_IPM flag from fuzzer. 
+        """
         self._setter(contract)
 
     @property
@@ -58,6 +67,10 @@ class Contract:
     def default_satisfied_functions(self):
         return list(self._default_satisfied_functions)
 
+    @property
+    def abi(self):
+        return self._abi
+
     def add_default_sat_function(self, function):
         self._default_satisfied_functions.add(function)
 
@@ -70,16 +83,20 @@ class Contract:
 
         # create function objects.
         """
-        Slither has a inbuilt function called "slitherConstructorVariables". 
-        This is a dummy function that holds the state variable declaration statements. 
+        ***Only newer versions of slither have this
+        Slither has a inbuilt function called 
+            FunctionType.CONSTRUCTOR_VARIABLES: "slitherConstructorVariables". 
+            FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES: "slitherConstructorConstantVariables"
+        These are dummy function that holds the state variable declaration statements. 
+        Constant are for constant state variables. 
         E.g. uint a = 0;
+             uint constant a = 0;
 
         However, if a state variable is only declared without value assignment, 
         it will not show up in the dummy function. 
         E.g. uint a;
         """
         for function in contract.functions:
-            # print(function.name)
             self._create_function(function)
 
     def get_function_by_name(self, name: str) -> Function:
@@ -155,8 +172,8 @@ class Contract:
         for v in self._state_variables.values():
             res.append(f'\t{v.name}({v.type}): {v.default_value}')
             res.append(f'\t\tinitialized: {v.initialized}')
+            res.append(f'\t\tinitialized using SolcVar: {v.set_by_deployment}')
             res.append(f'\t\tset by constructor: {v.set_by_constructor}')
-            res.append(f'\t\tset by deployment: {v.set_by_deployment}')
             if v.set_by_deployment:
                 res.append(f'\t\t\tusing: {v.var_used_in_deployment}')
         res.append('')

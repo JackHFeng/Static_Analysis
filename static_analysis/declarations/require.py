@@ -56,6 +56,10 @@ class Require:
         # slither expression of the operation within the require statement
         self._operation = require.expression.arguments[0]
 
+        """
+        Currently, 1 means the require does not contain state var at all. 
+        This needs to be changed using z3. 
+        """
         # 0 - Yet to be classified
         # 1 - Easiest, only require change of parameter
         #       Can be satisfied at anytime.
