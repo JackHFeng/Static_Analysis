@@ -11,6 +11,9 @@ from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from .local_variable import LocalVariable
 from .require import Require
 from .state_variable import StateVariable
+from .parameter import Parameter
+from .solidity_variable import SolidityVariable
+from .solidity_variable_composed import SolidityVariableComposed
 
 require_functions = [Slither_SolidityFunction("require(bool)"),
                      Slither_SolidityFunction("require(bool,string)")]
@@ -18,6 +21,7 @@ require_functions = [Slither_SolidityFunction("require(bool)"),
 
 class FunctionCall:
     def __init__(self):
+
         # e.g. "constructor".
         self._name = None
 
@@ -53,6 +57,12 @@ class FunctionCall:
         # local variables written by the function.
         self._local_variables_written = set()
 
+        # hash of the function/modifier signature
+        self._sig_hash = None
+
+        # CT test cases
+        self._test_cases = []
+
     ###################################################################################
     ###################################################################################
     # region => public getters
@@ -79,6 +89,13 @@ class FunctionCall:
     def parameters(self):
         return list(self._parameters)
 
+    def add_parameter(self, parameter):
+        self._parameters.add(parameter)
+
+    # @property
+    # def parameter_names(self):
+    #     return ', '.join([p.name for p in self._parameters])
+
     @property
     def source_code(self):
         return self._source_code
@@ -93,7 +110,14 @@ class FunctionCall:
 
     @property
     def local_variables(self):
+        return self._local_variables.values()
+
+    @property
+    def local_variables_dic(self):
         return self._local_variables
+
+    def add_local_variable(self, local_variable):
+        self._local_variables[local_variable.name] = local_variable
 
     @property
     def local_variables_read(self):
@@ -102,6 +126,14 @@ class FunctionCall:
     @property
     def local_variables_written(self):
         return list(self._local_variables_written)
+
+    @property
+    def sig_hash(self):
+        return self._sig_hash
+
+    @property
+    def test_cases(self):
+        return self._test_cases
 
     # end of region
     ###################################################################################
@@ -123,8 +155,9 @@ class FunctionCall:
         Finished.
         """
         for variable in function_call.parameters:
-            new_variable = LocalVariable(variable)
-            self._parameters.add(new_variable)
+            new_parameter = Parameter(variable)
+            self._parameters.add(new_parameter)
+            self.add_local_variable(new_parameter)
 
     def _load_variables(self, function_call):
         """
@@ -143,11 +176,11 @@ class FunctionCall:
         """
         for variable in variables:
             # get from dict if already exist
-            if variable.name in self._parent_contract.state_variables:
-                new_variable = self._parent_contract.state_variables[variable.name]
+            if variable.name in self._parent_contract.state_variables_dic:
+                new_variable = self._parent_contract.state_variables_dic[variable.name]
             else:
                 new_variable = StateVariable(variable)
-                self._parent_contract.state_variables[variable.name] = new_variable
+                self._parent_contract.state_variables_dic[variable.name] = new_variable
 
             # adding the current function/modifier into the state variable.
             new_variable.add_function_call(self.__class__.__name__.lower(), read_or_write, self)
@@ -182,8 +215,19 @@ class FunctionCall:
             if variable.name in self._local_variables:
                 new_variable = self._local_variables[variable.name]
             else:
-                new_variable = LocalVariable(variable)
-                self._local_variables[variable.name] = new_variable
+                new_variable = None
+                if isinstance(variable, LocalVariableSolc):
+                    new_variable = LocalVariable(variable)
+                elif isinstance(variable, Slither_SolidityVariableComposed):
+                    new_variable = SolidityVariableComposed(variable)
+                    self.add_parameter(new_variable)
+                elif isinstance(variable, Slither_SolidityVariable):
+                    new_variable = SolidityVariable(variable)
+                    self.add_parameter(new_variable)
+                else:
+                    raise Exception(f'Variable "{variable.name}" type "{type(variable)}" unhandled.')
+
+                self.add_local_variable(new_variable)
 
             # duplicate has been checked.
             getattr(self, '_local_variables_' + read_or_write).add(new_variable)

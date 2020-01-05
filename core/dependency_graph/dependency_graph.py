@@ -38,7 +38,7 @@ class DependencyGraph:
         """
         Constructs the graph by connecting nodes with edges.
         """
-        for f in _contract.functions.values():
+        for f in _contract.functions:
             if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables' ,'constructor'] or f.is_view or f.is_pure:
                 continue
 

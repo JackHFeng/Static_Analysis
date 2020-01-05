@@ -64,7 +64,7 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-364 461.839,-364 461.839,4 -4,4"/>
 <!-- constructor -->
 <g id="node1" class="node"><title>constructor</title>
-<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,string,string) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	name(string)\n	totalSupply(uint256)\n	balanceOf(mapping(address =&gt; uint256))\n	symbol(string)">
+<g id="a_node1"><a xlink:title="Function: \n	constructor(uint256,string,string) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	balanceOf(mapping(address =&gt; uint256))\n	name(string)\n	totalSupply(uint256)\n	symbol(string)">
 <ellipse fill="none" stroke="black" cx="52.6453" cy="-99" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="52.6453" y="-95.3" font-family="Times New Roman,serif" font-size="14.00">constructor</text>
 </a>
@@ -72,7 +72,7 @@
 </g>
 <!-- _transfer -->
 <g id="node2" class="node"><title>_transfer</title>
-<g id="a_node2"><a xlink:title="Function: \n	_transfer(address,address,uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(balanceOf[_from] &gt;= _value)\n	require(bool)(_to != 0x0)\n	require(bool)(balanceOf[_to] + _value &gt; balanceOf[_to])\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	balanceOf(mapping(address =&gt; uint256))">
+<g id="a_node2"><a xlink:title="Function: \n	_transfer(address,address,uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(balanceOf[_to] + _value &gt; balanceOf[_to])\n	require(bool)(balanceOf[_from] &gt;= _value)\n	require(bool)(_to != 0x0)\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	balanceOf(mapping(address =&gt; uint256))">
 <ellipse fill="none" stroke="black" cx="161.645" cy="-342" rx="42.7926" ry="18"/>
 <text text-anchor="middle" x="161.645" y="-338.3" font-family="Times New Roman,serif" font-size="14.00">_transfer</text>
 </a>
@@ -86,7 +86,7 @@
 </g>
 <!-- burn -->
 <g id="node7" class="node"><title>burn</title>
-<g id="a_node7"><a xlink:title="Function: \n	burn(uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(balanceOf[msg.sender] &gt;= _value)\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	totalSupply(uint256)\n	balanceOf(mapping(address =&gt; uint256))">
+<g id="a_node7"><a xlink:title="Function: \n	burn(uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(balanceOf[msg.sender] &gt;= _value)\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	balanceOf(mapping(address =&gt; uint256))\n	totalSupply(uint256)">
 <ellipse fill="none" stroke="black" cx="85.6453" cy="-261" rx="27.0966" ry="18"/>
 <text text-anchor="middle" x="85.6453" y="-257.3" font-family="Times New Roman,serif" font-size="14.00">burn</text>
 </a>
@@ -100,7 +100,7 @@
 </g>
 <!-- burnFrom -->
 <g id="node8" class="node"><title>burnFrom</title>
-<g id="a_node8"><a xlink:title="Function: \n	burnFrom(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(_value &lt;= allowance[_from][msg.sender])\n	require(bool)(balanceOf[_from] &gt;= _value)\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))\n&#45;&#45;&#45;\nState Variables Written: \n	totalSupply(uint256)\n	balanceOf(mapping(address =&gt; uint256))\n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))">
+<g id="a_node8"><a xlink:title="Function: \n	burnFrom(address,uint256) returns(bool)\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool)(balanceOf[_from] &gt;= _value)\n	require(bool)(_value &lt;= allowance[_from][msg.sender])\n&#45;&#45;&#45;\nState Variables Read: \n	balanceOf(mapping(address =&gt; uint256))\n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))\n&#45;&#45;&#45;\nState Variables Written: \n	balanceOf(mapping(address =&gt; uint256))\n	totalSupply(uint256)\n	allowance(mapping(address =&gt; mapping(address =&gt; uint256)))">
 <ellipse fill="none" stroke="black" cx="199.645" cy="-180" rx="47.3916" ry="18"/>
 <text text-anchor="middle" x="199.645" y="-176.3" font-family="Times New Roman,serif" font-size="14.00">burnFrom</text>
 </a>

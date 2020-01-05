@@ -15,6 +15,8 @@ from slither.solc_parsing.variables.state_variable import StateVariableSolc
 import utils
 from .local_variable import LocalVariable
 from .state_variable import StateVariable
+from .solidity_variable_composed import SolidityVariableComposed
+from .solidity_variable import SolidityVariable
 
 
 class Require:
@@ -180,6 +182,7 @@ class Require:
         v_read = []
         v_read.extend(require.variables_read)
 
+        # this is looking for indirectly read state and local variables.
         for ir_var in require.slithir_variables:
             if isinstance(ir_var, ReferenceVariable):
                 origin = ir_var.points_to_origin
@@ -203,11 +206,11 @@ class Require:
 
             # if state variable object exists, using existing object
             # else, create a new one
-            if variable.name in self._parent_function_call.parent_contract.state_variables:
-                new_variable = self._parent_function_call.parent_contract.state_variables[variable.name]
+            if variable.name in self._parent_function_call.parent_contract.state_variables_dic:
+                new_variable = self._parent_function_call.parent_contract.state_variables_dic[variable.name]
             else:
                 new_variable = StateVariable(variable)
-                self._parent_function_call.parent_contract.state_variables[variable.name] = new_variable
+                self._parent_function_call.parent_contract.state_variables_dic[variable.name] = new_variable
 
             # adding current require to state variable
             new_variable.add_read_require(self)
@@ -224,11 +227,21 @@ class Require:
             if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed, Slither_SolidityVariable]:
                 continue
 
-            if variable.name in self._parent_function_call.local_variables:
-                new_variable = self._parent_function_call.local_variables[variable.name]
+            if variable.name in self._parent_function_call.local_variables_dic:
+                new_variable = self._parent_function_call.local_variables_dic[variable.name]
             else:
-                new_variable = LocalVariable(variable)
-                self._parent_function_call.local_variables[variable.name] = new_variable
+                new_variable = None
+                if isinstance(variable, LocalVariableSolc):
+                    new_variable = LocalVariable(variable)
+                elif isinstance(variable, Slither_SolidityVariableComposed):
+                    new_variable = SolidityVariableComposed(variable)
+                    self._parent_function_call.add_parameter(new_variable)
+                elif isinstance(variable, Slither_SolidityVariable):
+                    new_variable = SolidityVariable(variable)
+                    self._parent_function_call.add_parameter(new_variable)
+                else:
+                    raise Exception(f'Variable "{variable.name}" type "{type(variable)}" unhandled.')
+                self._parent_function_call.add_local_variable(new_variable)
 
             self._local_variables_read.add(new_variable)
 

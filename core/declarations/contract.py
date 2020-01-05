@@ -18,6 +18,9 @@ class Contract:
         """
         *** To be completed.
             default_satisfied_functions attribute is still yet to be loaded.
+
+        *** to be handled for ctfuzz
+            new_ipm, flag for whether theres new ipm for any of the functions in this contract.
         """
 
         # e.g. "Ballot".
@@ -42,9 +45,7 @@ class Contract:
         # currently not used, this is for storing contract address after deployment
         # self._address = None
 
-        """
-        Missing the new_IPM flag from fuzzer. 
-        """
+
         self._setter(contract)
 
     @property
@@ -53,14 +54,26 @@ class Contract:
 
     @property
     def functions(self):
+        return self._functions.values()
+
+    @property
+    def functions_dic(self):
         return self._functions
 
     @property
     def state_variables(self):
+        return self._state_variables.values()
+
+    @property
+    def state_variables_dic(self):
         return self._state_variables
 
     @property
     def modifiers(self):
+        return self._modifiers.values()
+
+    @property
+    def modifiers_dic(self):
         return self._modifiers
 
     @property

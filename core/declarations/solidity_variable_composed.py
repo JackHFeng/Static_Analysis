@@ -2,7 +2,7 @@ from slither.core.variables.local_variable import LocalVariable as Slither_Local
 from .local_variable import LocalVariable
 
 
-class Parameter(LocalVariable):
+class SolidityVariableComposed(LocalVariable):
     def __init__(self, variable: Slither_Local_Variable):
         """
         Still missing

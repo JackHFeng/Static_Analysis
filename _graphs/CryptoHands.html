@@ -64,7 +64,7 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-202 693.54,-202 693.54,4 -4,4"/>
 <!-- constructor -->
 <g id="node1" class="node"><title>constructor</title>
-<g id="a_node1"><a xlink:title="Function: \n	constructor() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	LEVEL_PRICE(mapping(uint256 =&gt; uint256))\n	users(mapping(address =&gt; CryptoHands.UserStruct))\n	userList(mapping(uint256 =&gt; address))\n	currUserID(uint256)">
+<g id="a_node1"><a xlink:title="Function: \n	constructor() returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n&#45;&#45;&#45;\nState Variables Read: \n&#45;&#45;&#45;\nState Variables Written: \n	currUserID(uint256)\n	userList(mapping(uint256 =&gt; address))\n	LEVEL_PRICE(mapping(uint256 =&gt; uint256))\n	users(mapping(address =&gt; CryptoHands.UserStruct))">
 <ellipse fill="none" stroke="black" cx="239.995" cy="-18" rx="52.7911" ry="18"/>
 <text text-anchor="middle" x="239.995" y="-14.3" font-family="Times New Roman,serif" font-size="14.00">constructor</text>
 </a>
@@ -86,20 +86,20 @@
 </g>
 <!-- setManager -->
 <g id="node3" class="node"><title>setManager</title>
-<g id="a_node3"><a xlink:title="Function: \n	setManager(address) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyOwnerOrManager() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)((msg.sender == owner) || (msg.sender == manager),only for owner or manager)\n&#45;&#45;&#45;\nState Variables Read: \n	manager(address)\n	owner(address)\n&#45;&#45;&#45;\nState Variables Written: \n	manager(address)">
+<g id="a_node3"><a xlink:title="Function: \n	setManager(address) returns()\n&#45;&#45;&#45;\nModifiers: \n	onlyOwnerOrManager() returns()\n&#45;&#45;&#45;\nRequires: \n	require(bool,string)((msg.sender == owner) || (msg.sender == manager),only for owner or manager)\n&#45;&#45;&#45;\nState Variables Read: \n	owner(address)\n	manager(address)\n&#45;&#45;&#45;\nState Variables Written: \n	manager(address)">
 <ellipse fill="none" stroke="black" cx="51.9954" cy="-180" rx="51.9908" ry="18"/>
 <text text-anchor="middle" x="51.9954" y="-176.3" font-family="Times New Roman,serif" font-size="14.00">setManager</text>
 </a>
 </g>
 </g>
 <!-- setManager&#45;&gt;constructor -->
-<g id="edge2" class="edge"><title>setManager&#45;&gt;constructor</title>
+<g id="edge3" class="edge"><title>setManager&#45;&gt;constructor</title>
 <path fill="none" stroke="black" d="M35.4717,-162.792C16.5474,-142.238 -9.47999,-106.42 9.99539,-81 31.0826,-53.4757 123.225,-35.4083 184.291,-26.2182"/>
 <polygon fill="black" stroke="black" points="185.01,-28.5885 191.577,-25.1414 184.294,-23.7412 185.01,-28.5885"/>
-<text text-anchor="middle" x="46.4954" y="-97.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">manager, owner &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
+<text text-anchor="middle" x="46.4954" y="-97.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">owner, manager &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- setManager&#45;&gt;transferOwnership -->
-<g id="edge3" class="edge"><title>setManager&#45;&gt;transferOwnership</title>
+<g id="edge2" class="edge"><title>setManager&#45;&gt;transferOwnership</title>
 <path fill="none" stroke="black" d="M74.5542,-163.768C92.8485,-151.415 118.799,-133.893 138.87,-120.341"/>
 <polygon fill="black" stroke="black" points="140.464,-122.221 144.895,-116.273 137.722,-118.16 140.464,-122.221"/>
 <text text-anchor="middle" x="134.995" y="-137.6" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">owner &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
@@ -114,7 +114,7 @@
 </g>
 <!-- regUser -->
 <g id="node5" class="node"><title>regUser</title>
-<g id="a_node5"><a xlink:title="Function: \n	regUser(uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(! users[msg.sender].isExist,User exist)\n	require(bool,string)(msg.value == LEVEL_PRICE[1],Incorrect Value)\n	require(bool,string)(_referrerID &gt; 0 &amp;&amp; _referrerID &lt;= currUserID,Incorrect referrer Id)\n&#45;&#45;&#45;\nState Variables Read: \n	LEVEL_PRICE(mapping(uint256 =&gt; uint256))\n	currUserID(uint256)\n	users(mapping(address =&gt; CryptoHands.UserStruct))\n&#45;&#45;&#45;\nState Variables Written: \n	userList(mapping(uint256 =&gt; address))\n	users(mapping(address =&gt; CryptoHands.UserStruct))\n	currUserID(uint256)">
+<g id="a_node5"><a xlink:title="Function: \n	regUser(uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(! users[msg.sender].isExist,User exist)\n	require(bool,string)(msg.value == LEVEL_PRICE[1],Incorrect Value)\n	require(bool,string)(_referrerID &gt; 0 &amp;&amp; _referrerID &lt;= currUserID,Incorrect referrer Id)\n&#45;&#45;&#45;\nState Variables Read: \n	currUserID(uint256)\n	users(mapping(address =&gt; CryptoHands.UserStruct))\n	LEVEL_PRICE(mapping(uint256 =&gt; uint256))\n&#45;&#45;&#45;\nState Variables Written: \n	currUserID(uint256)\n	userList(mapping(uint256 =&gt; address))\n	users(mapping(address =&gt; CryptoHands.UserStruct))">
 <ellipse fill="none" stroke="black" cx="422.995" cy="-180" rx="38.9931" ry="18"/>
 <text text-anchor="middle" x="422.995" y="-176.3" font-family="Times New Roman,serif" font-size="14.00">regUser</text>
 </a>
@@ -124,11 +124,11 @@
 <g id="edge4" class="edge"><title>regUser&#45;&gt;constructor</title>
 <path fill="none" stroke="black" d="M390.224,-170.176C361.176,-160.955 319.122,-144.003 290.995,-117 269.397,-96.2641 255.176,-64.3768 247.366,-42.6485"/>
 <polygon fill="black" stroke="black" points="249.661,-41.7897 245.054,-35.9779 245.031,-43.3942 249.661,-41.7897"/>
-<text text-anchor="middle" x="359.495" y="-97.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">LEVEL_PRICE, currUserID, users &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
+<text text-anchor="middle" x="359.495" y="-97.1" font-family="Times New Roman,serif" font-size="8.00" fill="#2e86c1">currUserID, users, LEVEL_PRICE &#160;&#160;&#160;&#160;&#160;&#160;&#160;</text>
 </g>
 <!-- buyLevel -->
 <g id="node6" class="node"><title>buyLevel</title>
-<g id="a_node6"><a xlink:title="Function: \n	buyLevel(uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(_level &gt; 0 &amp;&amp; _level &lt;= 8,Incorrect level)\n	require(bool,string)(users[msg.sender].isExist,User not exist)\n&#45;&#45;&#45;\nState Variables Read: \n	users(mapping(address =&gt; CryptoHands.UserStruct))\n&#45;&#45;&#45;\nState Variables Written: \n	users(mapping(address =&gt; CryptoHands.UserStruct))">
+<g id="a_node6"><a xlink:title="Function: \n	buyLevel(uint256) returns()\n&#45;&#45;&#45;\nModifiers: \n&#45;&#45;&#45;\nRequires: \n	require(bool,string)(users[msg.sender].isExist,User not exist)\n	require(bool,string)(_level &gt; 0 &amp;&amp; _level &lt;= 8,Incorrect level)\n&#45;&#45;&#45;\nState Variables Read: \n	users(mapping(address =&gt; CryptoHands.UserStruct))\n&#45;&#45;&#45;\nState Variables Written: \n	users(mapping(address =&gt; CryptoHands.UserStruct))">
 <ellipse fill="none" stroke="black" cx="480.995" cy="-99" rx="44.393" ry="18"/>
 <text text-anchor="middle" x="480.995" y="-95.3" font-family="Times New Roman,serif" font-size="14.00">buyLevel</text>
 </a>

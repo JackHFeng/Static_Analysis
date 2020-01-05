@@ -13,6 +13,13 @@ from .function_call import FunctionCall
 
 class Function(FunctionCall):
     """
+    still need to handle for ctfuzz
+        para_names, "a, b, c"
+        str_tc, string format of the tc
+        next_tc, index for next test case
+        new_ipm, flag for check if new ipm happened.
+    """
+    """
     Function objects
 
     Notes:
@@ -236,6 +243,7 @@ class Function(FunctionCall):
         self._is_pure = True if function.pure else False
 
         # load parameters.
+        # this step must happen first, because parameters are added to both the parameter and local variable list.
         self._load_parameters(function)
 
         # load both local and state variables.
@@ -292,7 +300,7 @@ class Function(FunctionCall):
         """
         for modifier in function.modifiers:
             # getting the modifier object
-            modifier_object = self._parent_contract.modifiers[modifier.name]
+            modifier_object = self._parent_contract.modifiers_dic[modifier.name]
 
             # adding modifier object to current function.
             self._modifiers.add(modifier_object)

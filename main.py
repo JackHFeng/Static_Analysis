@@ -51,20 +51,20 @@ if __name__ == '__main__':
         for c in l:
             main(c)
 
-        select_solc('0.5.7')
-        main('CryptoHands')
-
-        select_solc('0.4.25')
-        main('CryptoMinerToken')
-
-        select_solc('0.4.24')
-        main('lothlor')
-
-        select_solc('0.4.18')
-        main('HoloToken')
-        main('WETH9')
-
-        select_solc('0.4.16')
-        main('Exchange')
+        # select_solc('0.5.7')
+        # main('CryptoHands')
+        #
+        # select_solc('0.4.25')
+        # main('CryptoMinerToken')
+        #
+        # select_solc('0.4.24')
+        # main('lothlor')
+        #
+        # select_solc('0.4.18')
+        # main('HoloToken')
+        # main('WETH9')
+        #
+        # select_solc('0.4.16')
+        # main('Exchange')
     except KeyboardInterrupt:
         pass
