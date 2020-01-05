@@ -1,4 +1,8 @@
 from slither.core.declarations import SolidityFunction as Slither_SolidityFunction
+
+from slither.solc_parsing.declarations.modifier import ModifierSolc as Slither_ModifierSolc
+from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
+
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
 from slither.core.declarations.solidity_variables import SolidityVariableComposed as Slither_SolidityVariableComposed
@@ -253,7 +257,7 @@ class FunctionCall:
                     sender = msg.sender;
                     require(owner == sender);
         """
-        if isinstance(function_call, Slither_Function):
+        if type(function_call) in [Slither_Function, Slither_FunctionSolc]:
             for node in function_call.nodes:
                 # https://github.com/crytic/slither/blob/master/slither/core/cfg/node.py
                 # node_type => 0 represents Entry Point Node, we can safely skip this.
@@ -265,18 +269,38 @@ class FunctionCall:
                 # require() is a internal call, this finds potential require statement.
                 if node.internal_calls:
                     # check if the call is actually require call.
-                    if node.internal_calls[0] in require_functions:
-                        self._create_require(node)
+                    """
+                    Multiple internal calls can happen within one node. 
+                    Such as require(check())
+                    Currently, this is still treated as normal precondition require. 
+                    As long as there is a require call, this node is considered as a require. 
+                    """
+                    found_require = False
+                    for internal_call in node.internal_calls:
+                        if internal_call in require_functions:
+                            self._create_require(node)
+                            found_require = True
+                            break
+
+                    # if no require found after internal call.
+                    # Later requires are deemed to be post condition checking
+                    # And will be ignored.
+                    if found_require:
+                        continue
                     else:
-                        # if not. Requires appear after this are not pre-conditional checking requires.
                         break
                 else:
                     # if not. Requires appear after this are not pre-conditional checking requires.
                     break
-        elif isinstance(function_call, Slither_Modifier):
+        elif type(function_call) in [Slither_Modifier, Slither_ModifierSolc]:
+            """
+            All requires from modifiers are been loaded regardless pre or post condition check. 
+            """
             for ir in function_call.slithir_operations:
                 if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
                     self._create_require(ir.node)
+        else:
+            raise Exception(f'Unhandled function call type {type(function_call)}.')
 
     def _create_require(self, require: Slither_NodeSolc):
         """
