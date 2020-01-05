@@ -1,8 +1,28 @@
 import os
 import shutil
+import re
 
 # 'E:/Desktop/solc/current'
 # f'E:/Desktop/solc/{version}'
+
+
+def set_version(source_dir):
+    version = None
+    code = open(source_dir, 'r', encoding='utf-8').read().split('\n')
+    for line, content in enumerate(code):
+        if 'pragma solidity' in content:
+            version = re.findall(r'[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}', content)[0]
+    select_solc(version)
+
+
+def select_solc(version):
+    import os
+    if os.name == 'nt':
+        set_solc_version(src_dir='E:/Desktop/solc', dst_dir='E:/Desktop/solc/current', version=version)
+
+    elif os.name == "posix":
+        import subprocess
+        subprocess.call(['solc', 'use', version])
 
 
 def set_solc_version(src_dir, dst_dir, version):

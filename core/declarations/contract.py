@@ -45,7 +45,6 @@ class Contract:
         # currently not used, this is for storing contract address after deployment
         # self._address = None
 
-
         self._setter(contract)
 
     @property

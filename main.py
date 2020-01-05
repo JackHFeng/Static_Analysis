@@ -1,20 +1,15 @@
 from core.contracts import Contracts
 from core.dependency_graph.dependency_graph import DependencyGraph
+from core.select_solc_compiler import set_version
 
 
-def main(_contract_name):
-
-    # name of contract.
-    # contract_name = "ReceiverPays"
-    contract_name = _contract_name
+def main(contract_dir, contract_name):
 
     """
     ReceiverPays does not show owner. 
     WETH9 does not show requires. 
     Ballot does not show requires. 
     """
-    # the name of contract is used as file name to find the sol file in the root directory.
-    contract_dir = f'./_sample_contracts/{contract_name}.sol'
 
     # constructs the data dependency graph.
     # if a file contains multiple contracts, DDG will be constructed for each.
@@ -32,25 +27,21 @@ def main(_contract_name):
     f.close()
 
 
-def select_solc(version):
-    import os
-    if os.name == 'nt':
-        from core.windows_sol_select import set_solc_version
-        set_solc_version(src_dir='E:/Desktop/solc', dst_dir='E:/Desktop/solc/current', version=version)
-
-    elif os.name == "posix":
-        import subprocess
-        subprocess.call(['solc', 'use', version])
-
-
 if __name__ == '__main__':
     try:
+        contracts = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token", "Example",
+                     "CryptoHands", "CryptoMinerToken", "lothlor", "HoloToken", "WETH9", "Exchange"]
 
-        l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token", "Example"]
-        select_solc('0.5.11')
-        for c in l:
-            main(c)
+        for contract in contracts:
+            source_dir = f'./_sample_contracts/{contract}.sol'
+            set_version(source_dir)
+            main(source_dir, contract)
 
+        # l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token", "Example"]
+        # select_solc('0.5.11')
+        # for c in l:
+        #     main(c)
+        #
         # select_solc('0.5.7')
         # main('CryptoHands')
         #
