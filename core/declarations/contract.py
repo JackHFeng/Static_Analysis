@@ -54,6 +54,9 @@ class Contract:
         # set of edges in tuples
         self._edges = set()
 
+        # source directory
+        self._source_dir = None
+
         # currently not used, this is for storing contract address after deployment
         # self._address = None
 
@@ -138,6 +141,12 @@ class Contract:
     def add_edge(self, edge):
         self._edges.add(edge)
 
+    @property
+    def source_dir(self):
+        return self._source_dir
+
+    def set_source_dir(self, source_dir):
+        self._source_dir = source_dir
 
     def add_default_sat_function(self, function):
         self._default_satisfied_functions.add(function)
