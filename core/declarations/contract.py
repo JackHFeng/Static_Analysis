@@ -42,6 +42,18 @@ class Contract:
         # abi of current contract
         self._abi = None
 
+        # contract binary
+        self._bin_code = None
+
+        # deployed opcode
+        self._opcodes = list()
+
+        # source code
+        self._code = None
+
+        # set of edges in tuples
+        self._edges = set()
+
         # currently not used, this is for storing contract address after deployment
         # self._address = None
 
@@ -54,6 +66,10 @@ class Contract:
     @property
     def functions(self):
         return self._functions.values()
+
+    @property
+    def total_functions(self):
+        return len(self._functions)
 
     @property
     def functions_dic(self):
@@ -82,6 +98,46 @@ class Contract:
     @property
     def abi(self):
         return self._abi
+
+    def set_abi(self, abi):
+        self._abi = abi
+
+    @property
+    def bin_code(self):
+        return self._bin_code
+
+    def set_bin_code(self, bin_code):
+        self._bin_code = bin_code
+
+    @property
+    def opcodes(self):
+        return self._opcodes
+
+    """
+    Probably need another property to provide some customized opcode info
+    """
+
+    def set_opcodes(self, opcodes):
+        self._opcodes = opcodes
+
+    @property
+    def code(self):
+        return self._code
+
+    def set_code(self, code):
+        self._code = code
+
+    @property
+    def edges(self):
+        return list(self._edges)
+
+    @property
+    def total_edges(self):
+        return len(self._edges)
+
+    def add_edge(self, edge):
+        self._edges.add(edge)
+
 
     def add_default_sat_function(self, function):
         self._default_satisfied_functions.add(function)
@@ -169,7 +225,8 @@ class Contract:
         """
         return self._name
 
-    def contract_summary(self):
+    @property
+    def summary(self):
         """
         Prints the summary of the contract.
 
@@ -193,13 +250,13 @@ class Contract:
         res.append(f'Modifiers: ')
 
         for m in self._modifiers.values():
-            res.append(increase_indentation(m.modifier_summary()))
+            res.append(increase_indentation(m.summary))
             res.append('')
 
         res.append(f'Functions: ')
 
         for f in self._functions.values():
-            res.append(increase_indentation(f.function_summary()))
+            res.append(increase_indentation(f.summary))
             res.append('')
 
         return '\n'.join(res)
