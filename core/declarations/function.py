@@ -158,7 +158,8 @@ class Function(FunctionCall):
             raise Exception(f'state variable "{name}" is not read by function "{self.name}".')
         # throw exception? Or just return empty array?
 
-    def function_summary(self):
+    @property
+    def summary(self):
         """
         For returning the summary of the function.
 

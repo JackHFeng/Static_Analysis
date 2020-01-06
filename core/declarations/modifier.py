@@ -20,7 +20,8 @@ class Modifier(FunctionCall):
     def functions_used(self):
         return list(self._functions_used)
 
-    def modifier_summary(self):
+    @property
+    def summary(self):
         """
         For returning the summary of the modifier.
 

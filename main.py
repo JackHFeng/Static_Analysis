@@ -17,7 +17,7 @@ def main(contract_dir, contract_name):
 
     # getting the contract object by name.
     contract = contracts.get_contract_by_name(contract_name)
-    print(contract.contract_summary())
+    print(contract.summary)
 
     # Graph generation
     DG = DependencyGraph(contract)
