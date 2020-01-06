@@ -46,7 +46,9 @@ class Contract:
         self._bin_code = None
 
         # deployed opcode
-        self._opcodes = list()
+        self._opcodes_str = None
+
+        self._opcodes = {}
 
         # source code
         self._code = None
@@ -55,7 +57,7 @@ class Contract:
         self._edges = set()
 
         # source directory
-        self._source_dir = None
+        self._source_dir = None  # set in ctfuzz
 
         # currently not used, this is for storing contract address after deployment
         # self._address = None
@@ -103,25 +105,32 @@ class Contract:
         return self._abi
 
     def set_abi(self, abi):
-        self._abi = abi
+        self._abi = abi.strip()
 
     @property
     def bin_code(self):
         return self._bin_code
 
     def set_bin_code(self, bin_code):
-        self._bin_code = bin_code
+        self._bin_code = bin_code.strip()
 
     @property
-    def opcodes(self):
-        return self._opcodes
+    def opcodes_str(self):
+        return self._opcodes_str
 
     """
     Probably need another property to provide some customized opcode info
     """
 
-    def set_opcodes(self, opcodes):
-        self._opcodes = opcodes
+    def set_opcodes_str(self, opcodes_str):
+        self._opcodes_str = opcodes_str.strip()
+
+    @property
+    def opcodes_dic(self):
+        return self._opcodes
+
+    def set_opcodes_dic(self, opcodes_dic):
+        self._opcodes = opcodes_dic
 
     @property
     def code(self):
@@ -138,8 +147,8 @@ class Contract:
     def total_edges(self):
         return len(self._edges)
 
-    def add_edge(self, edge):
-        self._edges.add(edge)
+    def set_edges(self, edges):
+        self._edges = edges
 
     @property
     def source_dir(self):
