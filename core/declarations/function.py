@@ -75,6 +75,12 @@ class Function(FunctionCall):
         # whether the current function can be satisfied by default / right after deployment
         self._sat_by_default = False
 
+        # hash of the function/modifier signature
+        self._sig_hash = None
+
+        # CT test cases
+        self._test_cases = []
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -106,6 +112,20 @@ class Function(FunctionCall):
     @property
     def sat_by_default(self):
         return self._sat_by_default
+
+    @property
+    def sig_hash(self):
+        return self._sig_hash
+
+    def set_sig_hash(self, sig_hash):
+        self._sig_hash = sig_hash
+
+    @property
+    def test_cases(self):
+        return self._test_cases
+
+    def set_test_cases(self, tcs):
+        self._test_cases = tcs
 
     def get_depended_functions(self):
         """
