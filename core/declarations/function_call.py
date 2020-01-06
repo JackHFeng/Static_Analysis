@@ -42,7 +42,7 @@ class FunctionCall:
         self._requires = set()
 
         # set of parameters.
-        self._parameters = set()
+        self._parameters = {}
 
         # source code of function, currently not available
         self._source_code = None
@@ -64,11 +64,6 @@ class FunctionCall:
         # local variables written by the function.
         self._local_variables_written = set()
 
-        # hash of the function/modifier signature
-        self._sig_hash = None
-
-        # CT test cases
-        self._test_cases = []
 
     ###################################################################################
     ###################################################################################
@@ -98,10 +93,14 @@ class FunctionCall:
 
     @property
     def parameters(self):
-        return list(self._parameters)
+        return self._parameters.values()
+
+    @property
+    def parameters_dic(self):
+        return self._parameters
 
     def add_parameter(self, parameter):
-        self._parameters.add(parameter)
+        self._parameters[parameter.name] = parameter
 
     # @property
     # def parameter_names(self):
@@ -138,13 +137,6 @@ class FunctionCall:
     def local_variables_written(self):
         return list(self._local_variables_written)
 
-    @property
-    def sig_hash(self):
-        return self._sig_hash
-
-    @property
-    def test_cases(self):
-        return self._test_cases
 
     # end of region
     ###################################################################################
@@ -167,7 +159,7 @@ class FunctionCall:
         """
         for variable in function_call.parameters:
             new_parameter = Parameter(variable)
-            self._parameters.add(new_parameter)
+            self.add_parameter(new_parameter)
             self.add_local_variable(new_parameter)
 
     def _load_variables(self, function_call):
