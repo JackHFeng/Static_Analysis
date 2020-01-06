@@ -237,6 +237,7 @@ class Function(FunctionCall):
         Finished.
         """
         self._name = function.name
+        self._full_name = function.full_name
         self._signature = function.signature_str
         self._visibility = function.visibility
         self._parent_contract = parent_contract

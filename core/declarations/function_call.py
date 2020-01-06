@@ -29,6 +29,9 @@ class FunctionCall:
         # e.g. "constructor".
         self._name = None
 
+        # e.g. "constructor(uint256,uint256)"
+        self._full_name = None
+
         # e.g. "constructor(bytes32[]) returns()".
         self._signature = None
 
@@ -76,6 +79,10 @@ class FunctionCall:
     @property
     def name(self):
         return self._name
+
+    @property
+    def full_name(self):
+        return self._full_name
 
     @property
     def signature(self):

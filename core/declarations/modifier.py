@@ -79,6 +79,7 @@ class Modifier(FunctionCall):
         Finished.
         """
         self._name = modifier.name
+        self._full_name = modifier.full_name
         self._signature = modifier.signature_str
         self._parent_contract = parent_contract
 
