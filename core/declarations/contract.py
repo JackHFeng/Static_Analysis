@@ -145,7 +145,23 @@ class Contract:
 
     @property
     def total_edges(self):
-        return len(self._edges)
+        """
+        It would be
+            return len(self._edges)
+        if we actually know the edges.
+
+        But this will work.
+        """
+        opcodes_list = self._opcodes_strsplit(' ')
+
+        count_JD_sequence = 0  # sequence where pc enters JUMPDEST from non JUMP opcode.
+        for i in range(len(opcodes_list)):
+            if opcodes_list[i] != "JUMPDEST":
+                continue
+            else:
+                if opcodes_list[i - 1] not in ['JUMP', 'JUMPI', 'STOP', 'RETURN', 'REVERT']:
+                    count_JD_sequence += 1
+        return self._opcodes.count("JUMPI ") * 2 + self._count("JUMP ") + count_JD_sequence
 
     def set_edges(self, edges):
         self._edges = edges
