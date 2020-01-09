@@ -1,3 +1,6 @@
+from web3 import Web3
+from solc import compile_standard
+
 from slither.core.declarations.contract import Contract as Slither_Contract
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
@@ -5,6 +8,7 @@ from slither.core.declarations.modifier import Modifier as Slither_Modifier
 from .function import Function
 from .modifier import Modifier
 from .state_variable import StateVariable
+from .dlinked_node import DLinkedNode
 
 
 class Contract:
@@ -294,3 +298,109 @@ class Contract:
             res.append('')
 
         return '\n'.join(res)
+
+    def load_compiled_info(self):
+        self.set_code(open(self._source_dir, 'r', encoding='utf-8').read())
+        compiled_sol = self._compile_source()
+
+        self.set_abi(compiled_sol['abi'])
+        self.set_bin_code(compiled_sol['evm']['bytecode']['object'])
+        self.set_opcodes_str(compiled_sol['evm']['deployedBytecode']['opcodes'])
+        self.set_opcodes_dic(self._create_opcodes_dic())
+        self._set_function_hashes()
+
+    def _compile_source(self):
+        """
+        Finished.
+        Compiles the source solidity code and returns the
+            binary, abi, runtime opcode in a dictionary format.
+        Returns:
+            dictionary containing the above info.
+        """
+        filename = self.source_dir.split('/')[-1]
+        compiled_sol = compile_standard({
+            "language": "Solidity",
+            "sources": {
+                filename: {
+                    "content": self.code
+                }
+            },
+            "settings":
+                {
+                    "outputSelection": {
+                        "*": {
+                            "*": [
+                                "abi", "evm.bytecode", "evm.deployedBytecode"
+                            ]
+                        }
+                    }
+                }
+        })
+        return compiled_sol['contracts'][filename][self._contract.name]
+
+    def _create_opcodes_dic(self):
+        """
+        Finished.
+        This creates the dictionary for the opcodes.
+        The key is the pc, the value is the opcode node.
+        The opcodes are connected as doubly linked list,
+        So we can find it's previous and next node.
+        Due to the pc are not continuous when PUSH* happens.
+        Returns:
+            opcode dictionary
+
+        """
+        opcodes_dic = {}
+
+        # split the string opcodes, which also separated PUSH* and their value
+        temp_list = self.opcodes_str.split(' ')
+        op_list = []
+
+        # connecting push with their value, and adding them to the op_list
+        # then we have our opcodes in the correct order. Without pc.
+        for line in temp_list:
+            if line.startswith("0x") and op_list[-1].startswith('PUSH') and '0x' not in op_list[-1]:
+                # this if also handles invalid opcodes that did not appear after PUSH*
+                op_list[-1] += f' {line}'
+            else:
+                op_list.append(line)
+
+        # creating the dic with opcode nodes and compute their correct pc number.
+        # dummy head
+        head = DLinkedNode()
+        head.pc = -1
+        head.size = 0
+        import re
+
+        for line in op_list:
+            node = DLinkedNode()
+            temp_list = line.split(' ')  # this gives the PUSH* and their value if its a PUSH*
+            node.opcode = temp_list[0]  # sets the opcode
+            node.value = temp_list[1] if len(temp_list) > 1 else None  # sets the value if there is any
+            node.size = int(re.sub('\D', '', node.opcode)) if node.value else 0  # sets the value if there is any
+
+            node.pc = head.pc + head.size + 1
+            node.pre = head
+            head.next = node
+            head = node
+            opcodes_dic[head.pc] = head
+
+        opcodes_dic[0].pre = None
+        return opcodes_dic
+
+    def _set_function_hashes(self):
+        """
+        Compute the sig hash from their full name/signature.
+        Then set it for each function.
+
+        We still need to handle the dummy functions created in slither.
+        Refer back to slither about
+            slitherConstructorVariables
+            slitherConstructorConstantVariables
+
+        Returns:
+            None, but sets the hash for all the functions in the contract.
+        """
+        for f in self._functions:
+            f_hash = Web3.sha3(text=f.full_name).hex()[:10]
+            f.set_sig_hash(f_hash)
