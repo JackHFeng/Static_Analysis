@@ -67,10 +67,15 @@ class Function(FunctionCall):
         self._irs = []
 
         # whether the function is view type
-        self._is_view = None
+        # will not alter the storage
+        self._view = None
 
         # whether the function is pure type
-        self._is_pure = None
+        # on top of view will not even access storage
+        self._pure = None
+
+        # whether a function can receive ether
+        self._payable = None
 
         # whether the current function can be satisfied by default / right after deployment
         self._sat_by_default = False
@@ -102,12 +107,16 @@ class Function(FunctionCall):
         return self._irs
 
     @property
-    def is_view(self):
-        return self._is_view
+    def view(self):
+        return self._view
 
     @property
-    def is_pure(self):
-        return self._is_pure
+    def pure(self):
+        return self._pure
+
+    @property
+    def payable(self):
+        return self._payable
 
     @property
     def sat_by_default(self):
@@ -261,8 +270,9 @@ class Function(FunctionCall):
         self._signature = function.signature_str
         self._visibility = function.visibility
         self._parent_contract = parent_contract
-        self._is_view = True if function.view else False
-        self._is_pure = True if function.pure else False
+        self._view = True if function.view else False
+        self._pure = True if function.pure else False
+        self._payable = True if function.payable else False
 
         # load parameters.
         # this step must happen first, because parameters are added to both the parameter and local variable list.

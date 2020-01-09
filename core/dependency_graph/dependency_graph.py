@@ -27,7 +27,7 @@ class DependencyGraph:
         self.html = ""
 
         for f in _contract._functions.values():
-            if f.name in ['slitherConstructorVariables','slitherConstructorConstantVariables'] or f.is_view or f.is_pure:
+            if f.name in ['slitherConstructorVariables','slitherConstructorConstantVariables'] or f.view or f.pure:
                 continue
             self.construct_node(f)
 
@@ -39,7 +39,7 @@ class DependencyGraph:
         Constructs the graph by connecting nodes with edges.
         """
         for f in _contract.functions:
-            if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables' ,'constructor'] or f.is_view or f.is_pure:
+            if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables' ,'constructor'] or f.view or f.pure:
                 continue
 
             for sr in f.state_variables_read:
