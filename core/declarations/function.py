@@ -207,6 +207,11 @@ class Function(FunctionCall):
             res.append(f'\t\t{str(r)}')
 
         v = ''
+        for s in self.parameters:
+            v += s.name + ', '
+        res.append(f'\tParameters: {v[:-2]}')
+
+        v = ''
         for s in self._state_variables_read:
             v += s.name + ', '
         res.append(f'\tState Vars Read: {v[:-2]}')
