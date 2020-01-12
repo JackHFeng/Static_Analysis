@@ -109,7 +109,15 @@ class Contract:
         return self._abi
 
     def set_abi(self, abi):
-        self._abi = abi.strip()
+        """
+        This abi is still in json format, which means it contains nested lists and dictionaries.
+        Args:
+            abi:
+
+        Returns:
+
+        """
+        self._abi = abi
 
     @property
     def bin_code(self):
@@ -279,10 +287,11 @@ class Contract:
         for v in self._state_variables.values():
             res.append(f'\t{v.name}({v.type}): {v.default_value}')
             res.append(f'\t\tinitialized: {v.initialized}')
-            res.append(f'\t\tinitialized using SolcVar: {v.set_by_deployment}')
-            res.append(f'\t\tset by constructor: {v.set_by_constructor}')
+            res.append(f'\t\tinitialized by constructor: {v.set_by_constructor}')
+            res.append(f'\t\tinitialized by SolcVar: {v.set_by_deployment}')
             if v.set_by_deployment:
                 res.append(f'\t\t\tusing: {v.var_used_in_deployment}')
+            res.append('')
         res.append('')
 
         res.append(f'Modifiers: ')

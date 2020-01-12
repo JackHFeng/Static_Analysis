@@ -283,7 +283,7 @@ class Function(FunctionCall):
         # this step must happen first, because parameters are added to both the parameter and local variable list.
         self._load_parameters(function)
 
-        # load both local and state variables.
+        # load both written local and state variables.
         self._load_variables(function)
 
         # we may not need this after all.
@@ -294,6 +294,7 @@ class Function(FunctionCall):
         self._load_modifiers(function)
 
         # load requires at the front of the function.
+        self._load_requires(function)
         self._load_requires(function)
 
         # check if current function can be satisfied by default/ right after deployment
