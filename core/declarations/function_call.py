@@ -168,7 +168,9 @@ class FunctionCall:
 
         Finished.
         """
+        self._load_state_variables(function_call.state_variables_read, 'read')
         self._load_state_variables(function_call.state_variables_written, 'written')
+        self._load_local_variables(function_call.variables_read, 'read')
         self._load_local_variables(function_call.variables_written, 'written')
 
     def _load_state_variables(self, variables, read_or_write):
