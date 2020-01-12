@@ -207,11 +207,15 @@ class FunctionCall:
             #           It rarely happens
             #       slither.core.declarations.solidity_variables.SolidityVariable (such as evm time, "now")
             #           https://github.com/crytic/slither/blob/master/slither/core/declarations/solidity_variables.py
+            #       **** this is currently not included because it is rather hard to modify.
+            #       **** besides some are related to EVM info, e.g. "now", some are related to the
+            #            currently deployed contract such as "this" the address of the current contract.
 
             # StateVariableSolc was in the following list, but has been removed
             # Because we are only loading local variable
             # At this moment, msg.sender, etc. are considered as local variables.
-            if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed, Slither_SolidityVariable]:
+
+            if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed]:
                 continue
 
             # There was a check of whether "variable" is None in the if condition
