@@ -331,6 +331,9 @@ class Function(FunctionCall):
                     self._irs.append(ir)
 
     def _load_modifiers(self, function: Slither_Function):
+        from .solidity_variable import SolidityVariable
+        from .solidity_variable_composed import SolidityVariableComposed
+        import copy
         """
         Loading modifier objects.
 
@@ -350,6 +353,17 @@ class Function(FunctionCall):
             # adding state variables read from modifier to current function.
             for state_variable in modifier_object.state_variables_read:
                 self._state_variables_read.add(state_variable)
+
+            for local_variable in modifier_object.local_variables_read:
+                if (
+                        type(local_variable) in [SolidityVariable, SolidityVariableComposed] and
+                        local_variable.name not in [p.name for p in self.parameters]
+                ):
+                    new_parameter = copy.deepcopy(local_variable)
+                    new_parameter.rep_values = []
+                    self.add_parameter(new_parameter)
+                    self.add_local_variable(new_parameter)
+                    self._local_variables_read.add(new_parameter)
 
             # adding requires from modifier into current function.
             for require in modifier_object.requires:
