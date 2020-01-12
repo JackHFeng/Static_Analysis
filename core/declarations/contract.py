@@ -345,7 +345,7 @@ class Contract:
                     }
                 }
         })
-        return compiled_sol['contracts'][filename][self._contract.name]
+        return compiled_sol['contracts'][filename][self.name]
 
     def _create_opcodes_dic(self):
         """
@@ -410,6 +410,6 @@ class Contract:
         Returns:
             None, but sets the hash for all the functions in the contract.
         """
-        for f in self._functions:
+        for f in self.functions:
             f_hash = Web3.sha3(text=f.full_name).hex()[:10]
             f.set_sig_hash(f_hash)
