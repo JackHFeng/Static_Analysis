@@ -412,4 +412,4 @@ class Contract:
         """
         for f in self.functions:
             f_hash = Web3.sha3(text=f.full_name).hex()[:10]
-            f.set_sig_hash(f_hash)
+            f.load_sig_hash(f_hash)
