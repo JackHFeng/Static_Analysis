@@ -465,11 +465,14 @@ class Contract:
                 for p in p_list:
                     if p:
                         temp_block.next.append(int(p, 0))
+
                 i += 1
+
+                if res[i].startswith('Has unresolved jump.'):
+                    i += 1
 
                 while not res[i + 1].startswith('---'):
                     i += 1
-
                 temp_block.end = int(res[i].strip().split(' ')[0], 0)
 
                 blocks[temp_block.pc] = temp_block
