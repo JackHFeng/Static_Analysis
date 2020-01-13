@@ -297,7 +297,6 @@ class Function(FunctionCall):
 
         # load requires at the front of the function.
         self._load_requires(function)
-        self._load_requires(function)
 
         # check if current function can be satisfied by default/ right after deployment
         self._check_sat_by_default()
