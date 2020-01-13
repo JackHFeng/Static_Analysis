@@ -1,0 +1,3 @@
+[submodule "core/vandal"]
+	path = core/vandal
+	url = https://github.com/JackHFeng/vandal
