@@ -413,3 +413,41 @@ class Contract:
         for f in self.functions:
             f_hash = Web3.sha3(text=f.full_name).hex()[:10]
             f.load_sig_hash(f_hash)
+
+    def _set_blocks(self):
+        from ....vandal.bin.generate_cfg import vandal_cfg
+        res = vandal_cfg(self.runtime_bin_code).strip().split('\n')
+
+        blocks = {}
+        temp_block = None
+
+        i = 0
+
+        while i < len(res):
+            if res[i].startswith('Block'):
+                temp_block = Block()
+                pc = int(res[i].strip().split(' ')[1], 0)
+                temp_block.pc = pc
+                temp_block.start = pc
+            elif res[i].startswith('Predecessors'):
+                p_list = res[i][15:-1].split(', ')
+                for p in p_list:
+                    if p:
+                        temp_block.pre.append(int(p, 0))
+            elif res[i].startswith("Successors"):
+                p_list = res[i][13:-1].split(', ')
+                for p in p_list:
+                    if p:
+                        temp_block.next.append(int(p, 0))
+                i += 1
+
+                while not res[i + 1].startswith('---'):
+                    i += 1
+
+                temp_block.end = int(res[i].strip().split(' ')[0], 0)
+
+                blocks[temp_block.pc] = temp_block
+
+            i += 1
+        self._set_blocks_dic(blocks)
+
