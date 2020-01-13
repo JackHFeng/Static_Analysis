@@ -126,7 +126,7 @@ class Function(FunctionCall):
     def sig_hash(self):
         return self._sig_hash
 
-    def set_sig_hash(self, sig_hash):
+    def load_sig_hash(self, sig_hash):
         self._sig_hash = sig_hash
 
     @property
