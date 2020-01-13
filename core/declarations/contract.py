@@ -386,7 +386,7 @@ class Contract:
             temp_list = line.split(' ')  # this gives the PUSH* and their value if its a PUSH*
             node.opcode = temp_list[0]  # sets the opcode
             node.value = temp_list[1] if len(temp_list) > 1 else None  # sets the value if there is any
-            node.size = int(re.sub('\D', '', node.opcode)) if node.value else 0  # sets the value if there is any
+            node.size = int(re.sub(r'\D', '', node.opcode)) if node.value else 0  # sets the value if there is any
 
             node.pc = head.pc + head.size + 1
             node.pre = head
