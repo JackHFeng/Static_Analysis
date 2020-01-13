@@ -251,7 +251,7 @@ class Contract:
         """
         new_function = Function(function, self)
 
-        self._functions[new_function.name] = new_function
+        self._functions[new_function.canonical_name] = new_function
 
     def _create_modifier(self, modifier: Slither_Modifier):
         """
@@ -261,7 +261,7 @@ class Contract:
         """
         new_modifier = Modifier(modifier, self)
 
-        self._modifiers[new_modifier.name] = new_modifier
+        self._modifiers[new_modifier.canonical_name] = new_modifier
 
     def __str__(self):
         """

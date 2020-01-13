@@ -272,6 +272,7 @@ class Function(FunctionCall):
         """
         self._name = function.name
         self._full_name = function.full_name
+        self._canonical_name = function.canonical_name
         self._signature = function.signature_str
         self._visibility = function.visibility
         self._parent_contract = parent_contract
@@ -341,7 +342,7 @@ class Function(FunctionCall):
         """
         for modifier in function.modifiers:
             # getting the modifier object
-            modifier_object = self._parent_contract.modifiers_dic[modifier.name]
+            modifier_object = self._parent_contract.modifiers_dic[modifier.canonical_name]
 
             # adding modifier object to current function.
             self._modifiers.add(modifier_object)

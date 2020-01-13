@@ -32,6 +32,9 @@ class FunctionCall:
         # e.g. "constructor(uint256,uint256)"
         self._full_name = None
 
+        # e.g  "HoloToken.constructor(uint256,uint256)"
+        self._canonical_name = None
+
         # e.g. "constructor(bytes32[]) returns()".
         self._signature = None
 
@@ -78,6 +81,10 @@ class FunctionCall:
     @property
     def full_name(self):
         return self._full_name
+
+    @property
+    def canonical_name(self):
+        return self._canonical_name
 
     @property
     def signature(self):
