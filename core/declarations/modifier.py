@@ -88,6 +88,7 @@ class Modifier(FunctionCall):
         self._canonical_name = modifier.canonical_name
         self._signature = modifier.signature_str
         self._parent_contract = parent_contract
+        self._declared_by = modifier.contract_declarer.name
 
         self._load_parameters(modifier)
         self._load_variables(modifier)

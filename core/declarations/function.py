@@ -276,6 +276,7 @@ class Function(FunctionCall):
         self._signature = function.signature_str
         self._visibility = function.visibility
         self._parent_contract = parent_contract
+        self._declared_by = function.contract_declarer.name
         self._view = True if function.view else False
         self._pure = True if function.pure else False
         self._payable = True if function.payable else False

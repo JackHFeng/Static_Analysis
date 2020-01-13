@@ -67,6 +67,10 @@ class FunctionCall:
         # local variables written by the function.
         self._local_variables_written = set()
 
+        # declared by which contract, functions can be inherited from parent contract.
+        # especially constructor
+        self._declared_by = None
+
 
     ###################################################################################
     ###################################################################################
@@ -144,6 +148,9 @@ class FunctionCall:
     def local_variables_written(self):
         return list(self._local_variables_written)
 
+    @property
+    def declared_by(self):
+        return self._declared_by
 
     # end of region
     ###################################################################################
