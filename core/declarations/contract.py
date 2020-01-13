@@ -8,7 +8,7 @@ from slither.core.declarations.modifier import Modifier as Slither_Modifier
 from .function import Function
 from .modifier import Modifier
 from .state_variable import StateVariable
-from .dlinked_node import DLinkedNode
+from .opcode import Opcode
 
 
 class Contract:
@@ -376,13 +376,13 @@ class Contract:
 
         # creating the dic with opcode nodes and compute their correct pc number.
         # dummy head
-        head = DLinkedNode()
+        head = Opcode()
         head.pc = -1
         head.size = 0
         import re
 
         for line in op_list:
-            node = DLinkedNode()
+            node = Opcode()
             temp_list = line.split(' ')  # this gives the PUSH* and their value if its a PUSH*
             node.opcode = temp_list[0]  # sets the opcode
             node.value = temp_list[1] if len(temp_list) > 1 else None  # sets the value if there is any
