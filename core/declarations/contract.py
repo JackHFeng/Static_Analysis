@@ -9,6 +9,7 @@ from .function import Function
 from .modifier import Modifier
 from .state_variable import StateVariable
 from .opcode import Opcode
+from .block import Block
 
 
 class Contract:
@@ -49,15 +50,23 @@ class Contract:
         # contract binary
         self._bin_code = None
 
+        # runtime binary after deployment
+        self._runtime_bin_code = None
+
         # deployed opcode
         self._opcodes_str = None
 
+        # opcode objects. With pc as key
         self._opcodes = {}
+
+        # basic blocks for cfg. With entry pc as key.
+        # start, end, pre, next are stored with opcode objects.
+        self._blocks = {}
 
         # source code
         self._code = None
 
-        # set of edges in tuples
+        # set of edges in tuples with pc number
         self._edges = set()
 
         # source directory
@@ -108,7 +117,7 @@ class Contract:
     def abi(self):
         return self._abi
 
-    def set_abi(self, abi):
+    def _set_abi(self, abi):
         """
         This abi is still in json format, which means it contains nested lists and dictionaries.
         Args:
@@ -123,8 +132,15 @@ class Contract:
     def bin_code(self):
         return self._bin_code
 
-    def set_bin_code(self, bin_code):
+    def _set_bin_code(self, bin_code):
         self._bin_code = bin_code.strip()
+
+    @property
+    def runtime_bin_code(self):
+        return self._runtime_bin_code
+
+    def _set_runtime_bin_code(self, runtime_bin_code):
+        self._runtime_bin_code = runtime_bin_code.strip()
 
     @property
     def opcodes_str(self):
@@ -134,21 +150,40 @@ class Contract:
     Probably need another property to provide some customized opcode info
     """
 
-    def set_opcodes_str(self, opcodes_str):
+    def _set_opcodes_str(self, opcodes_str):
         self._opcodes_str = opcodes_str.strip()
+
+    @property
+    def opcodes(self):
+        return self._opcodes.values()
 
     @property
     def opcodes_dic(self):
         return self._opcodes
 
-    def set_opcodes_dic(self, opcodes_dic):
+    def _set_opcodes_dic(self, opcodes_dic):
         self._opcodes = opcodes_dic
+
+    @property
+    def blocks(self):
+        return self._blocks.values()
+
+    @property
+    def blocks_dic(self):
+        return self._blocks
+
+    def _set_blocks_dic(self, blocks_dic):
+        self._blocks = blocks_dic
+
+    @property
+    def total_blocks(self):
+        return len(self._blocks)
 
     @property
     def code(self):
         return self._code
 
-    def set_code(self, code):
+    def _set_code(self, code):
         self._code = code
 
     @property
@@ -157,32 +192,20 @@ class Contract:
 
     @property
     def total_edges(self):
-        """
-        It would be
-            return len(self._edges)
-        if we actually know the edges.
+        return len(self._edges)
 
-        But this will work.
-        """
-        opcodes_list = self._opcodes_strsplit(' ')
-
-        count_JD_sequence = 0  # sequence where pc enters JUMPDEST from non JUMP opcode.
-        for i in range(len(opcodes_list)):
-            if opcodes_list[i] != "JUMPDEST":
-                continue
-            else:
-                if opcodes_list[i - 1] not in ['JUMP', 'JUMPI', 'STOP', 'RETURN', 'REVERT']:
-                    count_JD_sequence += 1
-        return self._opcodes.count("JUMPI ") * 2 + self._count("JUMP ") + count_JD_sequence
-
-    def set_edges(self, edges):
-        self._edges = edges
+    def _set_edges(self):
+        for block in self.blocks:
+            left = block.pc
+            for successor in block.next:
+                right = successor
+                self._edges.add((left, right))
 
     @property
     def source_dir(self):
         return self._source_dir
 
-    def set_source_dir(self, source_dir):
+    def load_source_dir(self, source_dir):
         self._source_dir = source_dir
 
     def add_default_sat_function(self, function):
@@ -309,13 +332,16 @@ class Contract:
         return '\n'.join(res)
 
     def load_compiled_info(self):
-        self.set_code(open(self._source_dir, 'r', encoding='utf-8').read())
+        self._set_code(open(self._source_dir, 'r', encoding='utf-8').read())
         compiled_sol = self._compile_source()
 
-        self.set_abi(compiled_sol['abi'])
-        self.set_bin_code(compiled_sol['evm']['bytecode']['object'])
-        self.set_opcodes_str(compiled_sol['evm']['deployedBytecode']['opcodes'])
-        self.set_opcodes_dic(self._create_opcodes_dic())
+        self._set_abi(compiled_sol['abi'])
+        self._set_bin_code(compiled_sol['evm']['bytecode']['object'])
+        self._set_runtime_bin_code(compiled_sol['evm']['deployedBytecode']['object'])
+        self._set_opcodes_str(compiled_sol['evm']['deployedBytecode']['opcodes'])
+        self._set_opcodes_dic(self._create_opcodes_dic())
+        self._set_blocks()
+        self._set_edges()
         self._set_function_hashes()
 
     def _compile_source(self):
