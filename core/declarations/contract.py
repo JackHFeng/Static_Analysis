@@ -441,7 +441,7 @@ class Contract:
             f.load_sig_hash(f_hash)
 
     def _set_blocks(self):
-        from ....vandal.bin.generate_cfg import vandal_cfg
+        from ..vandal.bin.generate_cfg import vandal_cfg
         res = vandal_cfg(self.runtime_bin_code).strip().split('\n')
 
         blocks = {}
