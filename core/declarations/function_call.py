@@ -44,7 +44,7 @@ class FunctionCall:
         # set of requires.
         self._requires = set()
 
-        # set of parameters.
+        # dic of parameters with name as key.
         self._parameters = {}
 
         # source code of function, currently not available
@@ -214,6 +214,7 @@ class FunctionCall:
         Finished.
         """
         for variable in variables:
+            #print(f'****{variable.name}')
             # Slither_SolidityVariableComposed is msg.send etc.
             # There can be other types such as
             #       slither.solc_parsing.variables.local_variable_init_from_tuple.LocalVariableInitFromTupleSolc
@@ -230,7 +231,8 @@ class FunctionCall:
                 continue
 
             # There was a check of whether "variable" is None in the if condition
-            # But has been removed.Why was there this check?
+            # Because the returns list can sometimes have None objects in there.
+            # this is currently handle by checking the variable type above.
 
             if variable.name in self._local_variables:
                 new_variable = self._local_variables[variable.name]

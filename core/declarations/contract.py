@@ -238,6 +238,7 @@ class Contract:
 
     def get_function_by_name(self, name: str) -> Function:
         """
+        ****Deprecated
         Getter function for getting a function object
         using its name, if function does not exist
         None will be returned.

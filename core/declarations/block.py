@@ -4,7 +4,7 @@ class Block:
         # pc in int
         self.pc = None
 
-        # start opcode pc
+        # start opcode pc, same as self.pc
         self.start = None
 
         # end opcode pc
