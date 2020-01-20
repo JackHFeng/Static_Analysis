@@ -86,6 +86,8 @@ class Function(FunctionCall):
         # CT test cases
         self._test_cases = []
 
+        self._w3_function = None
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -133,7 +135,14 @@ class Function(FunctionCall):
     def test_cases(self):
         return self._test_cases
 
-    def set_test_cases(self, tcs):
+    @property
+    def w3_function(self):
+        return self._w3_function
+
+    def load_w3_function(self, w3_function):
+        self._w3_function = w3_function
+
+    def load_test_cases(self, tcs):
         self._test_cases = tcs
 
     def get_depended_functions(self):

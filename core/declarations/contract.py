@@ -265,7 +265,16 @@ class Contract:
 
         Finished.
         """
-        return self._functions.get(name)
+        for f in self.functions:
+            if f.name == name:
+                return f
+        return None
+
+    def get_function_by_sig_hash(self, sig_hash: str) -> Function:
+        for f in self.functions:
+            if f.sig_hash == sig_hash:
+                return f
+        return None
 
     def get_modifier_by_name(self, name: str) -> Modifier:
         """
