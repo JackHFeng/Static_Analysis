@@ -357,7 +357,7 @@ class Contract:
 
         res.append(f'Functions: ')
 
-        for f in self._functions.values():
+        for f in self.constructors + self.functions:
             res.append(increase_indentation(f.summary))
             res.append('')
 
