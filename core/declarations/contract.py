@@ -78,6 +78,8 @@ class Contract:
         # currently not used, this is for storing contract address after deployment
         # self._address = None
 
+        self._w3_contract = None
+
         self._setter(contract)
 
     @property
@@ -211,6 +213,13 @@ class Contract:
     @property
     def source_dir(self):
         return self._source_dir
+
+    @property
+    def w3_contract(self):
+        return self._w3_contract
+
+    def load_w3_contract(self, w3_contract):
+        self._w3_contract = w3_contract
 
     def load_source_dir(self, source_dir):
         self._source_dir = source_dir
