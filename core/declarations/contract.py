@@ -205,10 +205,14 @@ class Contract:
 
     def _set_edges(self):
         for block in self.blocks:
-            left = block.pc
+            left = block.end
             for successor in block.next:
                 right = successor
+                # print(f'***Edge({left}, {right}) ({self.opcodes_dic[left].opcode}, {self.opcodes_dic[right].opcode})')
                 self._edges.add((left, right))
+
+    def add_missing_edge(self, edge):
+        self._edges.add(edge)
 
     @property
     def source_dir(self):
