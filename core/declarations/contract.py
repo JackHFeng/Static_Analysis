@@ -376,6 +376,13 @@ class Contract:
         self._set_edges()
         self._set_function_hashes()
 
+    def load_w3_functions(self):
+        from util import is_fuzzing_candidate
+        for function in self.functions:
+            if is_fuzzing_candidate(function):
+                w3_function = self.w3_contract.get_function_by_selector(function.sig_hash)
+                function.load_w3_function(w3_function)
+
     def _compile_source(self):
         """
         Finished.

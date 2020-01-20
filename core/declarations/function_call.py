@@ -110,8 +110,19 @@ class FunctionCall:
     def parameters_dic(self):
         return self._parameters
 
+    def get_parameter_by_name(self, name):
+        return self._parameters.get(name)
+
     def add_parameter(self, parameter):
-        self._parameters[parameter.name] = parameter
+        ignored = ['now', 'this', 'abi', 'msg', 'tx', 'block', 'super',
+                   'block.coinbase', 'block.difficulty', 'block.gaslimit',
+                   'block.number', 'block.timestamp', 'block.blockhash',
+                   'msg.data', 'msg.gas', 'msg.sig', 'tx.gasprice', 'tx.origin']
+
+        # Basically, we only keep msg.sender and msg.value as parameters
+
+        if parameter.name not in ignored:
+            self._parameters[parameter.name] = parameter
 
     # @property
     # def parameter_names(self):

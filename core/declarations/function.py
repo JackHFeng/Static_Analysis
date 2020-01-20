@@ -59,6 +59,8 @@ class Function(FunctionCall):
         # e.g. "public", "external", "internal", etc.
         self._visibility = None
 
+        self._is_constructor = None
+
         # set of modifiers.
         self._modifiers = set()
 
@@ -99,6 +101,10 @@ class Function(FunctionCall):
     @property
     def visibility(self):
         return self._visibility
+
+    @property
+    def is_constructor(self):
+        return self._is_constructor
 
     @property
     def modifiers(self):
@@ -289,6 +295,7 @@ class Function(FunctionCall):
         self._view = True if function.view else False
         self._pure = True if function.pure else False
         self._payable = True if function.payable else False
+        self._is_constructor = True if function.is_constructor else False
 
         # load parameters.
         # this step must happen first, because parameters are added to both the parameter and local variable list.
@@ -370,7 +377,7 @@ class Function(FunctionCall):
                         local_variable.name not in [p.name for p in self.parameters]
                 ):
                     new_parameter = copy.deepcopy(local_variable)
-                    new_parameter.rep_values = []
+                    new_parameter._rep_values = []
                     self.add_parameter(new_parameter)
                     self.add_local_variable(new_parameter)
                     self._local_variables_read.add(new_parameter)
