@@ -193,8 +193,10 @@ class FunctionCall:
 
         Finished.
         """
-        self._load_state_variables(function_call.state_variables_read, 'read')
+        # cannot load the read state variables outside of requires, this will mess up the dependency
+        # self._load_state_variables(function_call.state_variables_read, 'read')
         self._load_state_variables(function_call.state_variables_written, 'written')
+        # it should be fine to load the local variables read.
         self._load_local_variables(function_call.variables_read, 'read')
         self._load_local_variables(function_call.variables_written, 'written')
 
