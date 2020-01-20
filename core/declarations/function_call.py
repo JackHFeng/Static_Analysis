@@ -104,7 +104,7 @@ class FunctionCall:
 
     @property
     def parameters(self):
-        return self._parameters.values()
+        return list(self._parameters.values())
 
     @property
     def parameters_dic(self):
@@ -142,7 +142,7 @@ class FunctionCall:
 
     @property
     def local_variables(self):
-        return self._local_variables.values()
+        return list(self._local_variables.values())
 
     @property
     def local_variables_dic(self):

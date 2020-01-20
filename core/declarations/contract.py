@@ -88,7 +88,7 @@ class Contract:
 
     @property
     def functions(self):
-        return self._functions.values()
+        return list(self._functions.values())
 
     @property
     def total_functions(self):
@@ -104,7 +104,7 @@ class Contract:
 
     @property
     def state_variables(self):
-        return self._state_variables.values()
+        return list(self._state_variables.values())
 
     @property
     def state_variables_dic(self):
@@ -112,7 +112,7 @@ class Contract:
 
     @property
     def modifiers(self):
-        return self._modifiers.values()
+        return list(self._modifiers.values())
 
     @property
     def modifiers_dic(self):
@@ -164,7 +164,7 @@ class Contract:
 
     @property
     def opcodes(self):
-        return self._opcodes.values()
+        return list(self._opcodes.values())
 
     @property
     def opcodes_dic(self):
@@ -175,7 +175,7 @@ class Contract:
 
     @property
     def blocks(self):
-        return self._blocks.values()
+        return list(self._blocks.values())
 
     @property
     def blocks_dic(self):
