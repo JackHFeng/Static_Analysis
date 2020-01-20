@@ -29,14 +29,14 @@ def main(contract_dir, contract_name):
 
 if __name__ == '__main__':
     try:
-        contracts = ["CryptoHands", "Ballot", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token", "Example",
+        contracts = ["Purchase", "Ballot", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token", "Example",
                      "CryptoHands", "CryptoMinerToken", "lothlor", "HoloToken", "WETH9", "Exchange"]
 
         for contract in contracts:
             source_dir = f'./_sample_contracts/{contract}.sol'
             set_version(source_dir)
             main(source_dir, contract)
-            break
+
 
         # l = ["Ballot", "Purchase", "ReceiverPays", "SimpleAuction", "BlindAuction", "Token", "Example"]
         # select_solc('0.5.11')
