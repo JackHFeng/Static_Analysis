@@ -34,6 +34,9 @@ class Contract:
         # map of functions with their name as key.
         self._functions = {}
 
+        # list of constructors
+        self._constructors = []
+
         # map of state variables with their name as key.
         self._state_variables = {}
 
@@ -92,6 +95,10 @@ class Contract:
     @property
     def functions_dic(self):
         return self._functions
+
+    @property
+    def constructors(self):
+        return self._constructors
 
     @property
     def state_variables(self):
@@ -274,8 +281,10 @@ class Contract:
         Finished.
         """
         new_function = Function(function, self)
-
-        self._functions[new_function.canonical_name] = new_function
+        if new_function.is_constructor:
+            self._constructors.append(new_function)
+        else:
+            self._functions[new_function.canonical_name] = new_function
 
     def _create_modifier(self, modifier: Slither_Modifier):
         """
