@@ -62,6 +62,8 @@ class Contract:
         # opcode objects. With pc as key
         self._opcodes = {}
 
+        self._covered_opcodes = set()
+
         # basic blocks for cfg. With entry pc as key.
         # start, end, pre, next are stored with opcode objects.
         self._blocks = {}
@@ -167,11 +169,26 @@ class Contract:
         return list(self._opcodes.values())
 
     @property
+    def total_opcodes(self):
+        return len(self._opcodes.keys())
+
+    @property
     def opcodes_dic(self):
         return self._opcodes
 
     def _set_opcodes_dic(self, opcodes_dic):
         self._opcodes = opcodes_dic
+
+    @property
+    def covered_opcodes(self):
+        return self._covered_opcodes
+
+    def add_covered_opcode(self, code):
+        self._covered_opcodes.add(code)
+
+    @property
+    def total_covered_opcodes(self):
+        return len(self.covered_opcodes)
 
     @property
     def blocks(self):
