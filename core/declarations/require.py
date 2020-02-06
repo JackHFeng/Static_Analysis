@@ -58,6 +58,8 @@ class Require:
         # slither expression of the operation within the require statement
         self._operation = require.expression.arguments[0]
 
+        self._has_call_expression = True if len(require.calls_as_expression) > 1 else False
+
         """
         Currently, 1 means the require does not contain state var at all. 
         This needs to be changed using z3. 
@@ -70,6 +72,9 @@ class Require:
         # 3 - Hard, require modification of state variables
         #       Require dependency information.
         # if all requires of a function are 1 or 2, then it can be fuzzed after deployment.
+
+        # self._update_indirect_read()
+
         self._sat_cond_class = 0  # Satisfying condition classification.
 
         self._load_variables(require)
@@ -102,6 +107,10 @@ class Require:
     @property
     def operation(self):
         return self._operation
+
+    @property
+    def has_call_expression(self):
+        return self._has_call_expression
 
     @property
     def sat_cond_class(self):
@@ -244,6 +253,8 @@ class Require:
                 self._parent_function_call.add_local_variable(new_variable)
 
             self._local_variables_read.add(new_variable)
+
+    # def _update_indirect_read(self):
 
     def __str__(self):
         return self._code
