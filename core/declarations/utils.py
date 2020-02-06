@@ -8,6 +8,7 @@ from slither.core.expressions.unary_operation import UnaryOperation
 
 def get_z3_vars(op, dic):
     """
+    # Not complete, not used.
     Takes a slither expression and a dictionary, creates the Z3 objects of all variables
     involved within the expression.
 
@@ -32,11 +33,11 @@ def get_z3_vars(op, dic):
         raise Exception("Unhandled Operation")
 
 
-def increase_indentation(input: str):
+def increase_indentation(s: str):
     """
     For the purpose of generating summaries.
     """
-    return '\t' + '\t'.join(input.splitlines(True))
+    return '\t' + '\t'.join(s.splitlines(True))
 
 
 
