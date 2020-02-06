@@ -103,6 +103,10 @@ class FunctionCall:
         return list(self._requires)
 
     @property
+    def total_requires(self):
+        return len(self._requires)
+
+    @property
     def parameters(self):
         return list(self._parameters.values())
 
