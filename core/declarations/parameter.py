@@ -20,6 +20,9 @@ class Parameter(LocalVariable):
     def load_rep_values(self, values):
         self._rep_values = values
 
+    def add_rep_value(self, value):
+        self._rep_values.append(value)
+
     def get_w3_rep_value(self, index):
         from util import web3_value_encode
         return web3_value_encode(str(self.type), self.rep_values[index])
