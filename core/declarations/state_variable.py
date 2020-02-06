@@ -204,7 +204,7 @@ class StateVariable(Variable):
         Finished.
         """
         self._name = variable.name
-        self._type = str(variable.type)
+        self._type = variable.type
         self._visibility = variable.visibility
         self._initialized = True if variable.initialized else False
         self._set_by_constructor = False
