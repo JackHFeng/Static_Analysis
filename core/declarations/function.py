@@ -85,8 +85,13 @@ class Function(FunctionCall):
         # hash of the function/modifier signature
         self._sig_hash = None
 
-        # CT test cases
+        # CT test cases, to be fuzzed.
         self._test_cases = []
+
+        # for storing test cases that has been fuzzed.
+        self._fuzzed_test_cases = []
+
+        self._acts_tc_str = None
 
         self._w3_function = None
 
@@ -139,7 +144,42 @@ class Function(FunctionCall):
 
     @property
     def test_cases(self):
+        test_cases = []
+        for tc in self._test_cases:
+            concrete_tc = {}
+            for k, v in tc.items():
+                concrete_tc[k] = self.get_parameter_by_name(k).get_w3_rep_value(v)
+            test_cases.append(concrete_tc)
+        return test_cases
+
+    @property
+    def raw_test_cases(self):
         return self._test_cases
+
+    @property
+    def total_test_cases(self):
+        return len(self._test_cases)
+
+    def clear_test_cases(self):
+        self._test_cases = []
+
+    @property
+    def fuzzed_test_cases(self):
+        return self._fuzzed_test_cases
+
+    def add_fuzzed_test_case(self, tc):
+        self._fuzzed_test_cases.append(tc)
+
+    @property
+    def total_fuzzed_test_cases(self):
+        return len(self._fuzzed_test_cases)
+
+    @property
+    def acts_tc_str(self):
+        return self._acts_tc_str
+
+    def set_acts_str(self, tc):
+        self._acts_tc_str = tc
 
     @property
     def w3_function(self):
