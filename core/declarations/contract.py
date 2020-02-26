@@ -12,6 +12,13 @@ from .opcode import Opcode
 from .block import Block
 
 
+def increase_indentation(s: str):
+    """
+    For the purpose of generating summaries.
+    """
+    return '\t' + '\t'.join(s.splitlines(True))
+
+
 class Contract:
     """
     Contract object.
@@ -350,7 +357,6 @@ class Contract:
 
         Finished.
         """
-        from .utils import increase_indentation
 
         res = list()
         res.append(f'Contract Name: {self._name}')
