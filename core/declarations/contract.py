@@ -410,7 +410,10 @@ class Contract:
         from util import is_fuzzing_candidate
         for function in self.functions:
             if is_fuzzing_candidate(function):
-                w3_function = self.w3_contract.get_function_by_selector(function.sig_hash)
+                if function.name == 'fallback':
+                    w3_function = self.w3_contract.fallback
+                else:
+                    w3_function = self.w3_contract.get_function_by_selector(function.sig_hash)
                 function.load_w3_function(w3_function)
 
     def _compile_source(self):
