@@ -95,6 +95,8 @@ class Function(FunctionCall):
 
         self._w3_function = None
 
+        self._z3 = None
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -187,6 +189,13 @@ class Function(FunctionCall):
 
     def load_w3_function(self, w3_function):
         self._w3_function = w3_function
+
+    @property
+    def z3(self):
+        return self._z3
+
+    def set_z3(self, obj):
+        self._z3 = obj
 
     def load_test_cases(self, tcs):
         self._test_cases = tcs
@@ -425,6 +434,7 @@ class Function(FunctionCall):
             # adding requires from modifier into current function.
             for require in modifier_object.requires:
                 self._requires.add(require)
+
 
     # end of region
     ###################################################################################
