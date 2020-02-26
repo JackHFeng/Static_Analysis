@@ -33,11 +33,7 @@ def get_z3_vars(op, dic):
         raise Exception("Unhandled Operation")
 
 
-def increase_indentation(s: str):
-    """
-    For the purpose of generating summaries.
-    """
-    return '\t' + '\t'.join(s.splitlines(True))
+
 
 
 
