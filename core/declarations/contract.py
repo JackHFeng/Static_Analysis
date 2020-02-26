@@ -386,6 +386,13 @@ class Contract:
 
         return '\n'.join(res)
 
+    def list_requires(self):
+        res = [self.name]
+        for f in self.constructors + self.functions:
+            for r in f.requires:
+                res.append(f'\t{str(r)}')
+        return '\n'.join(res)
+
     def load_compiled_info(self):
         self._set_code(open(self._source_dir, 'r', encoding='utf-8').read())
         compiled_sol = self._compile_source()
