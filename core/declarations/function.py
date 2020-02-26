@@ -97,6 +97,9 @@ class Function(FunctionCall):
 
         self._z3 = None
 
+        # if ever entered without revert
+        self._entered = False
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -199,6 +202,13 @@ class Function(FunctionCall):
 
     def load_test_cases(self, tcs):
         self._test_cases = tcs
+
+    @property
+    def entered(self):
+        return self._entered
+
+    def set_entered(self, flag):
+        self._entered = flag
 
     def get_depended_functions(self):
         """
