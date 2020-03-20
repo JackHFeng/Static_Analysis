@@ -105,6 +105,8 @@ class Contract:
 
         self._w3_contract = None
 
+        self._slither_contract = None
+
         self._setter(contract)
 
     @property
@@ -353,6 +355,10 @@ class Contract:
     def w3_contract(self):
         return self._w3_contract
 
+    @property
+    def slither_contract(self):
+        return self._slither_contract
+
     def load_w3_contract(self, w3_contract):
         self._w3_contract = w3_contract
 
@@ -364,6 +370,7 @@ class Contract:
 
     def _setter(self, contract: Slither_Contract):
         self._name = contract.name
+        self._slither_contract = contract
 
         # create modifier objects.
         for modifier in contract.modifiers:
