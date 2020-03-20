@@ -11,6 +11,8 @@ from .state_variable import StateVariable
 from .opcode import Opcode
 from .block import Block
 
+from termcolor import colored
+
 
 def increase_indentation(s: str):
     """
@@ -198,6 +200,9 @@ class Contract:
         return len(self.covered_opcodes)
 
     @property
+    def opcode_code_coverage_str_colored(self):
+        return f'Contract Opcode Coverage: {colored(self.opcode_code_coverage, "cyan", "on_green", attrs=["bold"])}% ({self.total_covered_opcodes}/{self.total_opcodes})'
+    @property
     def blocks(self):
         return list(self._blocks.values())
 
@@ -237,7 +242,17 @@ class Contract:
 
     def add_missing_edge(self, edge):
         self._edges.add(edge)
+    @property
+    def edge_coverage_str_colored(self):
+        return f'Contract Edge Coverage: {colored(self.edge_coverage, "cyan", "on_green", attrs=["bold"])}% ({self.total_covered_edges}/{self.total_edges})'
 
+    @property
+    def functions_coverage_colored(self):
+        res = []
+        for function in self.functions:
+            if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
+                res.append(f'{colored(function.full_name, "cyan", "on_green", attrs=["bold"])} edge_cov: {colored(function.edge_coverage_str, "cyan", "on_green", attrs=["bold"])}  opcode_cov: {colored(function.opcode_code_coverage_str, "cyan", "on_green", attrs=["bold"])}')
+        return '\n'.join(res)
     @property
     def source_dir(self):
         return self._source_dir
