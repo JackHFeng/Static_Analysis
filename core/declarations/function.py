@@ -102,6 +102,20 @@ class Function(FunctionCall):
         # if ever entered without revert
         self._entered = False
 
+        self._opcodes = {}
+
+        self._covered_opcodes = set()
+
+        self._blocks = {}
+
+        self._edges = set()
+
+        self._covered_edges = set()
+
+        self._opcode_start_pc = float('inf')
+
+        self._opcode_end_pc = float('-inf')
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -218,6 +232,108 @@ class Function(FunctionCall):
 
     def set_entered(self, flag):
         self._entered = flag
+    @property
+    def opcodes(self):
+        return list(self._opcodes.values())
+
+    @property
+    def total_opcodes(self):
+        return len(self._opcodes.keys())
+
+    @property
+    def opcodes_dic(self):
+        return self._opcodes
+
+    def add_opcode(self, opcode):
+        self._opcodes[opcode.pc] = opcode
+
+    @property
+    def covered_opcodes(self):
+        return self._covered_opcodes
+
+    def add_covered_opcode(self, pc):
+        self._covered_opcodes.add(self.opcodes_dic[pc])
+
+    @property
+    def total_covered_opcodes(self):
+        return len(self.covered_opcodes)
+
+    @property
+    def opcode_code_coverage(self):
+        if self.total_covered_opcodes == 0 or self.total_opcodes == 0:
+            return '%.2f' % 0
+        return '%.2f' % round(self.total_covered_opcodes / self.total_opcodes * 100, 2)
+
+    @property
+    def opcode_code_coverage_str(self):
+        return f'{self.opcode_code_coverage}% ({self.total_covered_opcodes}/{self.total_opcodes})'
+
+    @property
+    def blocks(self):
+        return list(self._blocks.values())
+
+    @property
+    def blocks_dic(self):
+        return self._blocks
+
+    def add_block(self, block):
+        self._blocks[block.pc] = block
+
+    @property
+    def total_blocks(self):
+        return len(self._blocks)
+
+    @property
+    def edges(self):
+        return list(self._edges)
+
+    @property
+    def total_edges(self):
+        return len(self._edges)
+
+    def add_edge(self, edge):
+        self._edges.add(edge)
+        # nl = '\r\n'
+        # print(f'{edge[0].original_function.full_name} [{edge[0].block.start.pc}  {edge[0].pc}][{edge[0].source_code.split(nl)[0]}] => [{edge[1].pc}  {edge[1].block.end.pc}][{edge[1].source_code.split(nl)[0]}]')
+
+    @property
+    def covered_edges(self):
+        return self._covered_edges
+
+    @property
+    def total_covered_edges(self):
+        return len(self._covered_edges)
+
+    def add_covered_edge(self, edge):
+        self._covered_edges.add(edge)
+
+    @property
+    def total_uncovered_edges(self):
+        return self.total_edges - self.total_covered_edges
+
+    @property
+    def edge_coverage(self):
+        if self.total_covered_edges == 0 and self.total_edges == 0:
+            return '%.2f' % round(0)
+        return '%.2f' % round(self.total_covered_edges / self.total_edges * 100, 2)
+
+    @property
+    def edge_coverage_str(self):
+        return f'{self.edge_coverage}% ({self.total_covered_edges}/{self.total_edges})'
+
+    @property
+    def opcode_start_pc(self):
+        return self._opcode_start_pc
+
+    def set_opcode_start(self, pc):
+        self._opcode_start_pc = pc
+
+    @property
+    def opcode_end_pc(self):
+        return self._opcode_end_pc
+
+    def set_opcode_end(self, pc):
+        self._opcode_end_pc = pc
 
     def get_depended_functions(self):
         """
