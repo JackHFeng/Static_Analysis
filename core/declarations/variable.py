@@ -61,10 +61,10 @@ class Variable:
         return self.type.type_to
 
     def __str__(self):
-        return self.__class__.__name__ + ": " + self.name + "=>" + self.type
+        return self.__class__.__name__ + ": " + self.name + "=>" + str(self.type)
 
     def __repr__(self):
-        return self.__class__.__name__ + ": " + self.name + "=>" + self.type
+        return self.__class__.__name__ + ": " + self.name + "=>" + str(self.type)
 
     # end of region
     ###################################################################################
