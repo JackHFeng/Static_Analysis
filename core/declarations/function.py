@@ -481,6 +481,7 @@ class Function(FunctionCall):
         self._pure = True if function.pure else False
         self._payable = True if function.payable else False
         self._is_constructor = True if function.is_constructor else False
+        self._slither_function = function
 
         # load parameters.
         # this step must happen first, because parameters are added to both the parameter and local variable list.
