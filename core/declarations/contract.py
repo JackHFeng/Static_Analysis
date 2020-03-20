@@ -21,6 +21,12 @@ def increase_indentation(s: str):
     return '\t' + '\t'.join(s.splitlines(True))
 
 
+def set_function_edges(left, right):
+    if left.original_function == right.original_function \
+            and left.original_function:
+        left.original_function.add_edge((left, right))
+
+
 class Contract:
     """
     Contract object.
@@ -68,6 +74,9 @@ class Contract:
         # deployed opcode
         self._opcodes_str = None
 
+        # source map of deployed opcode
+        self._source_map_str = None
+
         # opcode objects. With pc as key
         self._opcodes = {}
 
@@ -78,10 +87,15 @@ class Contract:
         self._blocks = {}
 
         # source code
-        self._code = None
+        self._source_code = None
+
+        # source code in bytes
+        self._source_code_bytes = None
 
         # set of edges in tuples with pc number
         self._edges = set()
+
+        self._covered_edges = set()
 
         # source directory
         self._source_dir = None  # set in ctfuzz
@@ -174,6 +188,13 @@ class Contract:
         self._opcodes_str = opcodes_str.strip()
 
     @property
+    def source_map_str(self):
+        return self._source_map_str
+
+    def _set_source_map_str(self, source_map_str):
+        self._source_map_str = source_map_str
+
+    @property
     def opcodes(self):
         return list(self._opcodes.values())
 
@@ -192,16 +213,29 @@ class Contract:
     def covered_opcodes(self):
         return self._covered_opcodes
 
-    def add_covered_opcode(self, code):
-        self._covered_opcodes.add(code)
+    def add_covered_opcode(self, pc):
+        opcode = self.opcodes_dic[pc]
+        self._covered_opcodes.add(opcode)
+
+        if opcode.original_function:
+            opcode.original_function.add_covered_opcode(pc)
 
     @property
     def total_covered_opcodes(self):
         return len(self.covered_opcodes)
 
     @property
+    def opcode_code_coverage(self):
+        return '%.2f' % round(self.total_covered_opcodes / self.total_opcodes * 100, 2)
+
+    @property
     def opcode_code_coverage_str_colored(self):
         return f'Contract Opcode Coverage: {colored(self.opcode_code_coverage, "cyan", "on_green", attrs=["bold"])}% ({self.total_covered_opcodes}/{self.total_opcodes})'
+
+    @property
+    def opcode_code_coverage_str(self):
+        return f'Contract Opcode Coverage: {self.opcode_code_coverage}% ({self.total_covered_opcodes}/{self.total_opcodes})'
+
     @property
     def blocks(self):
         return list(self._blocks.values())
@@ -212,17 +246,28 @@ class Contract:
 
     def _set_blocks_dic(self, blocks_dic):
         self._blocks = blocks_dic
+        for block in blocks_dic.values():
+            if block.start.original_function == block.end.original_function \
+                    and block.start.original_function:
+                block.start.original_function.add_block(block)
 
     @property
     def total_blocks(self):
         return len(self._blocks)
 
     @property
-    def code(self):
-        return self._code
+    def source_code(self):
+        return self._source_code
 
-    def _set_code(self, code):
-        self._code = code
+    @property
+    def source_code_bytes(self):
+        return self._source_code_bytes
+
+    def _set_source_code(self, source_code):
+        self._source_code = source_code
+
+    def _set_source_code_bytes(self, source_code_bytes):
+        self._source_code_bytes = source_code_bytes
 
     @property
     def edges(self):
@@ -237,14 +282,51 @@ class Contract:
             left = block.end
             for successor in block.next:
                 right = successor
-                # print(f'***Edge({left}, {right}) ({self.opcodes_dic[left].opcode}, {self.opcodes_dic[right].opcode})')
                 self._edges.add((left, right))
+                set_function_edges(left, right)
 
     def add_missing_edge(self, edge):
+        edge[0].block.next.append(edge[1])
+        edge[1].block.pre.append(edge[0])
+
         self._edges.add(edge)
+        if edge[0].original_function == edge[1].original_function \
+                and edge[0].original_function:
+            edge[0].original_function.add_edge(edge)
+
+    @property
+    def covered_edges(self):
+        return self._covered_edges
+
+    @property
+    def total_covered_edges(self):
+        return len(self._covered_edges)
+
+    def add_covered_edge(self, edge):
+        if edge in self._covered_edges:
+            return False
+        else:
+            self._covered_edges.add(edge)
+            if edge[0].original_function == edge[1].original_function \
+                    and edge[0].original_function:
+                edge[0].original_function.add_covered_edge(edge)
+            return True
+
+    @property
+    def total_uncovered_edges(self):
+        return self.total_edges - self.total_covered_edges
+
+    @property
+    def edge_coverage(self):
+        return '%.2f' % round(self.total_covered_edges / self.total_edges * 100, 2)
+
     @property
     def edge_coverage_str_colored(self):
         return f'Contract Edge Coverage: {colored(self.edge_coverage, "cyan", "on_green", attrs=["bold"])}% ({self.total_covered_edges}/{self.total_edges})'
+
+    @property
+    def edge_coverage_str(self):
+        return f'Contract Edge Coverage: {self.edge_coverage}% ({self.total_covered_edges}/{self.total_edges})'
 
     @property
     def functions_coverage_colored(self):
@@ -253,6 +335,16 @@ class Contract:
             if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
                 res.append(f'{colored(function.full_name, "cyan", "on_green", attrs=["bold"])} edge_cov: {colored(function.edge_coverage_str, "cyan", "on_green", attrs=["bold"])}  opcode_cov: {colored(function.opcode_code_coverage_str, "cyan", "on_green", attrs=["bold"])}')
         return '\n'.join(res)
+
+    @property
+    def functions_coverage(self):
+        res = []
+        for function in self.functions:
+            if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
+                res.append(f'{function.full_name} edge_cov: {function.edge_coverage_str}  opcode_cov: {function.opcode_code_coverage_str}')
+
+        return '\n'.join(res)
+
     @property
     def source_dir(self):
         return self._source_dir
@@ -295,7 +387,7 @@ class Contract:
         for function in contract.functions:
             self._create_function(function)
 
-    def get_function_by_name(self, name: str) -> Function:
+    def get_function_by_name(self, name):
         """
         ****Deprecated
         Getter function for getting a function object
@@ -307,13 +399,28 @@ class Contract:
         for f in self.functions:
             if f.name == name:
                 return f
-        return None
+
+    def get_function_by_full_name(self, name):
+        for f in self.functions:
+            if f.full_name == name:
+                return f
+
+    def get_function_by_source_map(self, offset, length):
+        for function in self.functions:
+            if function.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
+                continue
+            f_start = function.slither_function.source_mapping['start']
+            f_length = function.slither_function.source_mapping['length']
+            f_end = f_start + f_length
+            end = offset + length
+            if f_start <= offset \
+                    and f_end >= end:
+                return function
 
     def get_function_by_sig_hash(self, sig_hash: str) -> Function:
         for f in self.functions:
             if f.sig_hash == sig_hash:
                 return f
-        return None
 
     def get_modifier_by_name(self, name: str) -> Modifier:
         """
@@ -347,6 +454,11 @@ class Contract:
         else:
             self._functions[new_function.canonical_name] = new_function
 
+        # create function objects for library functions.
+        if function.library_calls:
+            for function_tuple in function.library_calls:
+                self._create_function(function_tuple[1])
+
     def _create_modifier(self, modifier: Slither_Modifier):
         """
         Creates a modifier object, then adds to the map.
@@ -356,6 +468,10 @@ class Contract:
         new_modifier = Modifier(modifier, self)
 
         self._modifiers[new_modifier.canonical_name] = new_modifier
+
+        if modifier.library_calls:
+            for function_tuple in modifier.library_calls:
+                self._create_function(function_tuple[1])
 
     def __str__(self):
         """
@@ -409,14 +525,20 @@ class Contract:
         return '\n'.join(res)
 
     def load_compiled_info(self):
-        self._set_code(open(self._source_dir, 'r', encoding='utf-8').read())
+        # these source codes are for source mapping
+        self._set_source_code_bytes(open(self._source_dir, 'rb').read())
+        self._set_source_code(self.source_code_bytes.decode('utf-8'))
         compiled_sol = self._compile_source()
 
         self._set_abi(compiled_sol['abi'])
         self._set_bin_code(compiled_sol['evm']['bytecode']['object'])
         self._set_runtime_bin_code(compiled_sol['evm']['deployedBytecode']['object'])
         self._set_opcodes_str(compiled_sol['evm']['deployedBytecode']['opcodes'])
+        self._set_source_map_str(compiled_sol['evm']['deployedBytecode']['sourceMap'])
         self._set_opcodes_dic(self._create_opcodes_dic())
+
+        self._create_mapping()
+
         self._set_blocks()
         self._set_edges()
         self._set_function_hashes()
@@ -444,7 +566,7 @@ class Contract:
             "language": "Solidity",
             "sources": {
                 filename: {
-                    "content": self.code
+                    "content": self.source_code
                 }
             },
             "settings":
@@ -510,6 +632,118 @@ class Contract:
         opcodes_dic[0].pre = None
         return opcodes_dic
 
+    def _create_mapping(self):
+        def parse_source_map(source_map_str):
+            import copy
+
+            res = []
+            maps = source_map_str.split(';')
+            temp = [0, 0, 0, '']
+            for m in maps:
+                map_list = copy.deepcopy(temp)
+                elements = m.split(':')
+                for i in range(len(elements)):
+                    element = elements[i]
+                    if element:
+                        if i == 3:
+                            temp[i] = element
+                            map_list[i] = element
+                        else:
+                            temp[i] = int(element)
+                            map_list[i] = int(element)
+                    else:
+                        pass
+                res.append(map_list)
+            return res
+
+        mapping_list = parse_source_map(self.source_map_str)
+        opcode = self.opcodes_dic[0]
+
+        index_tracker = {}
+        # needs to be poped out at the end.
+        while mapping_list:
+
+            # check if source index is -1, mean no valid map.
+            if mapping_list[0][2] == -1:
+                # print(f'{opcode} => {mapping_list[0]}')
+                opcode.source_map = mapping_list[0]
+                mapping_list.pop(0)
+                opcode = opcode.next
+                continue
+
+            offset = mapping_list[0][0]
+            length = mapping_list[0][1]
+            original_function = self.get_function_by_source_map(offset, length)
+
+            if not original_function:
+                opcode.source_map = mapping_list[0]
+                mapping_list.pop(0)
+                opcode = opcode.next
+                continue
+
+            # handle fallback function
+            if original_function.full_name == 'fallback()':
+                # first opcode of fallback function
+                if not index_tracker.get('fallback()'):
+                    index_tracker['fallback()'] = [opcode.pc - 1, opcode.pc]
+                else:
+                    index_tracker['fallback()'][1] = opcode.pc + 1
+            elif original_function.visibility in ['public', 'external']:
+                if not index_tracker.get(original_function.full_name):
+                    if opcode.opcode == 'JUMP':
+                        index_tracker[original_function.full_name] = [int(opcode.pre.value, 16), int(opcode.pre.value, 16)]
+                else:
+                    index_tracker[original_function.full_name][1] = opcode.pc
+            elif original_function.visibility in ['internal', 'private']:
+                if not index_tracker.get(original_function.full_name):
+                    index_tracker[original_function.full_name] = [opcode.pc, opcode.pc]
+                else:
+                    index_tracker[original_function.full_name][1] = opcode.pc
+            else:
+                raise Exception(f'Unhandled case in opcode segment identification. => {opcode} {mapping_list[0]}')
+
+            opcode.source_map = mapping_list[0]
+            mapping_list.pop(0)
+            opcode = opcode.next
+
+        for k, v in index_tracker.items():
+            function_obj = self.get_function_by_full_name(k)
+            start = v[0]
+            end = v[1]
+            function_obj.set_opcode_start(start)
+            function_obj.set_opcode_end(end)
+            opcode = self.opcodes_dic[start]
+            while opcode.pc <= end:
+                if opcode.source_map[2] != -1:
+                    opcode.set_original_function(function_obj)
+                opcode = opcode.next
+
+        # # needs to be poped out at the end.
+        # while mapping_list:
+        #     # check if source index is -1, mean no valid map.
+        #     if mapping_list[0][2] == -1:
+        #         print(f'{opcode} => {mapping_list[0]}')
+        #         mapping_list.pop(0)
+        #         opcode = opcode.next
+        #         continue
+        #     offset = mapping_list[0][0]
+        #     length = mapping_list[0][1]
+        #
+        #     original_code = self.source_code_bytes[offset: offset + length].decode('utf-8')
+        #     original_function = self.get_function_by_source_map(offset, length)
+        #     if original_function:
+        #         opcode.set_original_function(original_function, offset, length, original_code)
+        #         nl = '\r\n'
+        #         print(f'{opcode} => {mapping_list[0]} => {opcode.source_code.split(nl)[0]} *** '
+        #               f'{opcode.original_function.name} {opcode.original_function.opcode_start_pc} {opcode.original_function.opcode_end_pc}')
+        #     else:
+        #         opcode.source_map = (offset, length)
+        #         opcode.source_code = original_code
+        #         nl = '\r\n'
+        #         print(f'{opcode} => {mapping_list[0]} => {opcode.source_code.split(nl)[0]}')
+        #     mapping_list.pop(0)
+        #     opcode = opcode.next
+
     def _set_function_hashes(self):
         """
         Compute the sig hash from their full name/signature.
@@ -541,17 +775,21 @@ class Contract:
                 temp_block = Block()
                 pc = int(res[i].strip().split(' ')[1], 0)
                 temp_block.pc = pc
-                temp_block.start = pc
+                temp_block.start = self.opcodes_dic[pc]
+                # adding block ref to opcode
+                self.opcodes_dic[pc].block = temp_block
+
             elif res[i].startswith('Predecessors'):
                 p_list = res[i][15:-1].split(', ')
                 for p in p_list:
                     if p:
-                        temp_block.pre.append(int(p, 0))
+                        # int(x, 0) hex string to int
+                        temp_block.pre.append(self.opcodes_dic[int(p, 0)])
             elif res[i].startswith("Successors"):
                 p_list = res[i][13:-1].split(', ')
                 for p in p_list:
                     if p:
-                        temp_block.next.append(int(p, 0))
+                        temp_block.next.append(self.opcodes_dic[int(p, 0)])
 
                 i += 1
 
@@ -560,10 +798,10 @@ class Contract:
 
                 while not res[i + 1].startswith('---'):
                     i += 1
-                temp_block.end = int(res[i].strip().split(' ')[0], 0)
-
+                temp_block.end = self.opcodes_dic[int(res[i].strip().split(' ')[0], 0)]
+                # adding block ref to opcode
+                self.opcodes_dic[int(res[i].strip().split(' ')[0], 0)].block = temp_block
                 blocks[temp_block.pc] = temp_block
 
             i += 1
         self._set_blocks_dic(blocks)
-
