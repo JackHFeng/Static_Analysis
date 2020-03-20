@@ -230,8 +230,9 @@ class Function(FunctionCall):
     def entered(self):
         return self._entered
 
-    def set_entered(self, flag):
-        self._entered = flag
+    def set_entered(self):
+        self._entered = True
+
     @property
     def opcodes(self):
         return list(self._opcodes.values())
