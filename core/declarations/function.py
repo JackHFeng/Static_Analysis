@@ -97,6 +97,8 @@ class Function(FunctionCall):
 
         self._z3 = None
 
+        self._z3_requires = {}
+
         # if ever entered without revert
         self._entered = False
 
@@ -199,6 +201,13 @@ class Function(FunctionCall):
 
     def set_z3(self, obj):
         self._z3 = obj
+
+    @property
+    def z3_requires(self):
+        return self._z3_requires
+
+    def add_z3_require(self, key, obj):
+        self._z3_requires[key] = obj
 
     def load_test_cases(self, tcs):
         self._test_cases = tcs
