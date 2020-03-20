@@ -71,6 +71,8 @@ class FunctionCall:
         # especially constructor
         self._declared_by = None
 
+        self._slither_function = None
+
 
     ###################################################################################
     ###################################################################################
@@ -167,6 +169,10 @@ class FunctionCall:
     @property
     def declared_by(self):
         return self._declared_by
+
+    @property
+    def slither_function(self):
+        return self._slither_function
 
     # end of region
     ###################################################################################
