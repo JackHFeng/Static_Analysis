@@ -89,6 +89,7 @@ class Modifier(FunctionCall):
         self._signature = modifier.signature_str
         self._parent_contract = parent_contract
         self._declared_by = modifier.contract_declarer.name
+        self._slither_function = modifier
 
         self._load_parameters(modifier)
         self._load_variables(modifier)
