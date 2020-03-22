@@ -1,6 +1,7 @@
 from typing import List
 
 from slither.core.declarations.function import Function as Slither_Function
+from slither.solc_parsing.declarations.modifier import ModifierSolc
 from slither.slithir.operations.internal_call import InternalCall as Slither_InternalCall
 from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
@@ -543,6 +544,8 @@ class Function(FunctionCall):
         Finished.
         """
         for modifier in function.modifiers:
+            if not isinstance(modifier, ModifierSolc):
+                continue
             # getting the modifier object
             modifier_object = self._parent_contract.modifiers_dic[modifier.canonical_name]
 
