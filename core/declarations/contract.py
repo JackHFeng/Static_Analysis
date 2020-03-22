@@ -718,18 +718,20 @@ class Contract:
         index_tracker = {}
         # needs to be poped out at the end.
         while mapping_list:
+            offset = mapping_list[0][0]
+            length = mapping_list[0][1]
+            # original_code = self.source_code_bytes[offset: offset + length].decode('utf-8').split('\n')[0]
 
             # check if source index is -1, mean no valid map.
             if mapping_list[0][2] == -1:
-                # print(f'{opcode} => {mapping_list[0]}')
+                # print(f'{opcode} => {mapping_list[0]} => {original_code}')
                 opcode.source_map = mapping_list[0]
                 mapping_list.pop(0)
                 opcode = opcode.next
                 continue
 
-            offset = mapping_list[0][0]
-            length = mapping_list[0][1]
             original_function = self.get_function_by_source_map(offset, length)
+            # print(f'{opcode} => {mapping_list[0]} => {original_code} ***{original_function}')
 
             if not original_function:
                 opcode.source_map = mapping_list[0]
