@@ -11,6 +11,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 from slither.solc_parsing.cfg.node import NodeSolc as Solc_Node
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.solc_parsing.declarations.contract import Contract as ContractSolc
 
 import utils
 from .local_variable import LocalVariable
@@ -193,8 +194,10 @@ class Require:
 
         # this is looking for indirectly read state and local variables.
         for ir_var in require.slithir_variables:
-            if isinstance(ir_var, ReferenceVariable):
+            if isinstance(ir_var, ReferenceVariable) and ir_var.points_to_origin:
                 origin = ir_var.points_to_origin
+                if isinstance(origin, Slither_SolidityVariable) or isinstance(origin, ContractSolc):
+                    continue
                 additional_vars = self._get_all_identifiers(origin.expression)
                 sv_read.extend([v for v in additional_vars if isinstance(v, StateVariableSolc)])
                 v_read.extend(additional_vars)
