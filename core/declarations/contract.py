@@ -50,7 +50,7 @@ class Contract:
         self._functions = {}
 
         # list of constructors
-        self._constructors = []
+        self._constructor = None
 
         # map of state variables with their name as key.
         self._state_variables = {}
@@ -126,8 +126,8 @@ class Contract:
         return self._functions
 
     @property
-    def constructors(self):
-        return self._constructors
+    def constructor(self):
+        return self._constructor
 
     @property
     def state_variables(self):
@@ -372,6 +372,8 @@ class Contract:
         self._name = contract.name
         self._slither_contract = contract
 
+        self._create_constructor(contract)
+
         # create modifier objects.
         for modifier in contract.modifiers:
             self._create_modifier(modifier)
@@ -448,6 +450,31 @@ class Contract:
         Finished.
         """
         return self._state_variables.get(name)
+
+    def _create_constructor(self, contract: Slither_Contract):
+        # if contract has no constructor at all, return
+        if not contract.constructors:
+            return
+        # the constructor of current function
+        temp_constructor = None
+        if contract.constructor:
+            # has its own constructor
+            temp_constructor = contract.constructor
+            self._constructor = Function(temp_constructor, self)
+        else:
+            from .local_variable import LocalVariable
+            # does not have own, but have others, just pick the first one.
+            temp_constructor = contract.constructors[0]
+            self._constructor = Function(temp_constructor, self)
+            for k, v, in self._constructor.parameters:
+                if type(v) == LocalVariable:
+                    del self._constructor._parameters[k]
+
+        for constructor in contract.constructors:
+            # load sol_vars read by other constructors
+            if constructor != temp_constructor:
+                for sol_var in constructor.solidity_variables_read:
+                    self._constructor.load_local_variables_helper(sol_var, 'read')
 
     def _create_function(self, function: Slither_Function):
         """
@@ -526,7 +553,7 @@ class Contract:
 
         res.append(f'Functions: ')
 
-        for f in self.constructors + self.functions:
+        for f in [self.constructor] + self.functions:
             res.append(increase_indentation(f.summary))
             res.append('')
 
@@ -534,7 +561,7 @@ class Contract:
 
     def list_requires(self):
         res = [self.name]
-        for f in self.constructors + self.functions:
+        for f in [self.constructor] + self.functions:
             for r in f.requires:
                 res.append(f'\t{str(r)}')
         return '\n'.join(res)
