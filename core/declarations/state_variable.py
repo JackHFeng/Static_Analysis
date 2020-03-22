@@ -209,8 +209,8 @@ class StateVariable(Variable):
         self._initialized = True if variable.initialized else False
         self._set_by_constructor = False
         self._initialized_using_SolcVar = False
-        self._default_value = \
-            self._set_default_value(variable.type, variable.expression if variable.expression else None, self.name)
+        # self._default_value = \
+        #     self._set_default_value(variable.type, variable.expression if variable.expression else None, self.name)
 
     def _add_read_function(self, function):
         """
