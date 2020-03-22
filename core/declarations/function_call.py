@@ -238,7 +238,6 @@ class FunctionCall:
         Finished.
         """
         for variable in variables:
-            #print(f'****{variable.name}')
             # Slither_SolidityVariableComposed is msg.send etc.
             # There can be other types such as
             #       slither.solc_parsing.variables.local_variable_init_from_tuple.LocalVariableInitFromTupleSolc
@@ -246,37 +245,39 @@ class FunctionCall:
             #           It rarely happens
             #       slither.core.declarations.solidity_variables.SolidityVariable (such as evm time, "now")
             #           https://github.com/crytic/slither/blob/master/slither/core/declarations/solidity_variables.py
+            self.load_local_variables_helper(variable, read_or_write)
 
-            # StateVariableSolc was in the following list, but has been removed
-            # Because we are only loading local variable
-            # At this moment, msg.sender, etc. are considered as local variables.
+    def load_local_variables_helper(self, variable, read_or_write):
+        # StateVariableSolc was in the following list, but has been removed
+        # Because we are only loading local variable
+        # At this moment, msg.sender, etc. are considered as local variables.
 
-            if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed, Slither_SolidityVariable]:
-                continue
+        if type(variable) not in [LocalVariableSolc, Slither_SolidityVariableComposed, Slither_SolidityVariable]:
+            return
 
-            # There was a check of whether "variable" is None in the if condition
-            # Because the returns list can sometimes have None objects in there.
-            # this is currently handle by checking the variable type above.
+        # There was a check of whether "variable" is None in the if condition
+        # Because the returns list can sometimes have None objects in there.
+        # this is currently handle by checking the variable type above.
 
-            if variable.name in self._local_variables:
-                new_variable = self._local_variables[variable.name]
+        if variable.name in self._local_variables:
+            new_variable = self._local_variables[variable.name]
+        else:
+            new_variable = None
+            if isinstance(variable, LocalVariableSolc):
+                new_variable = LocalVariable(variable)
+            elif isinstance(variable, Slither_SolidityVariableComposed):
+                new_variable = SolidityVariableComposed(variable)
+                self.add_parameter(new_variable)
+            elif isinstance(variable, Slither_SolidityVariable):
+                new_variable = SolidityVariable(variable)
+                self.add_parameter(new_variable)
             else:
-                new_variable = None
-                if isinstance(variable, LocalVariableSolc):
-                    new_variable = LocalVariable(variable)
-                elif isinstance(variable, Slither_SolidityVariableComposed):
-                    new_variable = SolidityVariableComposed(variable)
-                    self.add_parameter(new_variable)
-                elif isinstance(variable, Slither_SolidityVariable):
-                    new_variable = SolidityVariable(variable)
-                    self.add_parameter(new_variable)
-                else:
-                    raise Exception(f'Variable "{variable.name}" type "{type(variable)}" unhandled.')
+                raise Exception(f'Variable "{variable.name}" type "{type(variable)}" unhandled.')
 
-                self.add_local_variable(new_variable)
+            self.add_local_variable(new_variable)
 
-            # duplicate has been checked.
-            getattr(self, '_local_variables_' + read_or_write).add(new_variable)
+        # duplicate has been checked.
+        getattr(self, '_local_variables_' + read_or_write).add(new_variable)
 
     def _load_requires(self, function_call):
         """
