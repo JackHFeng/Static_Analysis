@@ -232,11 +232,13 @@ class Contract:
 
     @property
     def opcode_code_coverage_str_colored(self):
-        return f'Contract Opcode Coverage: {colored(self.opcode_code_coverage, "cyan", "on_green", attrs=["bold"])}% ({self.total_covered_opcodes}/{self.total_opcodes})'
+        return f'Contract Opcode Coverage: {colored(self.opcode_code_coverage, "cyan", "on_green", attrs=["bold"])}% ' \
+               f'({self.total_covered_opcodes}/{self.total_opcodes})'
 
     @property
     def opcode_code_coverage_str(self):
-        return f'Contract Opcode Coverage: {self.opcode_code_coverage}% ({self.total_covered_opcodes}/{self.total_opcodes})'
+        return f'Contract Opcode Coverage: {self.opcode_code_coverage}% ({self.total_covered_opcodes}/' \
+               f'{self.total_opcodes})'
 
     @property
     def blocks(self):
@@ -324,7 +326,8 @@ class Contract:
 
     @property
     def edge_coverage_str_colored(self):
-        return f'Contract Edge Coverage: {colored(self.edge_coverage, "cyan", "on_green", attrs=["bold"])}% ({self.total_covered_edges}/{self.total_edges})'
+        return f'Contract Edge Coverage: {colored(self.edge_coverage, "cyan", "on_green", attrs=["bold"])}% ' \
+               f'({self.total_covered_edges}/{self.total_edges})'
 
     @property
     def edge_coverage_str(self):
@@ -335,7 +338,9 @@ class Contract:
         res = []
         for function in self.functions:
             if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
-                res.append(f'{colored(function.full_name, "cyan", "on_green", attrs=["bold"])} edge_cov: {colored(function.edge_coverage_str, "cyan", "on_green", attrs=["bold"])}  opcode_cov: {colored(function.opcode_code_coverage_str, "cyan", "on_green", attrs=["bold"])}')
+                res.append(f'{colored(function.full_name, "cyan", "on_green", attrs=["bold"])} edge_cov: '
+                           f'{colored(function.edge_coverage_str, "cyan", "on_green", attrs=["bold"])}  opcode_cov: '
+                           f'{colored(function.opcode_code_coverage_str, "cyan", "on_green", attrs=["bold"])}')
         return '\n'.join(res)
 
     @property
@@ -343,7 +348,10 @@ class Contract:
         res = []
         for function in self.functions:
             if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
-                res.append(f'{function.full_name} edge_cov: {function.edge_coverage_str}  opcode_cov: {function.opcode_code_coverage_str}')
+                res.append(f'{function.full_name} edge_cov: {function.edge_coverage_str} opcode_cov:'
+                           f' {function.opcode_code_coverage_str}')
+
+        return '\n'.join(res)
 
         return '\n'.join(res)
 
@@ -733,7 +741,8 @@ class Contract:
             elif original_function.visibility in ['public', 'external']:
                 if not index_tracker.get(original_function.full_name):
                     if opcode.opcode == 'JUMP':
-                        index_tracker[original_function.full_name] = [int(opcode.pre.value, 16), int(opcode.pre.value, 16)]
+                        index_tracker[original_function.full_name] = [int(opcode.pre.value, 16),
+                                                                      int(opcode.pre.value, 16)]
                 else:
                     index_tracker[original_function.full_name][1] = opcode.pc
             elif original_function.visibility in ['internal', 'private']:
@@ -777,7 +786,8 @@ class Contract:
         #         opcode.set_original_function(original_function, offset, length, original_code)
         #         nl = '\r\n'
         #         print(f'{opcode} => {mapping_list[0]} => {opcode.source_code.split(nl)[0]} *** '
-        #               f'{opcode.original_function.name} {opcode.original_function.opcode_start_pc} {opcode.original_function.opcode_end_pc}')
+        #               f'{opcode.original_function.name} {opcode.original_function.opcode_start_pc}
+        #               {opcode.original_function.opcode_end_pc}')
         #     else:
         #         opcode.source_map = (offset, length)
         #         opcode.source_code = original_code
