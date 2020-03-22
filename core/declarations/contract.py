@@ -412,6 +412,10 @@ class Contract:
         for function in contract.functions:
             self._create_function(function)
 
+        # (contract_obj, func_obj)
+        for function_tuple in contract.all_library_calls:
+            self._create_function(function_tuple[1])
+
     def get_function_by_name(self, name):
         """
         ****Deprecated
@@ -498,16 +502,14 @@ class Contract:
 
         Finished.
         """
-        new_function = Function(function, self)
-        if new_function.is_constructor:
-            self._constructors.append(new_function)
-        else:
-            self._functions[new_function.canonical_name] = new_function
+        if function.is_shadowed or function.is_constructor:
+            return
+        self._functions[function.canonical_name] = Function(function, self)
 
         # create function objects for library functions.
-        if function.library_calls:
-            for function_tuple in function.library_calls:
-                self._create_function(function_tuple[1])
+        # if function.library_calls:
+        #     for function_tuple in function.library_calls:
+        #         self._create_function(function_tuple[1])
 
     def _create_modifier(self, modifier: Slither_Modifier):
         """
@@ -518,10 +520,6 @@ class Contract:
         new_modifier = Modifier(modifier, self)
 
         self._modifiers[new_modifier.canonical_name] = new_modifier
-
-        if modifier.library_calls:
-            for function_tuple in modifier.library_calls:
-                self._create_function(function_tuple[1])
 
     def __str__(self):
         """
