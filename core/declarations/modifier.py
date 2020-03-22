@@ -64,6 +64,9 @@ class Modifier(FunctionCall):
     def __str__(self):
         return self._signature
 
+    def __repr__(self):
+        return self._signature
+
     # end of region
     ###################################################################################
     ###################################################################################

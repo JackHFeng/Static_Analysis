@@ -22,3 +22,6 @@ class Opcode:
 
     def __str__(self):
         return f'{self.pc} {self.opcode} {self.value if self.value else ""}'
+
+    def __repr__(self):
+        return f'{self.pc} {self.opcode} {self.value if self.value else ""}'

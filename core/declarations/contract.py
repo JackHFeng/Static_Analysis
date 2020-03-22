@@ -488,6 +488,14 @@ class Contract:
         """
         return self._name
 
+    def __repr__(self):
+        """
+        Returns contract name.
+
+        Finished
+        """
+        return self._name
+
     @property
     def summary(self):
         """
