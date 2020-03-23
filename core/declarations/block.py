@@ -16,10 +16,17 @@ class Block:
         # list of successors block pc in int
         self.next = []
 
+    @property
     def info(self):
         return f'pc: {self.pc} [{self.start.pc}, {self.end.pc}]\n' \
                f'Predecessors: {self.pre}\n' \
                f'Successors: {self.next}\n'
+
+    @property
+    def end_with_revert(self):
+        if self.end.opcode == 'REVERT':
+            return True
+        return False
 
     def __str__(self):
         return f'({self.start.pc}, {self.start.pc})'
