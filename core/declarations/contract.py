@@ -354,13 +354,26 @@ class Contract:
         return '\n'.join(res)
 
     @property
-    def raw_functions_coverage(self):
+    def raw_report(self):
         res = []
+        total_covered_edges = 0
+        total_edges = 0
+        total_covered_opcodes = 0
+        total_opcodes = 0
         for function in self.functions:
             if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
                 res.append(f'{self.name}.{function.full_name}, {function.total_covered_edges}, {function.total_edges}, '
                            f'{function.total_covered_opcodes}, {function.total_opcodes}')
+                total_covered_edges += function.total_covered_edges
+                total_edges += function.total_edges
+                total_covered_opcodes += function.total_covered_opcodes
+                total_opcodes += function.total_opcodes
 
+        first_line = f'*{self.name}, {self.total_covered_edges}, {self.total_edges}, {self.total_covered_opcodes}, ' \
+                     f'{self.total_opcodes}, {total_covered_edges}, {total_edges}, ' \
+                     f'{total_covered_opcodes}, {total_opcodes}'
+
+        res.insert(0, first_line)
         return '\n'.join(res)
 
     @property
