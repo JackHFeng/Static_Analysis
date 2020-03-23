@@ -13,7 +13,6 @@ from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
 from slither.solc_parsing.declarations.contract import Contract as ContractSolc
 
-import utils
 from .local_variable import LocalVariable
 from .state_variable import StateVariable
 from .solidity_variable_composed import SolidityVariableComposed
@@ -142,10 +141,6 @@ class Require:
         # else:
         #     # print(f'{str(exp)}: {str(exp)}')
         #     self.is_simple_require = False
-
-    def evaluate_require_satisfiability(self):
-        z3_dic = {}
-        utils.get_z3_vars(self._operation, z3_dic)
 
     def _get_all_identifiers(self, exp):
         """
