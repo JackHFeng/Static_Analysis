@@ -13,7 +13,12 @@ from web3 import Web3
 from collections import defaultdict
 
 from util import get_boundary_values
+from slither.utils.function import get_function_id
 
+from slither.core.declarations import SolidityFunction
+from slither.slithir.operations import SolidityCall
+
+suicide_functions = [SolidityFunction("selfdestruct(address)"), "suicide(address)"]
 
 class Function(FunctionCall):
     """
@@ -124,6 +129,8 @@ class Function(FunctionCall):
 
         self._depends_on = set()
 
+        self._is_suicide = False
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -174,6 +181,10 @@ class Function(FunctionCall):
     @property
     def view(self):
         return self._view
+
+    @property
+    def is_suicide(self):
+        return self._is_suicide
 
     @property
     def pure(self):
@@ -606,11 +617,19 @@ class Function(FunctionCall):
         self._pure = True if function.pure else False
         self._payable = True if function.payable else False
         self._is_constructor = True if function.is_constructor else False
+        self._sig_hash = get_function_id(function.solidity_signature)
+        self._is_suicide = self._check_is_suicide()
 
         # load modifier objects.
         # requires within modifiers will be loaded into self.requires as well.
         self._load_modifiers(function)
         self._check_sat_by_default()
+
+    def _check_is_suicide(self):
+        for ir in self.slither_function.all_slithir_operations():
+            if isinstance(ir, SolidityCall) and ir.function in suicide_functions:
+                self._is_suicide = True
+
 
     def _add_constant_values_to_parameters(self):
         for para in self.parameters:

@@ -4,6 +4,7 @@ from solc import compile_standard
 from slither.core.declarations.contract import Contract as Slither_Contract
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
+from slither.utils.function import get_function_id
 
 from .function import Function
 from .modifier import Modifier
@@ -747,7 +748,6 @@ class Contract:
 
         self._set_blocks()
         self._set_edges()
-        self._set_function_hashes()
 
     def load_w3_functions(self):
         for function in self.fuzzing_candidate_functions:
@@ -755,7 +755,7 @@ class Contract:
                 w3_function = self.w3_contract.fallback
             else:
                 # print(function)
-                w3_function = self.w3_contract.get_function_by_selector(function.sig_hash)
+                w3_function = self.w3_contract.get_function_by_signature(function.solidity_signature)
             function.load_w3_function(w3_function)
 
     def _compile_source_deprecated(self):
@@ -972,23 +972,6 @@ class Contract:
         #         print(f'{opcode} => {mapping_list[0]} => {opcode.source_code.split(nl)[0]}')
         #     mapping_list.pop(0)
         #     opcode = opcode.next
-
-    def _set_function_hashes(self):
-        """
-        Compute the sig hash from their full name/signature.
-        Then set it for each function.
-
-        We still need to handle the dummy functions created in slither.
-        Refer back to slither about
-            slitherConstructorVariables
-            slitherConstructorConstantVariables
-
-        Returns:
-            None, but sets the hash for all the functions in the contract.
-        """
-        for f in self.functions:
-            f_hash = Web3.sha3(text=f.full_name).hex()[:10]
-            f.load_sig_hash(f_hash)
 
     def _set_blocks(self):
         from ..vandal.bin.generate_cfg import vandal_cfg

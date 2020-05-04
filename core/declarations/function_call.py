@@ -69,6 +69,8 @@ class FunctionCall:
         # e.g. "constructor(bytes32[]) returns()".
         self._signature = None
 
+        self._solidity_signature = None
+
         # contract object where current function belongs.
         self._parent_contract = None
 
@@ -132,6 +134,10 @@ class FunctionCall:
     @property
     def signature(self):
         return self._signature
+
+    @property
+    def solidity_signature(self):
+        return self._solidity_signature
 
     @property
     def parent_contract(self):
@@ -245,6 +251,7 @@ class FunctionCall:
         self._full_name = function.full_name
         self._canonical_name = function.canonical_name
         self._signature = function.signature_str
+        self._solidity_signature = function.solidity_signature
         self._parent_contract = parent_contract
         self._declared_by = function.contract_declarer.name
         self._slither_function = function
