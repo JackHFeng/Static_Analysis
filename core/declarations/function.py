@@ -18,7 +18,7 @@ from slither.utils.function import get_function_id
 from slither.core.declarations import SolidityFunction
 from slither.slithir.operations import SolidityCall
 
-suicide_functions = [SolidityFunction("selfdestruct(address)"), "suicide(address)"]
+suicide_functions = [SolidityFunction("selfdestruct(address)"), SolidityFunction("suicide(address)")]
 
 class Function(FunctionCall):
     """
@@ -129,7 +129,7 @@ class Function(FunctionCall):
 
         self._depends_on = set()
 
-        self._is_suicide = False
+        self._is_suicidal = False
 
         self._setter(function, parent_contract)
 
@@ -183,8 +183,8 @@ class Function(FunctionCall):
         return self._view
 
     @property
-    def is_suicide(self):
-        return self._is_suicide
+    def is_suicidal(self):
+        return self._is_suicidal
 
     @property
     def pure(self):
@@ -618,18 +618,18 @@ class Function(FunctionCall):
         self._payable = True if function.payable else False
         self._is_constructor = True if function.is_constructor else False
         self._sig_hash = get_function_id(function.solidity_signature)
-        self._is_suicide = self._check_is_suicide()
+        self._is_suicidal = self._check_is_suicidal()
 
         # load modifier objects.
         # requires within modifiers will be loaded into self.requires as well.
         self._load_modifiers(function)
         self._check_sat_by_default()
 
-    def _check_is_suicide(self):
+    def _check_is_suicidal(self):
         for ir in self.slither_function.all_slithir_operations():
             if isinstance(ir, SolidityCall) and ir.function in suicide_functions:
-                self._is_suicide = True
-
+                return True
+        return False
 
     def _add_constant_values_to_parameters(self):
         for para in self.parameters:

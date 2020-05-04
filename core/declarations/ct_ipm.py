@@ -120,7 +120,6 @@ class CtIpm:
         build_sut = definitions.ACTS_GATEWAY.entry_point
         acts_config = self._configure_acts_ipm()
         acts_constraints = self._configure_acts_constraints()
-        print(self.function)
         tc_str = build_sut.initialCT(self.function.canonical_name, acts_config, acts_constraints)
         return self._tc_str_to_tc(tc_str)
 

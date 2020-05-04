@@ -64,8 +64,11 @@ class Transaction:
         return self._can_enter_functions
 
     def set_can_enter_functions(self, contract):
-        # print('s')
         res = []
+        if self.function.is_suicidal:
+            self._can_enter_functions = res
+            return
+
         candidate_functions = contract.fuzzing_candidate_functions
         for function in candidate_functions:
 
