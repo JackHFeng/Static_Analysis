@@ -12,6 +12,7 @@ from slither.solc_parsing.cfg.node import NodeSolc as Solc_Node
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
 from slither.solc_parsing.declarations.contract import Contract as ContractSolc
+from slither.core.expressions.type_conversion import TypeConversion
 
 from .local_variable import LocalVariable
 from .state_variable import StateVariable
@@ -59,6 +60,8 @@ class Require:
         self._operation = require.expression.arguments[0]
 
         self._has_call_expression = True if len(require.calls_as_expression) > 1 else False
+
+        self._z3 = None
 
         """
         Currently, 1 means the require does not contain state var at all. 
@@ -116,6 +119,13 @@ class Require:
     def sat_cond_class(self):
         return self._sat_cond_class
 
+    @property
+    def z3(self):
+        return self._z3
+
+    def set_z3(self, obj):
+        self._z3 = obj
+
     def compute_satisfying_condition(self):
         if len(self._state_variables_read) == 0:
             self._sat_cond_class = 1
@@ -141,7 +151,7 @@ class Require:
         # else:
         #     # print(f'{str(exp)}: {str(exp)}')
         #     self.is_simple_require = False
-
+    # def _get_all_identifiers(self):
     def _get_all_identifiers(self, exp):
         """
         Get all the identifiers involved in an expression.
@@ -174,6 +184,9 @@ class Require:
         elif isinstance(exp, MemberAccess):
             res.extend(self._get_all_identifiers(exp.expression))
             return res
+        elif isinstance(exp, TypeConversion):
+            res.extend(self._get_all_identifiers(exp.expression))
+            return res
         else:
             raise Exception(f'Unhandled solc operation type "{type(exp)}" for "{str(exp)}".')
 
@@ -191,7 +204,7 @@ class Require:
         for ir_var in require.slithir_variables:
             if isinstance(ir_var, ReferenceVariable) and ir_var.points_to_origin:
                 origin = ir_var.points_to_origin
-                if isinstance(origin, Slither_SolidityVariable) or isinstance(origin, ContractSolc):
+                if isinstance(origin, Slither_SolidityVariable) or isinstance(origin, ContractSolc) or isinstance(origin, StateVariableSolc):
                     continue
                 additional_vars = self._get_all_identifiers(origin.expression)
                 sv_read.extend([v for v in additional_vars if isinstance(v, StateVariableSolc)])
@@ -241,10 +254,10 @@ class Require:
                 if isinstance(variable, LocalVariableSolc):
                     new_variable = LocalVariable(variable)
                 elif isinstance(variable, Slither_SolidityVariableComposed):
-                    new_variable = SolidityVariableComposed(variable)
+                    new_variable = SolidityVariableComposed(variable, self.parent_function_call)
                     self._parent_function_call.add_parameter(new_variable)
                 elif isinstance(variable, Slither_SolidityVariable):
-                    new_variable = SolidityVariable(variable)
+                    new_variable = SolidityVariable(variable, self.parent_function_call)
                     self._parent_function_call.add_parameter(new_variable)
                 else:
                     raise Exception(f'Variable "{variable.name}" type "{type(variable)}" unhandled.')

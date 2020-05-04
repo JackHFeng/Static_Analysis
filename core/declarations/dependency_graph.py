@@ -1,134 +1,172 @@
-# PyDot useful links
-# https://pythonhaven.wordpress.com/tag/pydot/
-# https://www.programcreek.com/python/example/5579/pydot.Dot
-# https://gist.github.com/aboSamoor/1140942
-# https://stackoverflow.com/questions/606191/convert-bytes-to-a-string
-# https://stackoverflow.com/questions/16671966/multiline-tooltip-for-pydot-graph
+from slither.solc_parsing.declarations.contract import ContractSolc04
+from slither.solc_parsing.declarations.function import FunctionSolc
+
+class DependencyFunction:
+    def __init__(self, slither_function):
+        self._slither_function = slither_function
+        self._name = slither_function.name
+        self._read = set()
+        self._write = set()
+
+    @property
+    def slither_function(self):
+        return self._slither_function
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def read(self):
+        return self._read
+
+    @property
+    def write(self):
+        return self._write
+
+    def add_read(self, obj):
+        self._read.add(obj)
+
+    def add_write(self, obj):
+        self._write.add(obj)
 
 
-from pydot import Dot, Node, Edge
-from core.declarations.contract import Contract
-from core.declarations.function import Function
-from collections import defaultdict
+class DependencyStateVariable:
+    def __init__(self, slither_state_variable):
+        self._slither_state_variable = slither_state_variable
+        self._name = slither_state_variable.name
+        self._read_by = set()
+        self._written_by = set()
 
+    @property
+    def slither_state_variable(self):
+        return self._slither_state_variable
 
-# def change_label(edge, svs):
-#     sv_names = [sv.name for sv in svs]
-#     old_label = edge.get_label()
-#     labels = old_label.split(', ')
-#     for i, label in enumerate(labels):
-#         temp_label = label.strip()
-#         if temp_label not in sv_names:
-#             labels[i].replace(temp_label, f'<{temp_label}>')
-#     new_label = ', '.join(labels)
-#     edge.set_label(new_label)
+    @property
+    def name(self):
+        return self._name
 
+    @property
+    def read_by(self):
+        return self._read_by
 
-def remove_edge(edge):
-    edge.set('style', 'dashed')
-    edge.set('color', 'red')
-    edge.set('fontcolor', 'red')
+    @property
+    def written_by(self):
+        return self._written_by
+
+    def add_read_by(self, obj):
+        self._read_by.add(obj)
+
+    def add_written_by(self, obj):
+        self._written_by.add(obj)
 
 
 class DependencyGraph:
-    def __init__(self, _contract: Contract):
-        """
-        Takes a Contract object and constructs the DDG for it.
+    def __init__(self, slither_contract: ContractSolc04):
+        self._functions = dict()  # canonical_name as key
+        self._state_variables = dict()  # name as key
 
-        *** To be completed
-            Currently cannot detect indirect read.
-            Indirect write can be detected.
-        """
-        self.contract = _contract
+        self._construct_dependency_graph(slither_contract)
+        self._dot_graph = DotGraph(self.functions.values())
+        html = self._dot_graph.html
+        f = open(f'./dependency_graphs/{slither_contract.name}.html', 'w')
+        f.write(html)
+        f.close()
+
+    @property
+    def functions(self):
+        return self._functions
+
+    @property
+    def state_variables(self):
+        return self._state_variables
+
+    def _construct_dependency_graph(self, slither_contract: ContractSolc04):
+        for slither_f in slither_contract.functions:
+            new_function = DependencyFunction(slither_f)
+            self._functions[slither_f.canonical_name] = new_function
+            nodes = set()
+            for ir in slither_f.all_slithir_operations():
+                nodes.add(ir.node)
+
+            for node in nodes:
+                for v in node.state_variables_read:
+                    if not self.state_variables.get(v.name):
+                        sv = DependencyStateVariable(v)
+                        self._state_variables[v.name] = sv
+                        new_function.add_read(sv)
+                        sv.add_read_by(new_function)
+                    else:
+                        sv = self.state_variables.get(v.name)
+                        new_function.add_read(sv)
+                        sv.add_read_by(new_function)
+
+                for v in node.state_variables_written:
+                    if not self.state_variables.get(v.name):
+                        sv = DependencyStateVariable(v)
+                        self._state_variables[v.name] = sv
+                        new_function.add_write(sv)
+                        sv.add_written_by(new_function)
+                    else:
+                        sv = self.state_variables.get(v.name)
+                        new_function.add_write(sv)
+                        sv.add_written_by(new_function)
+
+
+from pydot import Dot, Node, Edge
+
+
+class DotGraph:
+    def __init__(self, functions):
         self.node_dic = {}
         self.edge_dic = {}
         self.graph = Dot()
+        self.html = None
 
-        for f in _contract.functions + _contract.constructor_as_list:
-            if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables'] or not f.is_public_or_external:
+        for f in functions:
+            if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
                 continue
             self.construct_node(f)
 
-        self.construct_graph(_contract)
+        self.construct_graph(functions)
+        self.html = svg_to_html(self.graph.create_svg().decode('utf-8'))
 
-    @property
-    def html(self):
-        return svg_to_html(self.graph.create_svg().decode('utf-8'))
-
-    def construct_graph(self, _contract):
-        """
-        Constructs the graph by connecting nodes with edges.
-        """
-        for f in _contract.functions + _contract.constructor_as_list:
-            if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables'] or not f.is_public_or_external:
-                continue
-
-            for written_f, sr in f.depends_on:
-                n1 = self.get_node(f.name)
-                n2 = self.get_node(written_f.name)
-                if self.edge_dic.get((n1, n2)):
-                    e = self.edge_dic[(n1, n2)]
-                    old_label = e.get_label()
-                    e.set_label(f'{old_label.strip()}, {sr.name}        ')
-                else:
-                    self.construct_edge(n1, n2)
-                    e = self.edge_dic[(n1, n2)]
-                    e.set_label(f'{sr.name}        ')
-
-    def update_graph(self):
-        remaining_edges_dic = defaultdict(list)
-        for f in self.contract.functions + self.contract.constructor_as_list:
-            if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables'] or not f.is_public_or_external:
-                continue
-
-            for written_f, sr in f.depends_on:
-                n1 = self.get_node(f.name)
-                n2 = self.get_node(written_f.name)
-                remaining_edges_dic[(n1, n2)].append(sr)
-
-        existing_edges = self.edge_dic.keys()
-        remaining_edges = remaining_edges_dic.keys()
-
-        for ex_edge in existing_edges:
-            if ex_edge not in remaining_edges:
-                remove_edge(self.edge_dic[ex_edge])
-            # no need to check if only one state variable dependency is remove
-            # because if a dependency between two functions is removed
-            # all of its dependency based on whatever variable will be removed.
-
-    def construct_node(self, _function: Function):
-        """
-        Takes a Function object and constructs a Dot Node object for it.
-        Adds the created object to the dictionary.
-
-        Finished.
-        """
-        n = Node(_function.name)
-        n.set_tooltip(construct_tooltip(_function))
-        self.node_dic[_function.name] = n
+    def construct_node(self, function):
+        n = Node(function.name)
+        n.set_tooltip(construct_tooltip(function))
+        self.node_dic[function.name] = n
         self.graph.add_node(n)
+
+    def construct_graph(self, functions):
+        for f in functions:
+            if (f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables'] or
+                    f.slither_function.is_constructor):
+                continue
+
+            for sr in f.read:
+                for written_f in sr.written_by:
+                    if written_f.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
+                        n1 = self.get_node(f.name)
+                        n2 = self.get_node(written_f.name)
+                        if self.edge_dic.get((n1, n2)):
+                            e = self.edge_dic[(n1, n2)]
+                            old_label = e.get_label()
+                            e.set_label(f'{old_label.strip()}, {sr.name}        ')
+                        else:
+                            self.construct_edge(n1, n2)
+                            e = self.edge_dic[(n1, n2)]
+                            e.set_label(f'{sr.name}        ')
+
+    def construct_edge(self, _n1: Node, _n2: Node):
+        e = Edge(_n1, _n2, fontsize="8", fontcolor="#2E86C1", arrowsize="0.7")
+        self.edge_dic[(_n1, _n2)] = e
+        self.graph.add_edge(e)
 
     def get_node(self, _name):
         return self.node_dic.get(_name)
 
-    def construct_edge(self, _n1: Node, _n2: Node):
-        """
-        Takes two nodes
-        n1 depends on n2
-        n1 points to n2
-        Constructs the edge object and adds it to the dictionary.
 
-        Finished.
-        """
-        e = Edge(_n1, _n2, fontsize="8", fontcolor="#2E86C1", arrowsize="0.7")
-        self.edge_dic[(_n1, _n2)] = e
-        # e.set('color', 'green')
-        self.graph.add_edge(e)
-
-
-# utility functions
-
-def construct_tooltip(_function: Function):
+def construct_tooltip(function):
     """
     Takes a Function object and constructs the tooltip for it to be displayed in the DOT graph.
 
@@ -137,27 +175,22 @@ def construct_tooltip(_function: Function):
     res = list()
 
     res.append('Function: ')
-    res.append(f'\t{_function.signature}')
+    res.append(f'\t{function.slither_function.canonical_name}')
 
     res.append('---')
     res.append('Modifiers: ')
-    for m in _function.modifiers:
-        res.append(f'\t{m.signature}')
-
-    res.append('---')
-    res.append('Requires: ')
-    for r in _function.requires:
-        res.append(f'\t{r.code}')
+    for m in function.slither_function.modifiers:
+        res.append(f'\t{m.name}')
 
     res.append('---')
     res.append('State Variables Read: ')
-    for sv in _function.state_variables_read:
-        res.append(f'\t{sv.name}({sv.type})')
+    for sv in function.read:
+        res.append(f'\t{sv.name}')
 
     res.append('---')
     res.append('State Variables Written: ')
-    for sv in _function.state_variables_written:
-        res.append(f'\t{sv.name}({sv.type})')
+    for sv in function.write:
+        res.append(f'\t{sv.name}')
 
     return '\n'.join(res)
 

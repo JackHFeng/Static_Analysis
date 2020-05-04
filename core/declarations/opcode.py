@@ -21,7 +21,7 @@ class Opcode:
         self.source_code = original_function.parent_contract.source_code_bytes[self.source_map[0]: self.source_map[0] + self.source_map[1]].decode('utf-8')
 
     def __str__(self):
-        return f'{self.pc} {self.opcode} {self.value if self.value else ""}'
+        return f'{self.pc} {self.opcode}{" " + str(self.value) if self.value else ""}'
 
     def __repr__(self):
-        return f'{self.pc} {self.opcode} {self.value if self.value else ""}'
+        return f'{self.pc} {self.opcode}{" " + str(self.value) if self.value else ""}'

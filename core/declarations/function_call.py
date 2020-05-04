@@ -19,8 +19,39 @@ from .parameter import Parameter
 from .solidity_variable import SolidityVariable
 from .solidity_variable_composed import SolidityVariableComposed
 
+from slither.slithir.operations.member import Member
+from slither.slithir.operations.type_conversion import TypeConversion
+from slither.slithir.variables.constant import Constant
+from slither.slithir.operations.binary import Binary
+
+from typing import Set, Dict
+from slither.slithir.operations import Index
+from slither.core.variables.variable import Variable
+from slither.analyses.data_dependency.data_dependency import is_dependent
+from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.operations.assignment import Assignment
+from web3 import Web3
+
+from collections import defaultdict
+
 require_functions = [Slither_SolidityFunction("require(bool)"),
                      Slither_SolidityFunction("require(bool,string)")]
+
+
+def parse_constant(value, slither_type):
+    if slither_type.name == 'address':
+        if isinstance(value, str):
+            return value
+        else:
+            return '0x' + hex(value)[2:].zfill(40)
+    elif slither_type.name == 'string' or 'byte' in slither_type.name:
+        if isinstance(value, int):
+            return value
+        else:
+            return Web3.toInt(value.encode('utf-8'))
+    else:
+        return value
 
 
 class FunctionCall:
@@ -47,6 +78,9 @@ class FunctionCall:
         # dic of parameters with name as key.
         self._parameters = {}
 
+        # with parameter name as key, parameter object as val
+        self._parameters_used_as_index = {}
+
         # source code of function, currently not available
         self._source_code = None
 
@@ -72,6 +106,8 @@ class FunctionCall:
         self._declared_by = None
 
         self._slither_function = None
+
+        self._constants = defaultdict(set)
 
 
     ###################################################################################
@@ -136,6 +172,14 @@ class FunctionCall:
     #     return ', '.join([p.name for p in self._parameters])
 
     @property
+    def parameters_used_as_index(self):
+        return list(self._parameters_used_as_index.values())
+
+    @property
+    def parameters_used_as_index_dic(self):
+        return self._parameters_used_as_index
+
+    @property
     def source_code(self):
         return self._source_code
 
@@ -174,6 +218,10 @@ class FunctionCall:
     def slither_function(self):
         return self._slither_function
 
+    @property
+    def constants_dic(self):
+        return self._constants
+
     # end of region
     ###################################################################################
     ###################################################################################
@@ -186,6 +234,30 @@ class FunctionCall:
     # region => private functions
     ###################################################################################
     ###################################################################################
+
+    def _function_call_setter(self, function, parent_contract):
+        """
+        Setting values when initializing
+
+        Finished.
+        """
+        self._name = function.name
+        self._full_name = function.full_name
+        self._canonical_name = function.canonical_name
+        self._signature = function.signature_str
+        self._parent_contract = parent_contract
+        self._declared_by = function.contract_declarer.name
+        self._slither_function = function
+
+        self._load_parameters(function)
+        self._load_variables(function)
+        self._load_requires(function)
+
+        self.analyze_para_index_usage()
+
+        self.find_used_constants()
+        # if self.parent_contract.name == 'MultiSigRoot':
+        #     print(f'{self.parent_contract} {self.canonical_name} => {self.parameters_used_as_index}')
 
     def _load_parameters(self, function_call):
         """
@@ -266,15 +338,20 @@ class FunctionCall:
             if isinstance(variable, LocalVariableSolc):
                 new_variable = LocalVariable(variable)
             elif isinstance(variable, Slither_SolidityVariableComposed):
-                new_variable = SolidityVariableComposed(variable)
-                self.add_parameter(new_variable)
+                # print(variable)
+                if variable.name == 'msg.value' and (self.slither_function.payable or self.slither_function.is_constructor):
+                    new_variable = SolidityVariableComposed(variable)
+                    self.add_parameter(new_variable)
+                elif variable.name != 'msg.value':
+                    new_variable = SolidityVariableComposed(variable)
+                    self.add_parameter(new_variable)
             elif isinstance(variable, Slither_SolidityVariable):
                 new_variable = SolidityVariable(variable)
                 self.add_parameter(new_variable)
             else:
                 raise Exception(f'Variable "{variable.name}" type "{type(variable)}" unhandled.')
-
-            self.add_local_variable(new_variable)
+            if new_variable:
+                self.add_local_variable(new_variable)
 
         # duplicate has been checked.
         getattr(self, '_local_variables_' + read_or_write).add(new_variable)
@@ -367,6 +444,96 @@ class FunctionCall:
             self._local_variables_read.add(local_variable)
 
         self._requires.add(new_require)
+
+    def analyze_para_index_usage(self):
+        params_index_read = self.find_index_read()
+        params_index_write = self.find_index_write()
+
+        for (param, level_SVs) in params_index_read.items():
+            if self.get_parameter_by_name(param.name):
+                self.get_parameter_by_name(param.name).set_state_var_level_index_read(level_SVs)
+
+        for (param, level_SVs) in params_index_write.items():
+            if self.get_parameter_by_name(param.name):
+                self.get_parameter_by_name(param.name).set_state_var_level_index_write(level_SVs)
+
+    def find_index_read(self):
+        result: Dict[Variable, Dict[int, Set[StateVariableSolc]]] = defaultdict(lambda: defaultdict(set))
+
+        for ir in self.slither_function.all_slithir_operations():
+            if isinstance(ir, Index):
+                self.inspect_index_ir(ir, result)
+        return result
+
+    def find_index_write(self):
+        result: Dict[Variable, Dict[int, Set[StateVariableSolc]]] = defaultdict(lambda: defaultdict(set))
+
+        for assignment_ir in self.slither_function.all_slithir_operations():
+            if (isinstance(assignment_ir, Assignment) and isinstance(assignment_ir.lvalue, ReferenceVariable) and
+                    isinstance(assignment_ir.lvalue.points_to_origin, StateVariableSolc)):
+                self.find_ref_val_index_usage(assignment_ir.lvalue, assignment_ir.node, result)
+        return result
+
+    def find_ref_val_index_usage(self, ref_var, node, index_usage: Dict[Variable, Dict[int, Set[StateVariableSolc]]]):
+        # instead of looking only into the node's irs, we can look in the whole function, and discover indirect index
+        # access write.
+        # this can be improved
+        for ir in node.irs:
+            if isinstance(ir, Index) and ref_var == ir.lvalue:
+                self.inspect_index_ir(ir, index_usage)
+                for ir_v in ir.variables:
+                    if isinstance(ir_v, ReferenceVariable):
+                        self.find_ref_val_index_usage(ir_v, node, index_usage)
+
+    def inspect_index_ir(self, ir, index_usage: Dict[Variable, Dict[int, Set[StateVariableSolc]]]):
+        params = self.slither_function.parameters + self.slither_function.solidity_variables_read
+        for param in params:
+            if is_dependent(ir.variable_right, param, self.parent_contract.slither_contract):
+                level = 0
+                temp = ir.variable_left
+                while isinstance(temp, ReferenceVariable):
+                    temp = temp.points_to
+                    level += 1
+                if isinstance(temp, StateVariableSolc):
+                    index_usage[param][level].add(temp)
+
+    def find_used_constants(self):
+        IF = 0x12
+        IFLOOP = 0x15
+
+        for ir in self.slither_function.all_slithir_operations():
+            if isinstance(ir, Slither_SolidityCall) and ir.function in require_functions:
+                for require_ir in ir.node.irs:
+                    # Irs that are in require statements, not the require call ir
+                    if ir != require_ir:
+                        self.find_constants(require_ir)
+
+            node_type = ir.node.type
+            if node_type == IF or node_type == IFLOOP:
+                self.find_constants(ir)
+
+    def find_constants(self, ir):
+        if isinstance(ir, Member):
+            return
+
+        for r in ir.read:
+            if isinstance(ir, Slither_SolidityCall) and r.type.name == 'string':
+                continue
+            if isinstance(r, Constant):
+                if isinstance(ir, TypeConversion) and len(ir.read) == 1:
+                    self._constants[ir.type].add(parse_constant(r.value, ir.type))
+                else:
+                    self._constants[r.type].add(parse_constant(r.value, r.type))
+                    # if isinstance(ir, Binary):
+                    #     constant_value
+                    #     self._constants[r.type].add(r.value)
+                    #
+                    #     if ir.type_str in ['<', '>']:
+                    #         self._constants[r.type].add(r.value + 1)
+                    #         self._constants[r.type].add(r.value - 1)
+
+
+
 
     # end of region
     ###################################################################################

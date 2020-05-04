@@ -16,6 +16,9 @@ class Block:
         # list of successors block pc in int
         self.next = []
 
+        # list of opcodes belong to this block
+        self.opcodes = []
+
     @property
     def info(self):
         return f'pc: {self.pc} [{self.start.pc}, {self.end.pc}]\n' \
@@ -29,7 +32,7 @@ class Block:
         return False
 
     def __str__(self):
-        return f'({self.start.pc}, {self.start.pc})'
+        return f'({self.start.pc}, {self.end.pc})'
 
     def __repr__(self):
-        return f'({self.start.pc}, {self.start.pc})'
+        return f'({self.start.pc}, {self.end.pc})'

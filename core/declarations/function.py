@@ -5,11 +5,14 @@ from slither.solc_parsing.declarations.modifier import ModifierSolc
 from slither.slithir.operations.internal_call import InternalCall as Slither_InternalCall
 from slither.solc_parsing.cfg.node import NodeSolc as Slither_NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc as Slither_FunctionSolc
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 from .function_call import FunctionCall
+from web3 import Web3
 
+from collections import defaultdict
 
-# types of require function calls for getting the list of requires.
+from util import get_boundary_values
 
 
 class Function(FunctionCall):
@@ -33,8 +36,8 @@ class Function(FunctionCall):
 
             We have to be very cautious on which approach we should take.
 
-            ✔*** Currently, we are computing the "read by require" correctly, because we are using IR to find the require
-                statements and taking out all the state variables from it.
+            ✔*** Currently, we are computing the "read by require" correctly, because we are using IR to find the 
+            require statements and taking out all the state variables from it.
 
             ✔*** However, if a state variable is indirectly written, our current implementation will not detect it.
                 Switching to IR will help, but at this moment, it may be of lower priority.
@@ -42,8 +45,8 @@ class Function(FunctionCall):
             ❌*** Require indirect read of state/local variable is also not supported at the moment.
 
         2.
-            ❌*** Modifiers can modify state variables. While the state variables written by the modifier are loaded in the
-            Function object of our design, it is still yet to be determined on what to do with it.
+            ❌*** Modifiers can modify state variables. While the state variables written by the modifier are loaded
+            in the Function object of our design, it is still yet to be determined on what to do with it.
 
             Modifiers can take input parameters as well.
 
@@ -87,7 +90,7 @@ class Function(FunctionCall):
         self._sig_hash = None
 
         # CT test cases, to be fuzzed.
-        self._test_cases = []
+        self._state_test_cases = defaultdict(list)
 
         # for storing test cases that has been fuzzed.
         self._fuzzed_test_cases = []
@@ -98,7 +101,7 @@ class Function(FunctionCall):
 
         self._z3 = None
 
-        self._z3_requires = {}
+        self._satisfied_require_combinations = []
 
         # if ever entered without revert
         self._entered = False
@@ -117,6 +120,10 @@ class Function(FunctionCall):
 
         self._opcode_end_pc = float('-inf')
 
+        self._rep_states = set()
+
+        self._depends_on = set()
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -126,8 +133,31 @@ class Function(FunctionCall):
     ###################################################################################
 
     @property
+    def rep_states(self):
+        return list(self._rep_states)
+
+    def add_rep_state(self, t):
+        self._rep_states.add(t)
+
+    @property
     def visibility(self):
         return self._visibility
+
+    @property
+    def depends_on(self):
+        return self._depends_on
+
+    def add_depends_on(self, function):
+        self._depends_on.add(function)
+
+    def remove_depends_on(self, function):
+        dependencies = []
+        for dependency in self.depends_on:
+            dependencies.append(dependency)
+
+        for dependency in dependencies:
+            if dependency[0] == function:
+                self._depends_on.remove(dependency)
 
     @property
     def is_constructor(self):
@@ -150,6 +180,14 @@ class Function(FunctionCall):
         return self._pure
 
     @property
+    def modifies_state(self):
+        return not self.view and not self.pure
+
+    @property
+    def is_public_or_external(self):
+        return self.visibility in ['public', 'external']
+
+    @property
     def payable(self):
         return self._payable
 
@@ -165,25 +203,29 @@ class Function(FunctionCall):
         self._sig_hash = sig_hash
 
     @property
-    def test_cases(self):
+    def state_test_cases(self):
+        return self._state_test_cases
+
+    def get_test_cases(self, snapshot_id):
         test_cases = []
-        for tc in self._test_cases:
+        for tc in self.state_test_cases[snapshot_id]:
             concrete_tc = {}
             for k, v in tc.items():
                 concrete_tc[k] = self.get_parameter_by_name(k).get_w3_rep_value(v)
             test_cases.append(concrete_tc)
         return test_cases
 
-    @property
-    def raw_test_cases(self):
-        return self._test_cases
+    def get_raw_test_cases(self, snapshot_id):
+        return self.state_test_cases[snapshot_id]
 
-    @property
-    def total_test_cases(self):
-        return len(self._test_cases)
+    def total_test_cases(self, snapshot_id):
+        return len(self.state_test_cases[snapshot_id])
 
     def clear_test_cases(self):
-        self._test_cases = []
+        ## not used for now
+        ## originally used in move test cases.
+        pass
+        # self._test_cases = []
 
     @property
     def fuzzed_test_cases(self):
@@ -217,15 +259,32 @@ class Function(FunctionCall):
     def set_z3(self, obj):
         self._z3 = obj
 
+    # @property
+    # def z3_requires(self):
+    #     return list(self._z3_requires)
+    #
+    # @property
+    # def z3_requires_dic(self):
+    #     return self._z3_requires
+    #
+    # def add_z3_require(self, key, obj):
+    #     self._z3_requires[key] = obj
+
     @property
-    def z3_requires(self):
-        return self._z3_requires
+    def satisfied_require_combinations(self):
+        return self._satisfied_require_combinations
 
-    def add_z3_require(self, key, obj):
-        self._z3_requires[key] = obj
+    def add_require_combination(self, obj):
+        if not obj:
+            return False
+        if obj in self._satisfied_require_combinations:
+            return False
+        else:
+            self._satisfied_require_combinations.append(obj)
+            return True
 
-    def load_test_cases(self, tcs):
-        self._test_cases = tcs
+    def load_test_cases(self, tcs, snapshot_id):
+        self._state_test_cases[snapshot_id] = tcs
 
     @property
     def entered(self):
@@ -262,13 +321,13 @@ class Function(FunctionCall):
 
     @property
     def opcode_code_coverage(self):
-        if self.total_covered_opcodes == 0 or self.total_opcodes == 0:
-            return '%.2f' % 0
-        return '%.2f' % round(self.total_covered_opcodes / self.total_opcodes * 100, 2)
+        if self.total_opcodes == 0:
+            return 100
+        return round(self.total_covered_opcodes / self.total_opcodes * 100, 2)
 
     @property
     def opcode_code_coverage_str(self):
-        return f'{self.opcode_code_coverage}% ({self.total_covered_opcodes}/{self.total_opcodes})'
+        return f'{"%.2f" % self.opcode_code_coverage}% ({self.total_covered_opcodes}/{self.total_opcodes})'
 
     @property
     def blocks(self):
@@ -296,7 +355,75 @@ class Function(FunctionCall):
     def add_edge(self, edge):
         self._edges.add(edge)
         # nl = '\r\n'
-        # print(f'{edge[0].original_function.full_name} [{edge[0].block.start.pc}  {edge[0].pc}][{edge[0].source_code.split(nl)[0]}] => [{edge[1].pc}  {edge[1].block.end.pc}][{edge[1].source_code.split(nl)[0]}]')
+        # print(f'{edge[0].original_function.full_name} [{edge[0].block.start.pc}  {edge[0].pc}][{edge[0].source_
+        # code.split(nl)[0]}] => [{edge[1].pc}  {edge[1].block.end.pc}][{edge[1].source_code.split(nl)[0]}]')
+
+    @property
+    def edge_opcode_stats(self):
+        keys = 'T_C_NE, T_NE, T_C_RE, T_RE, T_C_E, T_E, T_F_C_NE, T_F_NE, T_F_C_RE, T_F_RE, T_F_C_E, T_F_E, T_C_NO, ' \
+               'T_NO, T_C_RO, T_RO, T_C_O, T_O, T_F_C_NO, T_F_NO, T_F_C_RO, T_F_RO, T_F_C_O, T_F_O'.strip().split(', ')
+        res = {}
+        for key in keys:
+            res[key] = 0
+
+        # edges
+        for edge in self.covered_edges:
+            if edge[1].block.end_with_revert:
+                res['T_F_C_RE'] += 1
+            else:
+                res['T_F_C_NE'] += 1
+
+        for edge in self.edges:
+            if edge[1].block.end_with_revert:
+                res['T_F_RE'] += 1
+            else:
+                res['T_F_NE'] += 1
+
+        res['T_F_C_E'] = self.total_covered_edges
+        res['T_F_E'] = self.total_edges
+
+        # opcodes
+        for opcode in self.covered_opcodes:
+            if opcode.block.end_with_revert:
+                res['T_F_C_RO'] += 1
+            else:
+                res['T_F_C_NO'] += 1
+
+        for opcode in self.opcodes:
+            if opcode.block.end_with_revert:
+                res['T_F_RO'] += 1
+            else:
+                res['T_F_NO'] += 1
+
+        res['T_F_C_O'] = self.total_covered_opcodes
+        res['T_F_O'] = self.total_opcodes
+
+        return res
+
+        # T_C_NE = 0      #
+        # T_NE = 0        #
+        # T_C_RE = 0      #
+        # T_RE = 0        #
+        # T_C_E = 0       #
+        # T_E = 0         #
+        # T_F_C_NE = 0
+        # T_F_NE = 0
+        # T_F_C_RE = 0
+        # T_F_RE = 0
+        # T_F_C_E = 0
+        # T_F_E = 0
+        # T_C_NO = 0      #
+        # T_NO = 0        #
+        # T_C_RO = 0      #
+        # T_RO = 0        #
+        # T_C_O = 0       #
+        # T_O = 0         #
+        # T_F_C_NO = 0
+        # T_F_NO = 0
+        # T_F_C_RO = 0
+        # T_F_RO = 0
+        # T_F_C_O = 0
+        # T_F_O = 0
 
     @property
     def covered_edges(self):
@@ -315,13 +442,13 @@ class Function(FunctionCall):
 
     @property
     def edge_coverage(self):
-        if self.total_covered_edges == 0 and self.total_edges == 0:
-            return '%.2f' % round(0)
-        return '%.2f' % round(self.total_covered_edges / self.total_edges * 100, 2)
+        if self.total_edges == 0:
+            return 100
+        return round(self.total_covered_edges / self.total_edges * 100, 2)
 
     @property
     def edge_coverage_str(self):
-        return f'{self.edge_coverage}% ({self.total_covered_edges}/{self.total_edges})'
+        return f'{"%.2f" % self.edge_coverage}% ({self.total_covered_edges}/{self.total_edges})'
 
     @property
     def opcode_start_pc(self):
@@ -471,38 +598,41 @@ class Function(FunctionCall):
 
         Finished.
         """
-        self._name = function.name
-        self._full_name = function.full_name
-        self._canonical_name = function.canonical_name
-        self._signature = function.signature_str
+        self._function_call_setter(function, parent_contract)
+        self._add_constant_values_to_parameters()
+
         self._visibility = function.visibility
-        self._parent_contract = parent_contract
-        self._declared_by = function.contract_declarer.name
         self._view = True if function.view else False
         self._pure = True if function.pure else False
         self._payable = True if function.payable else False
         self._is_constructor = True if function.is_constructor else False
-        self._slither_function = function
-
-        # load parameters.
-        # this step must happen first, because parameters are added to both the parameter and local variable list.
-        self._load_parameters(function)
-
-        # load both written local and state variables.
-        self._load_variables(function)
-
-        # we may not need this after all.
-        # self.load_irs(_function.nodes)
 
         # load modifier objects.
         # requires within modifiers will be loaded into self.requires as well.
         self._load_modifiers(function)
-
-        # load requires at the front of the function.
-        self._load_requires(function)
-
-        # check if current function can be satisfied by default/ right after deployment
         self._check_sat_by_default()
+
+    def _add_constant_values_to_parameters(self):
+        for para in self.parameters:
+            if para.name == 'msg.sender':
+                continue
+            para.load_rep_values(self._find_constants_for_param(para))
+
+    def _find_constants_for_param(self, param):
+        # more type handling is nice.
+        if not isinstance(param.type, ElementaryType):
+            return
+        res = []
+        for c_type, vals in self.constants_dic.items():
+            if c_type.name[:3] == param.type.name[:3]:
+                for v in vals:
+                    if 'int' in param.type.name:
+                        min_val, max_val = get_boundary_values(param.type, param.name)
+                        if min_val <= v <= max_val:
+                            res.append(v)
+                    else:
+                        res.append(v)
+        return res
 
     def _check_sat_by_default(self):
         for require in self._requires:
@@ -510,29 +640,6 @@ class Function(FunctionCall):
                 return
         self._sat_by_default = True
         self._parent_contract.add_default_sat_function(self)
-
-    def _load_irs(self, nodes: List[Slither_NodeSolc]):
-        """
-        Loading IRs of the function.
-        Currently not used.
-
-        Notes:
-            Slither IR is always placing code within modifiers at the end of the function.
-            We are only loading non
-
-        *** To be completed.
-            ❌We may not need this after all.....
-        """
-        for n in nodes:
-            if not n.irs:
-                continue
-
-            for ir in n.irs:
-                if isinstance(ir, Slither_InternalCall):
-                    if isinstance(ir, Slither_FunctionSolc):
-                        self.load_irs_helper(ir.function.nodes)
-                else:
-                    self._irs.append(ir)
 
     def _load_modifiers(self, function: Slither_Function):
         from .solidity_variable import SolidityVariable
@@ -547,7 +654,7 @@ class Function(FunctionCall):
             if not isinstance(modifier, ModifierSolc):
                 continue
             # getting the modifier object
-            modifier_object = self._parent_contract.modifiers_dic[modifier.canonical_name]
+            modifier_object = self.parent_contract.modifiers_dic[modifier.canonical_name]
 
             # adding modifier object to current function.
             self._modifiers.add(modifier_object)
@@ -574,7 +681,6 @@ class Function(FunctionCall):
             # adding requires from modifier into current function.
             for require in modifier_object.requires:
                 self._requires.add(require)
-
 
     # end of region
     ###################################################################################

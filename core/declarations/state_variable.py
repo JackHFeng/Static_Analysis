@@ -23,7 +23,7 @@ class StateVariable(Variable):
     """
 
     def __init__(self, variable: Slither_State_Variable):
-
+        super().__init__(variable)
         # e.g."internal", "public" ,etc.
         self._visibility = None
 

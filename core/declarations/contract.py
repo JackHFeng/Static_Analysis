@@ -13,6 +13,10 @@ from .block import Block
 
 from termcolor import colored
 
+from util import is_fuzzing_candidate
+
+from pyevmasm import disassemble_hex
+
 
 def increase_indentation(s: str):
     """
@@ -126,8 +130,22 @@ class Contract:
         return self._functions
 
     @property
+    def fuzzing_candidate_functions(self):
+        res = []
+        for function in self.functions:
+            if is_fuzzing_candidate(function):
+                res.append(function)
+        return res
+
+    @property
     def constructor(self):
         return self._constructor
+
+    @property
+    def constructor_as_list(self):
+        if self.constructor:
+            return [self.constructor]
+        return []
 
     @property
     def state_variables(self):
@@ -294,8 +312,8 @@ class Contract:
         edge[1].block.pre.append(edge[0])
 
         self._edges.add(edge)
-        if edge[0].original_function == edge[1].original_function \
-                and edge[0].original_function:
+        # opcode belongs to a function, and the edge is within the same function
+        if edge[0].original_function and edge[0].original_function == edge[1].original_function:
             edge[0].original_function.add_edge(edge)
 
     @property
@@ -322,7 +340,10 @@ class Contract:
 
     @property
     def edge_coverage(self):
-        return '%.2f' % round(self.total_covered_edges / self.total_edges * 100, 2)
+        if self.total_edges:
+            return '%.2f' % round(self.total_covered_edges / self.total_edges * 100, 2)
+        else:
+            return '0.00'
 
     @property
     def edge_coverage_str_colored(self):
@@ -354,27 +375,121 @@ class Contract:
         return '\n'.join(res)
 
     @property
-    def raw_report(self):
-        res = []
-        total_covered_edges = 0
-        total_edges = 0
-        total_covered_opcodes = 0
-        total_opcodes = 0
+    def edges_report(self):
+        res = [f'*{self.name}']
+
         for function in self.functions:
-            if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
-                res.append(f'{self.name}.{function.full_name}, {function.total_covered_edges}, {function.total_edges}, '
-                           f'{function.total_covered_opcodes}, {function.total_opcodes}')
-                total_covered_edges += function.total_covered_edges
-                total_edges += function.total_edges
-                total_covered_opcodes += function.total_covered_opcodes
-                total_opcodes += function.total_opcodes
+            res.append(f'#{self.name}.{function.name}')
 
-        first_line = f'*{self.name}, {self.total_covered_edges}, {self.total_edges}, {self.total_covered_opcodes}, ' \
-                     f'{self.total_opcodes}, {total_covered_edges}, {total_edges}, ' \
-                     f'{total_covered_opcodes}, {total_opcodes}'
+            res.append(f'\tCovered Edges: {", ".join(str(x) for x in function.covered_edges)}')
 
-        res.insert(0, first_line)
+            uncovered_edges = []
+            for edge in function.edges:
+                if edge not in function.covered_edges:
+                    uncovered_edges.append(edge)
+            res.append(f'\tUncovered Edges: {", ".join(str(x) for x in uncovered_edges)}')
+
+            covered_blocks_set = set()
+            for opcode in function.covered_opcodes:
+                covered_blocks_set.add(opcode.block)
+
+            res.append(f'\tCovered Blocks: {", ".join(str(x) for x in covered_blocks_set)}')
+
+            uncovered_blocks_set = set()
+            for opcode in function.opcodes:
+                if opcode.block not in covered_blocks_set:
+                    uncovered_blocks_set.add(opcode.block)
+            res.append(f'\tUncovered Blocks: {", ".join(str(x) for x in uncovered_blocks_set)}')
+
         return '\n'.join(res)
+
+    @property
+    def opcodes_report(self):
+        res = []
+        opcode = self.opcodes_dic[0]
+        nl = '\n'
+        while opcode:
+            str_start = '-'
+            if opcode in self.covered_opcodes:
+                str_start = '+'
+
+            opcode_line = f'{str_start}{opcode}'
+
+            if opcode.original_function:
+                opcode_line += f' <{opcode.original_function}>'
+
+            if opcode.source_code:
+                opcode_line += f' => "{opcode.source_code.split(nl)[0]}"'
+
+            res.append(opcode_line)
+            opcode = opcode.next
+        return '\n'.join(res)
+
+    @property
+    def csv_report(self):
+        keys = 'T_C_NE, T_NE, T_C_RE, T_RE, T_C_E, T_E, T_F_C_NE, T_F_NE, T_F_C_RE, T_F_RE, T_F_C_E, T_F_E, T_C_NO, ' \
+               'T_NO, T_C_RO, T_RO, T_C_O, T_O, T_F_C_NO, T_F_NO, T_F_C_RO, T_F_RO, T_F_C_O, T_F_O'.strip().split(', ')
+        res = {}
+        for key in keys:
+            res[key] = 0
+
+        # edges
+        for edge in self.covered_edges:
+            if edge[1].block.end_with_revert:
+                res['T_C_RE'] += 1
+            else:
+                res['T_C_NE'] += 1
+
+        for edge in self.edges:
+            if edge[1].block.end_with_revert:
+                res['T_RE'] += 1
+            else:
+                res['T_NE'] += 1
+
+        res['T_C_E'] = self.total_covered_edges
+        res['T_E'] = self.total_edges
+
+        # opcodes
+        for opcode in self.covered_opcodes:
+            if opcode.block.end_with_revert:
+                res['T_C_RO'] += 1
+            else:
+                res['T_C_NO'] += 1
+
+        for opcode in self.opcodes:
+            if opcode.block.end_with_revert:
+                res['T_RO'] += 1
+            else:
+                res['T_NO'] += 1
+
+        res['T_C_O'] = self.total_covered_opcodes
+        res['T_O'] = self.total_opcodes
+
+        function_summaries = []
+
+        for function in self.functions:
+            if function.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
+                continue
+            dic = function.edge_opcode_stats
+            function_summary = [f'"#{self.name}.{function.full_name}"']
+            for key in keys:
+                function_summary.append(dic[key])
+                if dic[key]:
+                    res[key] += dic[key]
+            function_summaries.append(', '.join(str(x) for x in function_summary))
+
+        contract_summary = [f'*{self.name}']
+
+        for key in keys:
+            contract_summary.append(res[key])
+
+        summary = [', '.join(str(x) for x in contract_summary)]
+        summary.extend(function_summaries)
+
+        header = 'Name, ' + ', '.join(keys)
+        summary.insert(0, header)
+        return '\n'.join(summary)
+
 
     @property
     def source_dir(self):
@@ -387,6 +502,14 @@ class Contract:
     @property
     def slither_contract(self):
         return self._slither_contract
+
+    @property
+    def number_of_public_functions(self):
+        counter = 0
+        for function in self.functions:
+            if function.visibility in ['public', 'external']:
+                counter += 1
+        return counter
 
     def load_w3_contract(self, w3_contract):
         self._w3_contract = w3_contract
@@ -401,11 +524,11 @@ class Contract:
         self._name = contract.name
         self._slither_contract = contract
 
-        self._create_constructor(contract)
-
         # create modifier objects.
         for modifier in contract.modifiers:
             self._create_modifier(modifier)
+
+        self._create_constructor(contract)
 
         # create function objects.
         """
@@ -428,6 +551,20 @@ class Contract:
         # (contract_obj, func_obj)
         for function_tuple in contract.all_library_calls:
             self._create_function(function_tuple[1])
+
+        self._construct_dependency()
+
+    def _construct_dependency(self):
+        ignored_functions = ['slitherConstructorVariables', 'slitherConstructorConstantVariables']
+        for f in self.functions:  # don't need constructor here, because constructors don't depend on anything.
+            if f.name in ignored_functions or not f.is_public_or_external:
+                continue
+
+            for sr in f.state_variables_read:
+                for written_f in sr.functions_written:
+                    # not itself,   not a slither dummy function,    not a constructor
+                    if f.name != written_f.name and written_f.name not in ignored_functions and written_f.is_public_or_external:
+                        f.add_depends_on((written_f, sr))
 
     def get_function_by_name(self, name):
         """
@@ -580,7 +717,7 @@ class Contract:
 
         res.append(f'Functions: ')
 
-        for f in [self.constructor] + self.functions:
+        for f in self.constructor_as_list + self.functions:
             res.append(increase_indentation(f.summary))
             res.append('')
 
@@ -588,7 +725,7 @@ class Contract:
 
     def list_requires(self):
         res = [self.name]
-        for f in [self.constructor] + self.functions:
+        for f in self.constructor_as_list + self.functions:
             for r in f.requires:
                 res.append(f'\t{str(r)}')
         return '\n'.join(res)
@@ -600,10 +737,10 @@ class Contract:
         compiled_sol = self._compile_source()
 
         self._set_abi(compiled_sol['abi'])
-        self._set_bin_code(compiled_sol['evm']['bytecode']['object'])
-        self._set_runtime_bin_code(compiled_sol['evm']['deployedBytecode']['object'])
-        self._set_opcodes_str(compiled_sol['evm']['deployedBytecode']['opcodes'])
-        self._set_source_map_str(compiled_sol['evm']['deployedBytecode']['sourceMap'])
+        self._set_bin_code(compiled_sol['init_bytecode'])
+        self._set_runtime_bin_code(compiled_sol['runtime_bytecode'])
+        self._set_opcodes_str(compiled_sol['runtime_opcode'])
+        self._set_source_map_str(compiled_sol['runtime_srcmap'])
         self._set_opcodes_dic(self._create_opcodes_dic())
 
         self._create_mapping()
@@ -613,16 +750,15 @@ class Contract:
         self._set_function_hashes()
 
     def load_w3_functions(self):
-        from util import is_fuzzing_candidate
-        for function in self.functions:
-            if is_fuzzing_candidate(function):
-                if function.name == 'fallback':
-                    w3_function = self.w3_contract.fallback
-                else:
-                    w3_function = self.w3_contract.get_function_by_selector(function.sig_hash)
-                function.load_w3_function(w3_function)
+        for function in self.fuzzing_candidate_functions:
+            if function.name == 'fallback':
+                w3_function = self.w3_contract.fallback
+            else:
+                # print(function)
+                w3_function = self.w3_contract.get_function_by_selector(function.sig_hash)
+            function.load_w3_function(w3_function)
 
-    def _compile_source(self):
+    def _compile_source_deprecated(self):
         """
         Finished.
         Compiles the source solidity code and returns the
@@ -650,6 +786,23 @@ class Contract:
                 }
         })
         return compiled_sol['contracts'][filename][self.name]
+
+    def _compile_source(self):
+        """
+        Finished.
+        Compiles the source solidity code and returns the
+            binary, abi, runtime opcode in a dictionary format.
+        Returns:
+            dictionary containing the above info.
+        """
+        res = {}
+        crytic_compile = self.slither_contract.slither.crytic_compile
+        res['abi'] = crytic_compile.abi(self.name)
+        res['init_bytecode'] = crytic_compile.bytecode_init(self.name)
+        res['runtime_bytecode'] = crytic_compile.bytecode_runtime(self.name)
+        res['runtime_opcode'] = disassemble_hex(res['runtime_bytecode']).replace('\n', ' ')
+        res['runtime_srcmap'] = ';'.join(crytic_compile.srcmap_runtime(self.name))
+        return res
 
     def _create_opcodes_dic(self):
         """
@@ -756,7 +909,10 @@ class Contract:
             if original_function.full_name == 'fallback()':
                 # first opcode of fallback function
                 if not index_tracker.get('fallback()'):
-                    index_tracker['fallback()'] = [opcode.pc - 1, opcode.pc]
+                    block_start = opcode
+                    while block_start.opcode != 'JUMPDEST':
+                        block_start = block_start.pre
+                    index_tracker['fallback()'] = [block_start.pc, opcode.pc]
                 else:
                     index_tracker['fallback()'][1] = opcode.pc + 1
             elif original_function.visibility in ['public', 'external']:
@@ -785,7 +941,7 @@ class Contract:
             function_obj.set_opcode_start(start)
             function_obj.set_opcode_end(end)
             opcode = self.opcodes_dic[start]
-            while opcode.pc <= end:
+            while opcode and opcode.pc <= end:
                 if opcode.source_map[2] != -1:
                     opcode.set_original_function(function_obj)
                 opcode = opcode.next
@@ -837,7 +993,7 @@ class Contract:
     def _set_blocks(self):
         from ..vandal.bin.generate_cfg import vandal_cfg
         res = vandal_cfg(self.runtime_bin_code).strip().split('\n')
-
+        # print(res)
         blocks = {}
         temp_block = None
 
@@ -870,11 +1026,19 @@ class Contract:
                     i += 1
 
                 while not res[i + 1].startswith('---'):
+                    pc = int(res[i + 1].strip().split(' ')[0], 0)
+                    # there's a bug in Vandal where it could parse invalid opcodes.
+                    if self.opcodes_dic.get(pc):
+                        self.opcodes_dic[pc].block = temp_block
+                        temp_block.opcodes.append(self.opcodes_dic[pc])
                     i += 1
-                temp_block.end = self.opcodes_dic[int(res[i].strip().split(' ')[0], 0)]
-                # adding block ref to opcode
-                self.opcodes_dic[int(res[i].strip().split(' ')[0], 0)].block = temp_block
-                blocks[temp_block.pc] = temp_block
 
+                pc = int(res[i].strip().split(' ')[0], 0)
+                if self.opcodes_dic.get(pc):
+                    temp_block.end = self.opcodes_dic[pc]
+                    blocks[temp_block.pc] = temp_block
+                else:
+                    temp_block.end = self.opcodes_dic[temp_block.opcodes[-1].pc]
+                    blocks[temp_block.pc] = temp_block
             i += 1
         self._set_blocks_dic(blocks)

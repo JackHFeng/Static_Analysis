@@ -4,7 +4,7 @@ from slither.core.solidity_types.mapping_type import MappingType
 
 
 class Variable:
-    def __init__(self):
+    def __init__(self, variable):
         # name of variable
         self._name = None
 
@@ -29,7 +29,12 @@ class Variable:
             
         """
         self._type = None
+        self._slither_variable = None
 
+        self._setter(variable)
+
+    def _setter(self, variable):
+        self._slither_variable = variable
     ###################################################################################
     ###################################################################################
     # region => public getters
@@ -39,6 +44,10 @@ class Variable:
     @property
     def name(self):
         return self._name
+
+    @property
+    def slither_variable(self):
+        return self._slither_variable
 
     @property
     def type(self):
