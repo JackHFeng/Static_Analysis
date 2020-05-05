@@ -83,9 +83,11 @@ class CtParameter:
     @property
     def state_based_rep_values_aggregated(self):
         # likely useless
-        res = set()
+        res = []
         for values in self.state_based_rep_values_dic.values():
-            res.update(values)
+            for value in values:
+                if value not in res:
+                    res.append(value)
         return res
 
     def _set_rep_values(self):

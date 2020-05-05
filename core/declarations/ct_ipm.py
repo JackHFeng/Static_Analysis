@@ -7,10 +7,10 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 def get_index_values_from_state(state, function):
-    res = defaultdict(set)  # Parameter => list(values)
+    res = defaultdict(list)  # Parameter => list(values)
     if not state:
         return res
-    index_values = state.previous_index_values_dic if state else dict()  # data_type => level => StateVariableSolc => set(value)
+    index_values = state.previous_index_values_dic if state else dict()  # data_type => level => StateVariableSolc => list(value)
 
     # for param in each function param
     for param in function.parameters:
@@ -30,9 +30,11 @@ def get_index_values_from_state(state, function):
                                     if type(param.type) == ElementaryType and 'int' in param.type.name:
                                         min_val, max_val = get_boundary_values(param.type, param.name)
                                         if min_val <= value <= max_val:
-                                            res[param].add(value)
+                                            if value not in res[param]:
+                                                res[param].append(value)
                                     else:
-                                        res[param].add(value)
+                                        if value not in res[param]:
+                                            res[param].append(value)
     return res
 
 
@@ -85,7 +87,7 @@ class CtIpm:
         return self._parameters
 
     def _setter(self):
-        temp = defaultdict(lambda: defaultdict(set))  # Parameter => state => set(value)
+        temp = defaultdict(lambda: defaultdict(list))  # Parameter => state => set(value)
 
         if not self.function.rep_states:
             self._rep_states.append(None)

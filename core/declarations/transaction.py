@@ -15,7 +15,7 @@ def get_index_write_values(function, tc):
         param = function.get_parameter_by_name(p_name)
         for (level, SVs) in param.state_var_index_write.items():
             for sv in SVs:
-                if value not in  res[param.type][level][sv]:
+                if value not in res[param.type][level][sv]:
                     res[param.type][level][sv].append(value)
     return res
 
