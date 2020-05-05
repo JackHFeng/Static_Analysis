@@ -65,7 +65,7 @@ class Transaction:
 
     def set_can_enter_functions(self, contract):
         res = []
-        if self.function.is_suicidal:
+        if self.function and self.function.is_suicidal:
             self._can_enter_functions = res
             return
 
