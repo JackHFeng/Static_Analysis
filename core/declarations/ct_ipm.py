@@ -51,8 +51,8 @@ class CtIpm:
         for param in self._parameters.values():
             res.append(param)
 
-        for state in self._rep_states:
-            res.append(state)
+        # for state in self._rep_states:
+        #     res.append(state)
 
         return '\n'.join(res)
 
@@ -61,8 +61,8 @@ class CtIpm:
         for param in self._parameters.values():
             res.append(str(param))
 
-        for state in self._rep_states:
-            res.append(str(state))
+        # for state in self._rep_states:
+        #     res.append(str(state))
 
         return '\n'.join(res)
 
