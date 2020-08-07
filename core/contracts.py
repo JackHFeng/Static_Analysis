@@ -17,30 +17,40 @@ def get_all_solc_versions():
     from os import listdir
     from os.path import join, isdir
 
-    solc_dir = f'{ROOT_DIR}/solc/'
-    solc_versions = [f for f in listdir(solc_dir) if isdir(join(solc_dir, f))]
+    solc_dir = f'{ROOT_DIR}/linux_solc/'
+    solc_versions = [f for f in listdir(solc_dir)]
     return solc_versions
 
 
-def compiler_source(_dir):
-    sol_version = get_sol_version(_dir)
+def get_slither_obj(_dir, solc_path):
+    return Slither(_dir, solc=solc_path)
+
+
+def compile_source(_dir, solc_version=None, solc_path=None):
+    if solc_path:
+        return get_slither_obj(_dir, solc_path)
+
+    if solc_version:
+        return get_slither_obj(_dir, f'{ROOT_DIR}/linux_solc/{solc_version}')
+
+    solc_version = get_sol_version(_dir)
     all_sol_versions = get_all_solc_versions()
-    if sol_version:
-        all_sol_versions.remove(sol_version)
-        all_sol_versions.insert(0, sol_version)
+    if solc_version:
+        all_sol_versions.remove(solc_version)
+        all_sol_versions.insert(0, solc_version)
     for version in all_sol_versions:
         try:
-            slither = Slither(_dir, solc=f'{ROOT_DIR}/solc/{version}/solc.exe')
-            return version, slither
+            return get_slither_obj(_dir, f'{ROOT_DIR}/linux_solc/{version}')
         except:
             pass
-    raise Exception(f'Existing solidity compilers do not work on "{_dir}"')
+    raise Exception(f'Existing solidity compilers do not work on "{_dir}", please try to provide your own solc '
+                    f'compiler using --solc_path')
 
 
 class Contracts:
-    def __init__(self, _dir: str):
+    def __init__(self, _dir: str, solc_version: str, solc_path: str):
         self.contracts = {}
-        slither = compiler_source(_dir)
+        slither = compile_source(_dir, solc_version, solc_path)
         for contract in slither.contracts:
             new_contract = Contract(contract)
             self.contracts[contract.name] = new_contract
