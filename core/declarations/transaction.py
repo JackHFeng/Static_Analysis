@@ -13,6 +13,7 @@ def get_index_write_values(function, tc):
 
     for p_name, value in tc.items():
         param = function.get_parameter_by_name(p_name)
+        if not param: continue
         for (level, SVs) in param.state_var_index_write.items():
             for sv in SVs:
                 if value not in res[param.type][level][sv]:
@@ -32,7 +33,7 @@ def make_copy(index_values):
 
 
 class Transaction:
-    def __init__(self, function, tc, parent_transaction, new_coverage, status):
+    def __init__(self, function, tc, parent_transaction, new_coverage, status, contract):
         self._function = function
         self._tc = tc
         self._parent = parent_transaction
@@ -46,6 +47,7 @@ class Transaction:
         self._depth = 0 if not parent_transaction else parent_transaction.depth + 1
 
         self._can_enter_functions = None
+        self.set_can_enter_functions(contract)
         if parent_transaction:
             parent_transaction.add_child(self)
 

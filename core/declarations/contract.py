@@ -377,31 +377,17 @@ class Contract:
 
     @property
     def edges_report(self):
-        res = [f'*{self.name}']
-
-        for function in self.functions:
-            res.append(f'#{self.name}.{function.name}')
-
-            res.append(f'\tCovered Edges: {", ".join(str(x) for x in function.covered_edges)}')
-
-            uncovered_edges = []
-            for edge in function.edges:
-                if edge not in function.covered_edges:
-                    uncovered_edges.append(edge)
-            res.append(f'\tUncovered Edges: {", ".join(str(x) for x in uncovered_edges)}')
-
-            covered_blocks_set = set()
-            for opcode in function.covered_opcodes:
-                covered_blocks_set.add(opcode.block)
-
-            res.append(f'\tCovered Blocks: {", ".join(str(x) for x in covered_blocks_set)}')
-
-            uncovered_blocks_set = set()
-            for opcode in function.opcodes:
-                if opcode.block not in covered_blocks_set:
-                    uncovered_blocks_set.add(opcode.block)
-            res.append(f'\tUncovered Blocks: {", ".join(str(x) for x in uncovered_blocks_set)}')
-
+        res = []
+        for edge in self.edges:
+            str_start = '+' if edge in self.covered_edges else '-'
+            left_block = edge[0].block
+            right_block = edge[1].block
+            edge_line = f'{str_start}' \
+                        f'[{left_block.start.pc} {left_block.start.opcode}, ' \
+                        f'{left_block.end.pc} {left_block.end.opcode}] => ' \
+                        f'[{right_block.start.pc} {right_block.start.opcode}, ' \
+                        f'{right_block.end.pc} {right_block.end.opcode}]'
+            res.append(edge_line)
         return '\n'.join(res)
 
     @property
@@ -420,7 +406,7 @@ class Contract:
                 opcode_line += f' <{opcode.original_function}>'
 
             if opcode.source_code:
-                opcode_line += f' => "{opcode.source_code.split(nl)[0]}"'
+                opcode_line += f' => "{opcode.source_code.split(nl)[0].strip()}"'
 
             res.append(opcode_line)
             opcode = opcode.next
@@ -754,7 +740,6 @@ class Contract:
             if function.name == 'fallback':
                 w3_function = self.w3_contract.fallback
             else:
-                # print(function)
                 w3_function = self.w3_contract.get_function_by_signature(function.solidity_signature)
             function.load_w3_function(w3_function)
 

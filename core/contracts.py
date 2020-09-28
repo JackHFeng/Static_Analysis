@@ -15,8 +15,6 @@ def get_sol_version(dir):
 
 def get_all_solc_versions():
     from os import listdir
-    from os.path import join, isdir
-
     solc_dir = f'{ROOT_DIR}/linux_solc/'
     solc_versions = [f for f in listdir(solc_dir)]
     return solc_versions

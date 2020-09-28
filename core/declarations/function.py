@@ -131,6 +131,10 @@ class Function(FunctionCall):
 
         self._is_suicidal = False
 
+        self.vulnerabilities = [False for _ in range(9)]
+
+        self.vulnerable_transactions = []
+
         self._setter(function, parent_contract)
 
     ###################################################################################
@@ -163,7 +167,9 @@ class Function(FunctionCall):
             dependencies.append(dependency)
 
         for dependency in dependencies:
-            if dependency[0] == function:
+            # len = 3 dependency are negative dependencies that should not be removed.
+            # e.g. (f, sv, "Negative Dependency")
+            if len(dependency) != 3 and dependency[0] == function:
                 self._depends_on.remove(dependency)
 
     @property

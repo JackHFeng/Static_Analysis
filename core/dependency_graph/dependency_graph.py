@@ -63,7 +63,8 @@ class DependencyGraph:
             if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables'] or not f.is_public_or_external:
                 continue
 
-            for written_f, sr in f.depends_on:
+            for dependency in f.depends_on:
+                written_f, sr = dependency[0], dependency[1]
                 n1 = self.get_node(f.name)
                 n2 = self.get_node(written_f.name)
                 if self.edge_dic.get((n1, n2)):
@@ -81,7 +82,8 @@ class DependencyGraph:
             if f.name in ['slitherConstructorVariables', 'slitherConstructorConstantVariables'] or not f.is_public_or_external:
                 continue
 
-            for written_f, sr in f.depends_on:
+            for dependency in f.depends_on:
+                written_f, sr = dependency[0], dependency[1]
                 n1 = self.get_node(f.name)
                 n2 = self.get_node(written_f.name)
                 remaining_edges_dic[(n1, n2)].append(sr)
