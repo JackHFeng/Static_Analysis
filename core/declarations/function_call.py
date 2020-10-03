@@ -527,11 +527,11 @@ class FunctionCall:
             return
 
         for r in ir.read:
-            if isinstance(r.type, UserDefinedType):
-                continue
-            elif isinstance(ir, Slither_SolidityCall) and r.type.name == 'string':
-                continue
             if isinstance(r, Constant):
+                if isinstance(r.type, UserDefinedType):
+                    continue
+                elif isinstance(ir, Slither_SolidityCall) and r.type.name == 'string':
+                    continue
                 if isinstance(ir, TypeConversion) and len(ir.read) == 1:
                     if isinstance(ir.type, UserDefinedType):
                         continue
