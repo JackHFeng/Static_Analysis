@@ -56,8 +56,9 @@ def compile_nt(_dir):
     solc_version = get_sol_version(_dir)
     all_sol_versions = get_all_solc_versions_nt()
     if solc_version:
-        all_sol_versions.remove(solc_version)
-        all_sol_versions.insert(0, solc_version)
+        if solc_version in all_sol_versions:
+            all_sol_versions.remove(solc_version)
+            all_sol_versions.insert(0, solc_version)
     for version in all_sol_versions:
         try:
             return get_slither_obj(_dir, f'{ROOT_DIR}/solc/{version}/solc.exe')
@@ -71,8 +72,9 @@ def compile_linux(_dir):
     solc_version = get_sol_version(_dir)
     all_sol_versions = get_all_solc_versions_linux()
     if solc_version:
-        all_sol_versions.remove(solc_version)
-        all_sol_versions.insert(0, solc_version)
+        if solc_version in all_sol_versions:
+            all_sol_versions.remove(solc_version)
+            all_sol_versions.insert(0, solc_version)
     for version in all_sol_versions:
         try:
             return get_slither_obj(_dir, f'{ROOT_DIR}/linux_solc/{version}')

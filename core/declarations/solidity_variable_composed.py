@@ -3,4 +3,5 @@ from .parameter import Parameter
 
 
 class SolidityVariableComposed(Parameter):
+    # same as param
     pass

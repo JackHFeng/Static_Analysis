@@ -32,7 +32,7 @@ from slither.solc_parsing.variables.state_variable import StateVariableSolc
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.operations.assignment import Assignment
 from web3 import Web3
-
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from collections import defaultdict
 
 require_functions = [Slither_SolidityFunction("require(bool)"),
@@ -405,8 +405,7 @@ class FunctionCall:
                     found_require = False
                     for internal_call in node.internal_calls:
                         if internal_call in require_functions:
-                            self._create_require(node)
-                            found_require = True
+                            found_require = self._create_require(node)
                             break
 
                     # if no require found after internal call.
@@ -440,7 +439,10 @@ class FunctionCall:
             Because all state and local variables from modifier objects have already been loaded using load_modifiers().
             Take a look into this and confirm.
         """
-        new_require = Require(require, self)
+        try:
+            new_require = Require(require, self)
+        except:
+            return False
 
         # adding state variables read from the require to current function_call.
         for state_variable in new_require.state_variables_read:
@@ -451,6 +453,7 @@ class FunctionCall:
             self._local_variables_read.add(local_variable)
 
         self._requires.add(new_require)
+        return True
 
     def analyze_para_index_usage(self):
         params_index_read = self.find_index_read()
@@ -524,11 +527,16 @@ class FunctionCall:
             return
 
         for r in ir.read:
-            if isinstance(ir, Slither_SolidityCall) and r.type.name == 'string':
+            if isinstance(r.type, UserDefinedType):
+                continue
+            elif isinstance(ir, Slither_SolidityCall) and r.type.name == 'string':
                 continue
             if isinstance(r, Constant):
                 if isinstance(ir, TypeConversion) and len(ir.read) == 1:
-                    self._constants[ir.type].add(parse_constant(r.value, ir.type))
+                    if isinstance(ir.type, UserDefinedType):
+                        continue
+                    else:
+                        self._constants[ir.type].add(parse_constant(r.value, ir.type))
                 else:
                     self._constants[r.type].add(parse_constant(r.value, r.type))
                     # if isinstance(ir, Binary):

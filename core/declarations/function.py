@@ -697,11 +697,7 @@ class Function(FunctionCall):
                         type(local_variable) in [SolidityVariable, SolidityVariableComposed] and
                         local_variable.name not in [p.name for p in self.parameters]
                 ):
-                    new_parameter = copy.deepcopy(local_variable)
-                    new_parameter._rep_values = []
-                    self.add_parameter(new_parameter)
-                    self.add_local_variable(new_parameter)
-                    self._local_variables_read.add(new_parameter)
+                    self.load_local_variables_helper(local_variable.slither_variable, 'read')
 
             # adding requires from modifier into current function.
             for require in modifier_object.requires:
