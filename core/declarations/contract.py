@@ -1,10 +1,10 @@
 from web3 import Web3
 from solc import compile_standard
-
 from slither.core.declarations.contract import Contract as Slither_Contract
 from slither.core.declarations.function import Function as Slither_Function
 from slither.core.declarations.modifier import Modifier as Slither_Modifier
 from slither.utils.function import get_function_id
+from ..vandal.bin.generate_cfg import vandal_cfg
 
 from .function import Function
 from .modifier import Modifier
@@ -17,7 +17,6 @@ from termcolor import colored
 from util import is_fuzzing_candidate
 
 from pyevmasm import disassemble_hex
-
 
 def increase_indentation(s: str):
     """
@@ -959,7 +958,8 @@ class Contract:
         #     opcode = opcode.next
 
     def _set_blocks(self):
-        from ..vandal.bin.generate_cfg import vandal_cfg
+        from datetime import datetime
+        print(datetime.now())
         res = vandal_cfg(self.runtime_bin_code).strip().split('\n')
         # print(res)
         blocks = {}

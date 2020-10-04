@@ -122,7 +122,10 @@ class CtIpm:
         build_sut = definitions.ACTS_GATEWAY.entry_point
         acts_config = self._configure_acts_ipm()
         acts_constraints = self._configure_acts_constraints()
-        tc_str = build_sut.initialCT(self.function.canonical_name, acts_config, acts_constraints)
+        try:
+            tc_str = build_sut.initialCT(self.function.canonical_name, acts_config, acts_constraints)
+        except:
+            return []
         return self._tc_str_to_tc(tc_str)
 
     def _tc_str_to_tc(self, tc_str):
