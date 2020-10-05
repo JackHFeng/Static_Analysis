@@ -959,7 +959,6 @@ class Contract:
 
     def _set_blocks(self):
         from datetime import datetime
-        print(datetime.now())
         res = vandal_cfg(self.runtime_bin_code).strip().split('\n')
         # print(res)
         blocks = {}
