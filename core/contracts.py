@@ -77,7 +77,7 @@ def compile_linux(_dir):
             all_sol_versions.insert(0, solc_version)
     for version in all_sol_versions:
         try:
-            return get_slither_obj(_dir, f'{ROOT_DIR}/linux_solc/{version}')
+            return get_slither_obj(_dir, f'{ROOT_DIR}/linux_solc/{version}/solc')
         except:
             pass
     raise Exception(f'Existing solidity compilers do not work on "{_dir}", please try to provide your own solc '
