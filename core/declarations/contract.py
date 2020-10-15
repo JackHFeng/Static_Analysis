@@ -111,6 +111,10 @@ class Contract:
 
         self._slither_contract = None
 
+        self.has_call = False
+        self.has_callcode = False
+        self.has_suicide = False
+
         self._setter(contract)
 
     @property
@@ -826,6 +830,7 @@ class Contract:
             node = Opcode()
             temp_list = line.split(' ')  # this gives the PUSH* and their value if its a PUSH*
             node.opcode = temp_list[0]  # sets the opcode
+            self._check_call_callcode_suicide(node.opcode)
             node.value = temp_list[1] if len(temp_list) > 1 else None  # sets the value if there is any
             node.size = int(re.sub(r'\D', '', node.opcode)) if node.value else 0  # sets the value if there is any
 
@@ -837,6 +842,16 @@ class Contract:
 
         opcodes_dic[0].pre = None
         return opcodes_dic
+
+    def _check_call_callcode_suicide(self, opcode):
+        if opcode == 'CALL':
+            self.has_call = True
+        elif opcode == 'CALLCODE':
+            self.has_call = True
+        elif opcode == 'SELFDESTRUCT':
+            self.has_suicide = True
+        elif opcode == 'SUICIDE':
+            self.has_suicide = True
 
     def _create_mapping(self):
         def parse_source_map(source_map_str):
