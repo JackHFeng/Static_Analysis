@@ -17,6 +17,9 @@ from termcolor import colored
 from util import is_fuzzing_candidate
 
 from pyevmasm import disassemble_hex
+from func_timeout import func_timeout, FunctionTimedOut
+
+ONE_MINUTE = 60
 
 def increase_indentation(s: str):
     """
@@ -239,10 +242,13 @@ class Contract:
 
     def add_covered_opcode(self, pc):
         opcode = self.opcodes_dic[pc]
+        not_exist = not opcode in self._covered_opcodes
         self._covered_opcodes.add(opcode)
 
         if opcode.original_function:
             opcode.original_function.add_covered_opcode(pc)
+
+        return not_exist
 
     @property
     def total_covered_opcodes(self):
@@ -253,14 +259,18 @@ class Contract:
         return '%.2f' % round(self.total_covered_opcodes / self.total_opcodes * 100, 2)
 
     @property
+    def opcode_code_coverage_percent_and_count(self):
+        return f'{self.opcode_code_coverage}% ({self.total_covered_opcodes}/' \
+               f'{self.total_opcodes})'
+
+    @property
     def opcode_code_coverage_str_colored(self):
         return f'Contract Opcode Coverage: {colored(self.opcode_code_coverage, "cyan", "on_green", attrs=["bold"])}% ' \
                f'({self.total_covered_opcodes}/{self.total_opcodes})'
 
     @property
     def opcode_code_coverage_str(self):
-        return f'Contract Opcode Coverage: {self.opcode_code_coverage}% ({self.total_covered_opcodes}/' \
-               f'{self.total_opcodes})'
+        return f'Contract Opcode Coverage: {self.opcode_code_coverage_percent_and_count}'
 
     @property
     def blocks(self):
@@ -350,13 +360,17 @@ class Contract:
             return '0.00'
 
     @property
+    def edge_coverage_percent_and_count(self):
+        return f'{self.edge_coverage}% ({self.total_covered_edges}/{self.total_edges})'
+
+    @property
     def edge_coverage_str_colored(self):
         return f'Contract Edge Coverage: {colored(self.edge_coverage, "cyan", "on_green", attrs=["bold"])}% ' \
                f'({self.total_covered_edges}/{self.total_edges})'
 
     @property
     def edge_coverage_str(self):
-        return f'Contract Edge Coverage: {self.edge_coverage}% ({self.total_covered_edges}/{self.total_edges})'
+        return f'Contract Edge Coverage: {self.edge_coverage_percent_and_count}'
 
     @property
     def functions_coverage_colored(self):
@@ -373,8 +387,8 @@ class Contract:
         res = []
         for function in self.functions:
             if function.name not in ['slitherConstructorVariables', 'slitherConstructorConstantVariables']:
-                res.append(f'{function.full_name} edge_cov: {function.edge_coverage_str} opcode_cov:'
-                           f' {function.opcode_code_coverage_str}')
+                res.append(f'\tedge_cov: {function.edge_coverage_str} opcode_cov:'
+                           f' {function.opcode_code_coverage_str}  <{function.full_name}>')
 
         return '\n'.join(res)
 
@@ -403,7 +417,7 @@ class Contract:
             if opcode in self.covered_opcodes:
                 str_start = '+'
 
-            opcode_line = f'{str_start}{opcode}'
+            opcode_line = f'{str_start} {opcode.pc} {opcode.opcode}'
 
             if opcode.original_function:
                 opcode_line += f' <{opcode.original_function}>'
@@ -783,11 +797,23 @@ class Contract:
         Returns:
             dictionary containing the above info.
         """
+        def replace_placeholders(code):
+            temp = ''
+            i = 0
+            while i < len(code):
+                if code[i] != '_':
+                    temp += code[i]
+                    i += 1
+                else:
+                    temp += '0'*40
+                    i += 40
+            return temp
+
         res = {}
         crytic_compile = self.slither_contract.slither.crytic_compile
         res['abi'] = crytic_compile.abi(self.name)
-        res['init_bytecode'] = crytic_compile.bytecode_init(self.name)
-        res['runtime_bytecode'] = crytic_compile.bytecode_runtime(self.name)
+        res['init_bytecode'] = replace_placeholders(crytic_compile.bytecode_init(self.name))
+        res['runtime_bytecode'] = replace_placeholders(crytic_compile.bytecode_runtime(self.name))
         res['runtime_opcode'] = disassemble_hex(res['runtime_bytecode']).replace('\n', ' ')
         res['runtime_srcmap'] = ';'.join(crytic_compile.srcmap_runtime(self.name))
         return res
@@ -927,6 +953,7 @@ class Contract:
                 else:
                     index_tracker[original_function.full_name][1] = opcode.pc
             else:
+                # mmlog.debug(f'Unhandled case in opcode segment identification. => {opcode} {mapping_list[0]}')
                 raise Exception(f'Unhandled case in opcode segment identification. => {opcode} {mapping_list[0]}')
 
             opcode.source_map = mapping_list[0]
@@ -973,8 +1000,14 @@ class Contract:
         #     opcode = opcode.next
 
     def _set_blocks(self):
-        from datetime import datetime
-        res = vandal_cfg(self.runtime_bin_code).strip().split('\n')
+        print(f'Runtime bytecode control flow analysis with Vandal for contract <{self.name}>. ')
+        # mmlog.info(f'Runtime bytecode control flow analysis with Vandal for contract <{self.name}>. ')
+        try:
+            res = func_timeout(ONE_MINUTE, vandal_cfg, kwargs={'input': self.runtime_bin_code}).strip().split('\n')
+        except FunctionTimedOut as err:
+            # mmlog.critical(f'Vandal timed out ({ONE_MINUTE} seconds) when analyzing byte code control flow. This is likely a bug from Vandal. ')
+            err.message = f'Vandal timed out ({ONE_MINUTE} seconds) when analyzing byte code control flow. This is likely a bug from Vandal. '
+            raise
         # print(res)
         blocks = {}
         temp_block = None

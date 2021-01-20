@@ -130,6 +130,9 @@ class Function(FunctionCall):
         self._depends_on = set()
 
         self._is_suicidal = False
+        self.has_transfer = False
+        self.has_timestamp = False
+        self.has_blocknumber = False
 
         self.vulnerabilities = [False for _ in range(9)]
 
@@ -515,22 +518,15 @@ class Function(FunctionCall):
         """
         res = []
         # validity check, if state variable is read by function at all.
-        sv_exist = False
 
         for sv in self._state_variables_read:
             if sv.name == name:
-                sv_exist = True
                 for fn in sv.functions_written:
                     # only returns public functions
                     if fn is not self and fn not in res and fn.visibility == 'public':
                         res.append(fn)
                 return res
-
-        if sv_exist:
-            return res
-        else:
-            raise Exception(f'state variable "{name}" is not read by function "{self.name}".')
-        # throw exception? Or just return empty array?
+        return res
 
     @property
     def summary(self):

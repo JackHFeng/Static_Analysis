@@ -5,7 +5,12 @@ import z3
 from slither.core.solidity_types.type import Type
 from typing import Dict, List, Any
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from geth_wrapper import DeploymentLogger
+from web3 import Web3
+from datetime import datetime
+import logging
 
+mmlog = logging.getLogger('magic_mirror')
 
 def get_index_write_values(function, tc):
     # data_type => level => StateVariableSolc => value
@@ -33,7 +38,10 @@ def make_copy(index_values):
 
 
 class Transaction:
-    def __init__(self, function, tc, parent_transaction, new_coverage, status, contract):
+    def __init__(self, function, tc, parent_transaction, new_coverage, contract, logger):
+        if logger.status != 1:
+            raise Exception('Failed transaction should not have been created. ')
+
         self._function = function
         self._tc = tc
         self._parent = parent_transaction
@@ -41,11 +49,12 @@ class Transaction:
         self._index_values = get_index_write_values(function, tc)   # data_type => level => StateVariableSolc => value
         self._all_index_values = self._get_previous_index_values()
         self._new_coverage = new_coverage
-        self._status = status
-        new_coverage_weight = 10 if new_coverage else 0
-        self._weight = new_coverage_weight + status if status else 0
+        new_coverage_weight = 2 if new_coverage else 0
+        self._weight = new_coverage_weight + 1
         self._depth = 0 if not parent_transaction else parent_transaction.depth + 1
-
+        self._state_id = logger.tx_id
+        self._is_deployment = True if isinstance(logger, DeploymentLogger) else False
+        self._contract_address = Web3.toChecksumAddress(logger.deployed_address) if self._is_deployment else parent_transaction.contract_address
         self._can_enter_functions = None
         self.set_can_enter_functions(contract)
         if parent_transaction:
@@ -56,6 +65,18 @@ class Transaction:
 
     def __repr__(self):
         return f'{self.function if self.function else "constructor()"}  {self.tc}'
+
+    @property
+    def state_id(self):
+        return self._state_id
+
+    @property
+    def is_deployment(self):
+        return self._is_deployment
+
+    @property
+    def contract_address(self):
+        return self._contract_address
 
     @property
     def depth(self):
@@ -73,10 +94,9 @@ class Transaction:
 
         candidate_functions = contract.fuzzing_candidate_functions
         for function in candidate_functions:
-
             s = function.z3.solver
             s.push()
-            function.z3.load_z3_state_values()
+            function.z3.load_z3_state_values(self.state_id)
             if s.check() == z3.sat:
                 res.append(function)
             s.pop()
@@ -101,10 +121,6 @@ class Transaction:
     @property
     def new_coverage(self):
         return self._new_coverage
-
-    @property
-    def status(self):
-        return self._status
 
     @property
     def weight(self):

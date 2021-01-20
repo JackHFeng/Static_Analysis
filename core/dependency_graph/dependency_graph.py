@@ -7,8 +7,8 @@
 
 
 from pydot import Dot, Node, Edge
-from ...core.declarations.contract import Contract
-from ...core.declarations.function import Function
+from src import Contract
+from src import Function
 from collections import defaultdict
 
 
