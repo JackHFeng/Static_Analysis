@@ -130,8 +130,14 @@ class Function(FunctionCall):
         self._depends_on = set()
 
         self._is_suicidal = False
+        self.has_transfer = False
+        self.has_timestamp = False
+        self.has_blocknumber = False
+        self.ct_txs = []
+        self.fuzz_counter = 0
+        self.has_new_rep_values = True
 
-        self.vulnerabilities = [False for _ in range(9)]
+        self.vulnerabilities = set()
 
         self.vulnerable_transactions = []
 
@@ -326,6 +332,14 @@ class Function(FunctionCall):
         self._opcodes[opcode.pc] = opcode
 
     @property
+    def opcodes_fully_covered(self):
+        return self.total_opcodes == self.total_covered_opcodes
+
+    @property
+    def edges_fully_covered(self):
+        return self.total_edges == self.total_covered_edges
+
+    @property
     def covered_opcodes(self):
         return self._covered_opcodes
 
@@ -515,22 +529,15 @@ class Function(FunctionCall):
         """
         res = []
         # validity check, if state variable is read by function at all.
-        sv_exist = False
 
         for sv in self._state_variables_read:
             if sv.name == name:
-                sv_exist = True
                 for fn in sv.functions_written:
                     # only returns public functions
                     if fn is not self and fn not in res and fn.visibility == 'public':
                         res.append(fn)
                 return res
-
-        if sv_exist:
-            return res
-        else:
-            raise Exception(f'state variable "{name}" is not read by function "{self.name}".')
-        # throw exception? Or just return empty array?
+        return res
 
     @property
     def summary(self):

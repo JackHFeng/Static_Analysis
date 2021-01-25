@@ -4,7 +4,10 @@ from .ct_tc import CtTc
 import definitions
 from util import get_boundary_values
 from slither.core.solidity_types.elementary_type import ElementaryType
+from py4j.protocol import Py4JError
+import logging
 
+mmlog = logging.getLogger('magic_mirror')
 
 def get_index_values_from_state(state, function):
     res = defaultdict(list)  # Parameter => list(values)
@@ -39,12 +42,16 @@ def get_index_values_from_state(state, function):
 
 
 class CtIpm:
-    def __init__(self, function):
+    def __init__(self, function, txs=[]):
         self._function = function
         self._parameters = dict()  # good to go p_name as key, ct_param as value
 
         self._rep_states = []
-        self._setter()
+        important_txs = []
+        for tx in txs:
+            if tx.new_coverage:
+                important_txs.append(tx)
+        self._setter(important_txs)
 
     def __repr__(self):
         res = []
@@ -86,13 +93,13 @@ class CtIpm:
     def ct_parameters_dic(self):
         return self._parameters
 
-    def _setter(self):
+    def _setter(self, txs):
         temp = defaultdict(lambda: defaultdict(list))  # Parameter => state => set(value)
 
-        if not self.function.rep_states:
+        if not txs:
             self._rep_states.append(None)
 
-        for state in self.function.rep_states:
+        for state in txs:
             self._rep_states.append(state)
             additional_index_values = get_index_values_from_state(state, self.function)
             for param, values in additional_index_values.items():
@@ -115,7 +122,7 @@ class CtIpm:
                 # print(f'Constraint: "{constraint_str}"  {definitions.CT_STATE_VAR_ID}   {ct_param.original_parameter.name}')
         return res
 
-    def get_ct_tc(self):
+    def get_ct_tc(self, strength):
         if not self.ct_parameters_dic:
             # handle fallback that has no parameter
             return []
@@ -123,10 +130,13 @@ class CtIpm:
         acts_config = self._configure_acts_ipm()
         acts_constraints = self._configure_acts_constraints()
         try:
-            tc_str = build_sut.initialCT(self.function.canonical_name, acts_config, acts_constraints)
-        except:
+            tc_str = build_sut.initialCT(self.function.canonical_name, acts_config, acts_constraints, strength)
+        except Py4JError:
+            mmlog.warning(f'Combinatorial Test generation for <{self.function}> timed out due to large number of representative values. Combinatorial test cases will be skipped.')
             return []
-        return self._tc_str_to_tc(tc_str)
+        res = self._tc_str_to_tc(tc_str)
+        mmlog.info(f'{len(self.rep_states)} new coverage txs received, {len(res)} ct tcs generated for <{self.function}>')
+        return res
 
     def _tc_str_to_tc(self, tc_str):
         # list of CtTc objects, .state attribute returns the state, .tc returns the actual tc with p_name as key

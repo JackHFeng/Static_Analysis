@@ -1,7 +1,7 @@
 from slither import Slither
 from .declarations.contract import Contract
 import re
-from definitions import ROOT_DIR
+from definitions import ROOT_DIR, OUTPUT_DIR
 import os
 
 
@@ -16,7 +16,7 @@ def get_sol_version(dir):
 
 def get_all_solc_versions_linux():
     from os import listdir
-    solc_dir = f'{ROOT_DIR}/linux_solc/'
+    solc_dir = f'{OUTPUT_DIR}/linux_solc/'
     solc_versions = [f for f in listdir(solc_dir)]
     return solc_versions
 
@@ -24,7 +24,7 @@ def get_all_solc_versions_linux():
 def get_all_solc_versions_nt():
     from os import listdir
     from os.path import isdir, join
-    solc_dir = f'{ROOT_DIR}/solc/'
+    solc_dir = f'{OUTPUT_DIR}/solc/'
     solc_versions = [f for f in listdir(solc_dir) if isdir(join(solc_dir, f))]
     return solc_versions
 
@@ -38,9 +38,9 @@ def compile_source(_dir, solc_version=None, solc_path=None):
         return get_slither_obj(_dir, solc_path)
     if solc_version:
         if os.name == 'posix':
-            return get_slither_obj(_dir, f'{ROOT_DIR}/linux_solc/{solc_version}')
+            return get_slither_obj(_dir, f'{OUTPUT_DIR}/linux_solc/{solc_version}')
         elif os.name == 'nt':
-            return get_slither_obj(_dir, f'{ROOT_DIR}/solc/{solc_version}/solc.exe')
+            return get_slither_obj(_dir, f'{OUTPUT_DIR}/solc/{solc_version}/solc.exe')
         else:
             raise Exception('Currently executing on a unsupported OS. ')
 
@@ -61,7 +61,7 @@ def compile_nt(_dir):
             all_sol_versions.insert(0, solc_version)
     for version in all_sol_versions:
         try:
-            return get_slither_obj(_dir, f'{ROOT_DIR}/solc/{version}/solc.exe')
+            return get_slither_obj(_dir, f'{OUTPUT_DIR}/solc/{version}/solc.exe')
         except:
             pass
     raise Exception(f'Existing solidity compilers do not work on "{_dir}", please try to provide your own solc '
@@ -77,7 +77,7 @@ def compile_linux(_dir):
             all_sol_versions.insert(0, solc_version)
     for version in all_sol_versions:
         try:
-            return get_slither_obj(_dir, f'{ROOT_DIR}/linux_solc/{version}/solc')
+            return get_slither_obj(_dir, f'{OUTPUT_DIR}/linux_solc/{version}/solc')
         except:
             pass
     raise Exception(f'Existing solidity compilers do not work on "{_dir}", please try to provide your own solc '
