@@ -133,8 +133,11 @@ class Function(FunctionCall):
         self.has_transfer = False
         self.has_timestamp = False
         self.has_blocknumber = False
+        self.ct_txs = []
+        self.fuzz_counter = 0
+        self.has_new_rep_values = True
 
-        self.vulnerabilities = [False for _ in range(9)]
+        self.vulnerabilities = set()
 
         self.vulnerable_transactions = []
 
@@ -327,6 +330,14 @@ class Function(FunctionCall):
 
     def add_opcode(self, opcode):
         self._opcodes[opcode.pc] = opcode
+
+    @property
+    def opcodes_fully_covered(self):
+        return self.total_opcodes == self.total_covered_opcodes
+
+    @property
+    def edges_fully_covered(self):
+        return self.total_edges == self.total_covered_edges
 
     @property
     def covered_opcodes(self):

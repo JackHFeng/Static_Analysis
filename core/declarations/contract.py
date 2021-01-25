@@ -394,12 +394,20 @@ class Contract:
 
     @property
     def edges_report(self):
-        res = []
+        res = [
+            '# Format: +/- [pc entry_opcode, pc exit_opcode] => [pc start_opcode, pc end_opcode]',
+            '#          +/- : covered/uncovered opcode',
+            '#           pc : program counter',
+            '# entry_opcode : entry point of a basic block',
+            '#  exit_opcode : exit point of a basic block',
+            '#           => : control flow from one basic block to another',
+            ''
+        ]
         for edge in self.edges:
             str_start = '+' if edge in self.covered_edges else '-'
             left_block = edge[0].block
             right_block = edge[1].block
-            edge_line = f'{str_start}' \
+            edge_line = f'{str_start} ' \
                         f'[{left_block.start.pc} {left_block.start.opcode}, ' \
                         f'{left_block.end.pc} {left_block.end.opcode}] => ' \
                         f'[{right_block.start.pc} {right_block.start.opcode}, ' \
@@ -409,7 +417,16 @@ class Contract:
 
     @property
     def opcodes_report(self):
-        res = []
+        res = [
+            '# Format: +/- pc [offset, length] opcode function mapped_code',
+            '#              +/- : covered/uncovered opcode',
+            '#               pc : program counter',
+            '#           opcode : the opcode',
+            '# [offset, length] : source mapping based on source code in byte format, can be N/A if opcode does not map to any portion of the source code',
+            '#         function : the function where the opcode belongs, can be N/A if opcode maps to an entire function or contract',
+            '#      mapped_code : source code the opcode maps to, can be N/A if opcode maps to an entire function or contract',
+            ''
+        ]
         opcode = self.opcodes_dic[0]
         nl = '\n'
         while opcode:
@@ -418,12 +435,20 @@ class Contract:
                 str_start = '+'
 
             opcode_line = f'{str_start} {opcode.pc} {opcode.opcode}'
+            if opcode.source_map:
+                opcode_line += f' [{opcode.source_map[0]}, {opcode.source_map[1]}]'
+            else:
+                opcode_line += f' N/A'
 
             if opcode.original_function:
                 opcode_line += f' <{opcode.original_function}>'
+            else:
+                opcode_line += f' N/A'
 
             if opcode.source_code:
-                opcode_line += f' => "{opcode.source_code.split(nl)[0].strip()}"'
+                opcode_line += f' "{opcode.source_code.split(nl)[0].strip()}"'
+            else:
+                opcode_line += f' N/A'
 
             res.append(opcode_line)
             opcode = opcode.next

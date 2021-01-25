@@ -57,6 +57,7 @@ class Transaction:
         self._contract_address = Web3.toChecksumAddress(logger.deployed_address) if self._is_deployment else parent_transaction.contract_address
         self._can_enter_functions = None
         self.set_can_enter_functions(contract)
+        self.vulnerabilities = []
         if parent_transaction:
             parent_transaction.add_child(self)
 
